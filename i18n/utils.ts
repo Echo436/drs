@@ -26,12 +26,15 @@ export const isRTL = (): boolean => {
 export { useTranslation };
 
 // 简便的翻译函数
+// 如果没有找到对应的翻译，返回key本身
 export const t = (key: string, prefix?: string, options?: any): string => {
   if (prefix) {
-    key = `${prefix}.${key}`;
+    const prefixKey = `${prefix}.${key}`;
+    const translated = i18next.t(prefixKey, options) as string;
+    return translated === prefixKey ? key : translated;
+  } else {
+    return i18next.t(key, options) as string;
   }
-  const translated = i18next.t(key, options) as string;
-  return translated === key? key : translated;
 };
 
 /**
@@ -40,13 +43,10 @@ export const t = (key: string, prefix?: string, options?: any): string => {
  * @returns {string} 翻译后的名字字符串
  * @description
  * 1. 处理单个名字：
- *    - 英文环境直接返回原值
  *    - 其他语言尝试查找翻译，找不到则返回原值
  * 2. 处理多个名字：
- *    - 英文环境返回空格连接的原名组合
  *    - 先尝试整体翻译组合名字
  *    - 整体翻译失败时逐个翻译名字
- *    - 逐个名字翻译失败时返回原值
  *    - 中文环境使用·符号连接，其他语言使用空格连接
  */
 export const translateName = (name: string | string[]): string => {
@@ -57,34 +57,23 @@ export const translateName = (name: string | string[]): string => {
     if (currentLang === 'en') {
       return name;
     }
-    const translated = t(`name.${name}`);
-    // 找不到翻译时返回原值
-    return translated === `name.${name}` ? name : translated;
+    return t(name, 'name');
   }
 
   // 处理多个名字的情况
   // 组合为整体名字
   const combinedName = name.join(' ');
 
-  // 英文环境直接返回组合名
-  if (currentLang === 'en') {
-    return combinedName;
-  }
-
   // 尝试翻译整体名字
-  const translatedCombinedName = t(`name.${combinedName}`);
+  const translatedCombinedName = t(combinedName, 'name');
 
   // 整体翻译成功，直接返回
-  if (translatedCombinedName !== `name.${combinedName}`) {
+  if (translatedCombinedName !== combinedName) {
     return translatedCombinedName;
   }
 
   // 整体翻译失败，逐个翻译每个名字
-  const translatedNames = name.map(n => {
-    const translation = t(`name.${n}`);
-    // 找不到翻译时返回原值
-    return translation === `name.${n}` ? n : translation;
-  });
+  const translatedNames = name.map(n =>  t(n, 'name'));
 
   // 根据语言环境选择连接符
   return currentLang === 'zh' ? translatedNames.join('·') : translatedNames.join(' ');
