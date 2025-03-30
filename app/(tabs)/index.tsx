@@ -1,7 +1,6 @@
-import { ThemedText } from '@/components/ThemedText';
+import { Redirect } from "expo-router";
 
-export default function HomeScreen() {
-  return (
-    <ThemedText>123123123123123</ThemedText>
-  );
-}
+const Index = () => {
+	return <Redirect href="/grand-prix/current" />;
+};
+export default Index;
