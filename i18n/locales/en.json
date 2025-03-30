@@ -1,0 +1,35 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "back": "Back",
+    "save": "Save"
+  },
+  "tabs": {
+    "GrandPrix": "GrandPrix",
+    "Standings": "Standings",
+    "Current": "Current",
+    "Season": "Season",
+    "Drivers": "Drivers",
+    "Constructors": "Constructors",
+    "Teams": "Teams"
+  },
+  "grandPrix": {
+    "current": "Current Grand Prix",
+    "season": "Season",
+    "race": "Race",
+    "qualifying": "Qualifying",
+    "practice": "Practice",
+    "sprint": "Sprint"
+  },
+  "standings": {
+    "driver": "Driver",
+    "constructor": "Constructor",
+    "points": "Points",
+    "wins": "Wins",
+    "podiums": "Podiums"
+  }
+}

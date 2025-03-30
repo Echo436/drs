@@ -9,6 +9,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { F1DataProvider } from '@/context/F1DataContext';
+import { I18nProvider } from '@/i18n/I18nProvider';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -32,13 +33,15 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <F1DataProvider>
-        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="+Stackound" />
-          </Stack>
-          <StatusBar style="auto" />
-        </ThemeProvider>
+        <I18nProvider>
+          <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+            <Stack>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="+Stackound" />
+            </Stack>
+            <StatusBar style="auto" />
+          </ThemeProvider>
+        </I18nProvider>
       </F1DataProvider>
     </GestureHandlerRootView>
   );
