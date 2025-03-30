@@ -3,11 +3,12 @@ import { CapsuleTabSwitch } from '@/components/CapsuleTabSwitch';
 import { ThemedView } from '@/components/ThemedView';
 import { StyleSheet } from 'react-native';
 import { Slot, useRouter } from 'expo-router';
+import { t } from '@/i18n/utils';
 
 export default function GrandPrixLayout() {
     const router = useRouter();
     const [activeTab, setActiveTab] = useState<'driver' | 'constructor'>('driver');
-    
+
     const handleTabChange = useCallback((tabKey: string) => {
         setActiveTab(tabKey as 'driver' | 'constructor');
         switch (tabKey) {
@@ -19,16 +20,16 @@ export default function GrandPrixLayout() {
                 break;
         }
     }, [router]);
-    
+
     // 在组件挂载时执行一次handleTabChange
     useEffect(() => {
         handleTabChange(activeTab);
     }, [handleTabChange]);
-    
+
     const renderHeader = () => {
         const tabs = [
-            { key: 'driver', label: '车手' },
-            { key: 'constructor', label: '制造商' }
+            { key: 'driver', label: t('Drivers', 'tabs') },
+            { key: 'constructor', label: t('Teams', 'tabs') }
         ];
 
         // 渲染胶囊切换组件

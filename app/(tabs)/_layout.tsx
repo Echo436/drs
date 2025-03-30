@@ -8,6 +8,8 @@ import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
+import { t } from '@/i18n/utils';
+
 export default function TabLayout() {
   const colorScheme = useColorScheme();
 
@@ -30,14 +32,14 @@ export default function TabLayout() {
       <Tabs.Screen
         name="grand-prix"
         options={{
-          title: '大奖赛',
+          title: t('GrandPrix', 'tabs'),
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="flag.checkered" color={color} />,
         }}
       />
       <Tabs.Screen
         name="standings"
         options={{
-          title: '积分榜',
+          title: t('Standings', 'tabs'),
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="chart.bar" color={color} />,
         }}
       />

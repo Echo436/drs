@@ -3,11 +3,12 @@ import { CapsuleTabSwitch } from '@/components/CapsuleTabSwitch';
 import { ThemedView } from '@/components/ThemedView';
 import { StyleSheet } from 'react-native';
 import { Slot, useRouter } from 'expo-router';
+import { t } from '@/i18n/utils';
 
 export default function GrandPrixLayout() {
     const router = useRouter();
     const [activeTab, setActiveTab] = useState<'current' | 'season'>('current');
-    
+
     const handleTabChange = useCallback((tabKey: string) => {
         setActiveTab(tabKey as 'current' | 'season');
         switch (tabKey) {
@@ -19,16 +20,16 @@ export default function GrandPrixLayout() {
                 break;
         }
     }, [router]);
-    
+
     // 在组件挂载时执行一次handleTabChange
     useEffect(() => {
         handleTabChange(activeTab);
     }, [handleTabChange]);
-    
+
     const renderHeader = () => {
         const tabs = [
-            { key: 'current', label: '当前大奖赛' },
-            { key: 'season', label: '赛季' }
+            { key: 'current', label: t('Current', 'tabs') },
+            { key: 'season', label: t('Season', 'tabs') }
         ];
 
         // 渲染胶囊切换组件
