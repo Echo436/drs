@@ -3,6 +3,7 @@ import { ConstructorStanding, useF1Data } from "@/context/F1DataContext";
 import React from "react";
 import { View, StyleSheet } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
+import { t } from "@/i18n/utils";
 
 export default function ConstructorList() {
     const { constructorList, loading, error, refreshData } = useF1Data();
@@ -11,7 +12,7 @@ export default function ConstructorList() {
         return (
             <View style={styles.itemContainer}>
                 {/* 制造商名称 - 使用半粗体样式 */}
-                <ThemedText type="defaultSemiBold">{item.team.teamName}</ThemedText>
+                <ThemedText type="defaultSemiBold">{t(item.team.teamName, 'team')}</ThemedText>
             </View>
         );
     };

@@ -3,6 +3,7 @@ import { DriverStanding, useF1Data } from "@/context/F1DataContext";
 import React from "react";
 import { View, StyleSheet } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
+import { t, translateName } from '@/i18n/utils';
 
 export default function ConstructorList() {
     const { driverList, loading, error, refreshData } = useF1Data();
@@ -10,8 +11,8 @@ export default function ConstructorList() {
     const renderItem = ({ item }: { item: DriverStanding }) => {
         return (
             <View style={styles.itemContainer}>
-                {/* 制造商名称 - 使用半粗体样式 */}
-                <ThemedText type="defaultSemiBold">{item.driver.name}</ThemedText>
+                {/* 车手名字 - 使用半粗体样式 */}
+                <ThemedText type="defaultSemiBold">{translateName([item.driver.name, item.driver.surname])}</ThemedText>
             </View>
         );
     };
