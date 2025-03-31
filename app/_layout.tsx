@@ -13,12 +13,40 @@ import { I18nProvider } from '@/i18n/I18nProvider';
 
 import store from '@/storage/configureStore';
 import { Provider } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '@/hooks/useReduxHooks';
+import { setPrimaryColor } from '@/storage/themeSlice';
+
+import storage from '@/storage/storage';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
+function ThemeWrapper() {
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    // 加载持久化存储的强调色
+    storage.load({key: 'primary-color'}).then(res => {
+      if (res) {
+        dispatch(setPrimaryColor(res));
+      }
+    })
+  }, [dispatch]);
+
   const colorScheme = useColorScheme();
+
+  return (
+    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="+Stackound" />
+      </Stack>
+      <StatusBar style="auto" />
+    </ThemeProvider>
+  );
+}
+
+export default function RootLayout() {
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
@@ -38,13 +66,7 @@ export default function RootLayout() {
       <Provider store={store}>
         <F1DataProvider>
           <I18nProvider>
-            <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-              <Stack>
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                <Stack.Screen name="+Stackound" />
-              </Stack>
-              <StatusBar style="auto" />
-            </ThemeProvider>
+            <ThemeWrapper />
           </I18nProvider>
         </F1DataProvider>
       </Provider>
