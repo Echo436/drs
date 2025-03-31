@@ -11,6 +11,9 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { F1DataProvider } from '@/context/F1DataContext';
 import { I18nProvider } from '@/i18n/I18nProvider';
 
+import store from '@/storage/configureStore';
+import { Provider } from 'react-redux';
+
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
@@ -32,17 +35,19 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <F1DataProvider>
-        <I18nProvider>
-          <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-            <Stack>
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              <Stack.Screen name="+Stackound" />
-            </Stack>
-            <StatusBar style="auto" />
-          </ThemeProvider>
-        </I18nProvider>
-      </F1DataProvider>
+      <Provider store={store}>
+        <F1DataProvider>
+          <I18nProvider>
+            <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+              <Stack>
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen name="+Stackound" />
+              </Stack>
+              <StatusBar style="auto" />
+            </ThemeProvider>
+          </I18nProvider>
+        </F1DataProvider>
+      </Provider>
     </GestureHandlerRootView>
   );
 }
