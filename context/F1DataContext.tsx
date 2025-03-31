@@ -3,6 +3,7 @@ import { Constructor } from 'react-native/types/private/Utilities';
 
 // 车手数据类型
 export type Driver = {
+    driverId: string;
     name: string;
     surname: string;
     nationality: string;
@@ -10,11 +11,13 @@ export type Driver = {
     number: number;
     shortName: string;
     url: string;
+    teamId: string;
 };
 // 制造商数据类型
 export type Team = {
     teamId: string;
     teamName: string;
+    team_colour: string;
     country: string;
     firstAppearance: number;
     constructorsChampionships: number;
@@ -91,10 +94,25 @@ export type ConstructorStanding = {
     wins: number;
     team: Team;
 }
+export type Drivers_openf1 = {
+    broadcast_name: string;
+    country_code: string;
+    driver_number: number;
+    first_name: string;
+    full_name: string;
+    headshot_url: string;
+    last_name: string;
+    meeting_key: number;
+    name_acronym: string;
+    session_key: number;
+    team_colour: string;
+    team_name: string;
+}
 // 定义Context的类型
 type F1DataContextType = {
     grandPrixList: GrandPrix[];
-    driverList: DriverStanding[];
+    driverStandingList: DriverStanding[];
+    driverOpenf1List: Drivers_openf1[];
     constructorList: ConstructorStanding[];
     loading: boolean;
     error: string | null;
@@ -108,6 +126,7 @@ const F1DataContext = createContext<F1DataContextType | undefined>(undefined);
 export const F1DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [grandPrixList, setGrandPrixList] = useState<GrandPrix[]>([]);
     const [driverList, setDriverList] = useState<DriverStanding[]>([]);
+    const [driverLatestSessionOpenf1List, setDriverLatestSessionOpenf1List] = useState<Drivers_openf1[]>([]);
     const [constructorList, setConstructorList] = useState<ConstructorStanding[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -117,11 +136,11 @@ export const F1DataProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         try {
             setLoading(true);
             setError(null);
-            const response = await fetch('https://f1api.dev/api/current');
-            const data = await response.json();
+            const response = await fetch('https://f1api.dev/api/current')
+                .then(response => response.json());
 
-            if (data && data.races && Array.isArray(data.races)) {
-                setGrandPrixList(data.races);
+            if (response && response.races && Array.isArray(response.races)) {
+                setGrandPrixList(response.races);
             } else {
                 setError('大奖赛数据格式不正确');
             }
@@ -136,11 +155,11 @@ export const F1DataProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     // 获取F1车手数据的函数
     const fetchDriverData = async () => {
         try {
-            const response = await fetch('https://f1api.dev/api/current/drivers-championship');
-            const data = await response.json();
+            const response = await fetch('https://f1api.dev/api/current/drivers-championship')
+                .then(response => response.json());
 
-            if (data && data.drivers_championship && Array.isArray(data.drivers_championship)) {
-                setDriverList(data.drivers_championship);
+            if (response && response.drivers_championship && Array.isArray(response.drivers_championship)) {
+                setDriverList(response.drivers_championship);
             } else {
                 setError('车手数据格式不正确');
             }
@@ -155,16 +174,34 @@ export const F1DataProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     // 获取F1制造商数据的函数
     const fetchConstructorData = async () => {
         try {
-            const response = await fetch('https://f1api.dev/api/current/constructors-championship');
-            const data = await response.json();
+            const response = await fetch('https://f1api.dev/api/current/constructors-championship')
+                .then(response => response.json());
 
-            if (data && data.constructors_championship && Array.isArray(data.constructors_championship)) {
-                setConstructorList(data.constructors_championship);
+            if (response && response.constructors_championship && Array.isArray(response.constructors_championship)) {
+                setConstructorList(response.constructors_championship);
             } else {
                 setError('制造商数据格式不正确');
             }
         } catch (err) {
             setError('获取制造商数据失败，请稍后重试');
+            console.error('Error fetching F1 constructor data:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchDriverLatestSessionOpenF1Data = async () => {
+        try {
+            const response = await fetch('https://api.openf1.org/v1/drivers?session_key=latest')
+                .then(response => response.json());
+
+            if (response && Array.isArray(response)) {
+                setDriverLatestSessionOpenf1List(response);
+            } else {
+                setError('数据格式不正确');
+            }
+        } catch (err) {
+            setError('获取数据失败，请稍后重试');
             console.error('Error fetching F1 constructor data:', err);
         } finally {
             setLoading(false);
@@ -187,7 +224,8 @@ export const F1DataProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     // 提供Context值
     const contextValue: F1DataContextType = {
         grandPrixList,
-        driverList,
+        driverStandingList: driverList,
+        driverOpenf1List: driverLatestSessionOpenf1List,
         constructorList,
         loading,
         error,

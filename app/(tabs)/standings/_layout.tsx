@@ -1,7 +1,8 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { CapsuleTabSwitch } from '@/components/CapsuleTabSwitch';
 import { ThemedView } from '@/components/ThemedView';
-import { StyleSheet } from 'react-native';
+import { ThemedText } from "@/components/ThemedText";
+import { View, StyleSheet } from 'react-native';
 import { Slot, useRouter } from 'expo-router';
 import { t } from '@/i18n/utils';
 
@@ -32,13 +33,19 @@ export default function GrandPrixLayout() {
             { key: 'constructor', label: t('Teams', 'tabs') }
         ];
 
-        // 渲染胶囊切换组件
         return (
-            <CapsuleTabSwitch
-                tabs={tabs}
-                activeTab={activeTab}
-                onTabChange={handleTabChange}
-            />
+            <ThemedView style={styles.headerContainer}>
+                <View style={styles.tabSwitchContainer}>
+                    <CapsuleTabSwitch
+                        tabs={tabs}
+                        activeTab={activeTab}
+                        onTabChange={handleTabChange}
+                    />
+                </View>
+                <View style={styles.scoreTextContainer}>
+                    <ThemedText style={styles.scoreText}>{t('points', 'tabs')}</ThemedText>
+                </View>
+            </ThemedView>
         );
     };
     return (
@@ -51,7 +58,30 @@ export default function GrandPrixLayout() {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,           // 占满整个屏幕
-        paddingTop: 50,    // 为状态栏留出空间
+        flex: 1,
+        paddingTop: 50,
+    },
+    headerContainer: {
+        flexDirection: 'row',
+        alignItems: 'flex-end',
+        justifyContent: 'space-between',
+        paddingHorizontal: 16,
+    },
+    tabSwitchContainer: {
+        position: 'relative',
+        left: '50%',
+        top: '50%',
+        transform: 'translate(-50%, -50%)',
+    },
+    scoreTextContainer: {
+        width: '10%',
+        marginRight: 14.5,
+        marginBottom: 5,
+    },
+    scoreText: {
+        fontSize: 10,
+        fontWeight: '600',
+        color: '#5F5F5F',
+        textAlign: 'center',
     },
 });

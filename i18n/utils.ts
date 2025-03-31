@@ -78,3 +78,8 @@ export const translateName = (name: string | string[]): string => {
   // 根据语言环境选择连接符
   return currentLang === 'zh' ? translatedNames.join('·') : translatedNames.join(' ');
 };
+
+export const translateGPName = (raceId: string): string => {
+  const raceIdWithoutYear = raceId.replace(/_\d{4}$/, '');
+  return t(raceIdWithoutYear, 'GrandPrix');
+}

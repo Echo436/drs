@@ -15,7 +15,9 @@
     "Season": "Season",
     "Drivers": "Drivers",
     "Constructors": "Constructors",
-    "Teams": "Teams"
+    "Teams": "Teams",
+    "points": "PTS",
+    "settings": "Settings"
   },
   "grandPrix": {
     "current": "Current Grand Prix",
@@ -31,5 +33,43 @@
     "points": "Points",
     "wins": "Wins",
     "podiums": "Podiums"
+  },
+  "team": {
+    "mercedes": "Mercedes",
+    "ferrari": "Ferrari",
+    "red_bull": "Red Bull",
+    "alpine": "Alpine",
+    "mclaren": "Mclaren",
+    "aston_martin": "Aston Martin",
+    "sauber": "Kick Sauber",
+    "haas": "Hass",
+    "williams": "williams",
+    "rb": "RB"
+  },
+  "GrandPrix": {
+    "australian": "Australian GP",
+    "chinese": "Chinese GP",
+    "japanese": "Japanese GP",
+    "bahrain": "Bahrain GP",
+    "saudi_arabia": "Saudi Arabia GP",
+    "miami": "Miami GP",
+    "emilia_romagna": "Emilia Romagna GP",
+    "monaco": "Monaco GP",
+    "spanish": "Spanish GP",
+    "canadian": "Canadian GP",
+    "austrian": "Austrian GP",
+    "british": "British GP",
+    "belgian": "Belgian GP",
+    "hungarian": "Hungarian GP",
+    "dutch": "Dutch GP",
+    "italian": "Italian GP",
+    "azerbaijan": "Azerbaijan GP",
+    "singapore": "Singapore GP",
+    "united_states": "United States GP",
+    "mexican": "Mexico City GP",
+    "brazilian": "São Paulo GP",
+    "las_vegas": "Las Vegas GP",
+    "qatar": "Qatar GP",
+    "abu_dhabi": "Abu Dhabi GP"
   }
 }

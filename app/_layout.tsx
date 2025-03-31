@@ -48,7 +48,11 @@ function ThemeWrapper() {
 
 export default function RootLayout() {
   const [loaded] = useFonts({
+    // 添加字体需要在这里配置字体名称和对应的字体文件路径
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    'Formula1-Bold': require('../assets/fonts/Formula1-Bold_web_0.ttf'),
+    'Formula1-Regular': require('../assets/fonts/Formula1-Regular_web_0.ttf'),
+    'Formula1-Wide': require('../assets/fonts/Formula1-Wide_web_0.ttf'),
   });
 
   useEffect(() => {

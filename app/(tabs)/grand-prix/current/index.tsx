@@ -1,11 +1,18 @@
 import { ThemedText } from "@/components/ThemedText";
 import { useF1Data } from "@/context/F1DataContext";
 import React from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Button } from "react-native";
+import { t, translateGPName } from "@/i18n/utils";
+import storage from "@/storage/storage";
+
+import { useAppSelector, useAppDispatch } from '@/hooks/useReduxHooks';
+import { setPrimaryColor } from '@/storage/themeSlice';
+
+import { getLoadedFonts, useFonts } from 'expo-font';
 
 export default function CurrentGrandPrix() {
-    const { grandPrixList, loading, error } = useF1Data();
-    
+const { grandPrixList, loading, error } = useF1Data();
+
     // 获取当前或下一个大奖赛（简单实现：取第一个）
     const currentGP = grandPrixList && grandPrixList.length > 0 ? grandPrixList[0] : null;
 
@@ -40,13 +47,13 @@ export default function CurrentGrandPrix() {
     return (
         <View style={styles.container}>
             <View style={styles.headerContainer}>
-                <ThemedText type="title">{currentGP.raceName}</ThemedText>
+                <ThemedText type="title">{translateGPName(currentGP.raceId)}</ThemedText>
                 <ThemedText type="subtitle">
                     {currentGP.circuit.city || currentGP.circuit.country}
                 </ThemedText>
                 <ThemedText>{currentGP.schedule.race.date}</ThemedText>
             </View>
-            
+
             <View style={styles.infoContainer}>
                 <ThemedText type="defaultSemiBold">赛道信息</ThemedText>
                 <ThemedText>赛道名称: {currentGP.circuit.circuitName}</ThemedText>

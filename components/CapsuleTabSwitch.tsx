@@ -1,6 +1,9 @@
 import React, { useRef, useEffect } from 'react';
 import { View, TouchableOpacity, StyleSheet, Animated, Easing } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
+import { Colors, getCurrentTeamColor } from '@/constants/Colors';
+
+import { useAppSelector } from '@/hooks/useReduxHooks';
 
 type Tab = {
     key: string;
@@ -26,6 +29,8 @@ export const CapsuleTabSwitch: React.FC<CapsuleTabSwitchProps> = ({
     containerStyle,
     tabSelectorStyle,
 }) => {
+    const primaryColor = useAppSelector(state => state.theme.primaryColor);
+
     // 创建动画值用于胶囊切换组件的滑动效果
     const slideAnimation = useRef(new Animated.Value(0)).current;
 
@@ -52,7 +57,8 @@ export const CapsuleTabSwitch: React.FC<CapsuleTabSwitchProps> = ({
                 {/* 滑动指示器 */}
                 <Animated.View 
                     style={[styles.slideIndicator, {
-                        transform: [{ translateX }, { translateX: '-50%' }, { translateY: '-50%' }]
+                        transform: [{ translateX }, { translateX: '-50%' }, { translateY: '-50%' }],
+                        backgroundColor: primaryColor
                     }]}
                 />
                 {/* 标签按钮 */}
@@ -101,7 +107,6 @@ const styles = StyleSheet.create({
         position: 'absolute',
         width: 84,
         height: 30,
-        backgroundColor: 'rgba(255, 68, 0, 0.8)',
         borderRadius: 20,
         zIndex: 1,
         left: 0,
@@ -111,7 +116,7 @@ const styles = StyleSheet.create({
         fontSize: 12,
     },
     activeTabText: {
-        color: 'white',
+        color: Colors.dark.text,
         fontWeight: 'bold',
     },
 });

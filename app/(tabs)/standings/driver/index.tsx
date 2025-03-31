@@ -4,15 +4,26 @@ import React from "react";
 import { View, StyleSheet } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import { t, translateName } from '@/i18n/utils';
+import renderSeparator from "@/components/ui/RenderSeparator";
+import { layoutStyles } from "@/components/ui/Styles";
+import { getTeamsColor } from "@/constants/Colors";
 
 export default function ConstructorList() {
-    const { driverList, loading, error, refreshData } = useF1Data();
+    const { driverStandingList: driverList, loading, error, refreshData } = useF1Data();
 
     const renderItem = ({ item }: { item: DriverStanding }) => {
         return (
             <View style={styles.itemContainer}>
-                {/* 车手名字 - 使用半粗体样式 */}
-                <ThemedText type="defaultSemiBold">{translateName([item.driver.name, item.driver.surname])}</ThemedText>
+                <View style={styles.positionContainer}>
+                    <ThemedText style={styles.posisionText}>{String(item.position).padStart(2, '0')}</ThemedText>
+                </View>
+                <View style={styles.driverInfoContainer}>
+                    <ThemedText type="itemtitle">{translateName([item.driver.name, item.driver.surname])}</ThemedText>
+                    <ThemedText type="itemsubtitle" style={{color: getTeamsColor(item.teamId)}}>{t(item.team.teamId, 'team')}</ThemedText>
+                </View>
+                <View style={styles.pointsContainer}>
+                    <ThemedText style={styles.pointText}>{item.points}</ThemedText>
+                </View>
             </View>
         );
     };
@@ -20,7 +31,7 @@ export default function ConstructorList() {
     // 如果正在加载，显示加载信息
     if (loading) {
         return (
-            <View style={styles.centerContainer}>
+            <View style={layoutStyles.centerContainer}>
                 <ThemedText>加载中...</ThemedText>
             </View>
         );
@@ -29,7 +40,7 @@ export default function ConstructorList() {
     // 如果有错误，显示错误信息
     if (error) {
         return (
-            <View style={styles.centerContainer}>
+            <View style={layoutStyles.centerContainer}>
                 <ThemedText>{error}</ThemedText>
             </View>
         );
@@ -41,23 +52,37 @@ export default function ConstructorList() {
             data={driverList}
             renderItem={renderItem}
             keyExtractor={(item) => item.driverId}
-            contentContainerStyle={styles.listContainer}
+            ItemSeparatorComponent={renderSeparator}
+            contentContainerStyle={layoutStyles.listContainer}
         />
     );
 }
 
 const styles = StyleSheet.create({
     itemContainer: {
-        padding: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: '#e0e0e0',
-    },
-    centerContainer: {
-        flex: 1,
-        justifyContent: 'center',
+        paddingHorizontal: 18,
+        paddingVertical:10,
+        flexDirection: 'row',
         alignItems: 'center',
     },
-    listContainer: {
-        paddingBottom: 20,
+    positionContainer: {
+        width: 30,
+        marginRight: 15,
     },
+    posisionText: {
+        fontFamily: 'Formula1-Display-Regular',
+        fontSize: 14,
+        textAlign: 'center'
+    },
+    driverInfoContainer: {
+        flex: 1,
+    },
+    pointsContainer: {
+        width: 30,
+    },
+    pointText: {
+        fontFamily: 'Formula1-Display-Bold',
+        fontSize: 14,
+        textAlign: 'center',
+    }
 });
