@@ -55,13 +55,13 @@ export default function GrandPrixDetail() {
             {/* 使用Stack.Screen覆盖默认header */}
             <Stack.Screen
                 options={{
-                    headerShown: false, // 隐藏默认header
-                    animation: 'slide_from_right', // 使用原生滑动动画
+                    // headerShown: false, // 隐藏默认header
+                    // animation: 'slide_from_right', // 使用原生滑动动画
                 }}
             />
 
             {/* 自定义顶部导航栏 */}
-            <View style={styles.header}>
+            {/* <View style={styles.header}>
                 <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
                     <IconSymbol name="chevron.left" size={24} color={primaryColor} />
                 </TouchableOpacity>
@@ -69,7 +69,7 @@ export default function GrandPrixDetail() {
                     {translateGPName(raceId)}
                 </ThemedText>
                 <View style={styles.placeholder} />
-            </View>
+            </View> */}
 
             {/* 内容区域 */}
             <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
