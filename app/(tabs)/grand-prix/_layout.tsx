@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { CapsuleTabSwitch } from '@/components/CapsuleTabSwitch';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from "@/components/ThemedText";
@@ -7,40 +7,64 @@ import { t } from '@/i18n/utils';
 import Current from './current';
 import Season from './season';
 
-// 积分榜布局组件，包含车手和车队两个标签页，支持左右滑动切换
+// 大奖赛布局组件，包含当前大奖赛和赛季两个标签页，支持左右滑动切换
 export default function StandingsLayout() {
-    // 当前激活的标签页状态，可以是'current'(车手)或'season'(车队)
+    // 当前激活的标签页状态，可以是'current'(当前大奖赛)或'season'(赛季)
     const [activeTab, setActiveTab] = useState<'current' | 'season'>('current');
     // ScrollView的引用，用于编程式控制滚动位置
     const scrollViewRef = useRef<ScrollView>(null);
     // 获取屏幕宽度，用于计算滚动距离和页面宽度
     const screenWidth = Dimensions.get('window').width;
+    // 是否监听滚动事件的状态，用于在标签点击切换时暂停监听
+    const [isScrollListenerEnabled, setIsScrollListenerEnabled] = useState(true);
 
     // 处理标签切换的回调函数
     const handleTabChange = useCallback((tabKey: string) => {
         // 更新激活的标签页
         setActiveTab(tabKey as 'current' | 'season');
+        // 暂停滚动监听，避免在编程式滚动过程中触发重复更新
+        setIsScrollListenerEnabled(false);
         // 计算目标页面索引并滚动到对应位置
         const pageIndex = tabKey === 'current' ? 0 : 1;
         scrollViewRef.current?.scrollTo({
             x: pageIndex * screenWidth,
             animated: true
         });
+        
+        // 设置定时器，在滚动动画完成后重新启用滚动监听
+        // 通常滚动动画持续约300ms
+        setTimeout(() => {
+            setIsScrollListenerEnabled(true);
+        }, 300);
     }, [screenWidth]);
 
-    // 处理滚动结束事件的回调函数
+    // 处理滚动事件的回调函数，实时监听滑动偏移量
     const handleScroll = useCallback((event: any) => {
+        // 如果滚动监听被禁用，则直接返回不处理
+        if (!isScrollListenerEnabled) return;
+        
         // 获取当前水平滚动偏移量
         const offsetX = event.nativeEvent.contentOffset.x;
-        // 根据偏移量计算当前页面索引
-        const pageIndex = Math.round(offsetX / screenWidth);
-        // 根据页面索引确定当前标签页
-        const newTab = pageIndex === 0 ? 'current' : 'season';
-        // 如果标签页发生变化，则更新状态
-        if (newTab !== activeTab) {
-            setActiveTab(newTab);
+        // 计算当前位置相对于页面宽度的比例
+        const ratio = offsetX / screenWidth;
+        // 计算当前页面索引（向下取整，得到当前所在页面的索引）
+        const currentPageIndex = Math.floor(ratio);
+        // 计算滑动进度（在当前页面内的滑动比例）
+        const progress = ratio - currentPageIndex;
+        
+        // 当滑动超过50%时，更新标签状态
+        if (progress >= 0.5) {
+            const newTab = currentPageIndex === 0 ? 'season' : 'current';
+            if (newTab !== activeTab) {
+                setActiveTab(newTab);
+            }
+        } else {
+            const newTab = currentPageIndex === 0 ? 'current' : 'season';
+            if (newTab !== activeTab) {
+                setActiveTab(newTab);
+            }
         }
-    }, [screenWidth, activeTab]);
+    }, [screenWidth, activeTab, isScrollListenerEnabled]);
 
     // 渲染页面头部，包含标签切换器和积分文本
     const renderHeader = () => {
@@ -74,15 +98,15 @@ export default function StandingsLayout() {
                 horizontal
                 pagingEnabled
                 showsHorizontalScrollIndicator={false}
-                onMomentumScrollEnd={handleScroll}
+                onScroll={handleScroll}
                 scrollEventThrottle={16}
                 style={styles.scrollView}
             >
-                {/* 车手积分榜页面 */}
+                {/* 当前大奖赛积分榜页面 */}
                 <View style={[styles.page, { width: screenWidth }]}>
                     <Current />
                 </View>
-                {/* 车队积分榜页面 */}
+                {/* 赛季积分榜页面 */}
                 <View style={[styles.page, { width: screenWidth }]}>
                     <Season />
                 </View>
