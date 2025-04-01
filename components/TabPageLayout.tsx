@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingBottom: 10,
         overflow: 'hidden', // 确保BlurView不会溢出容器
-        borderWidth: 0.2,
+        borderBottomWidth: 0.2,
     },
     // 标签切换器容器样式，居中定位
     tabSwitchContainer: {

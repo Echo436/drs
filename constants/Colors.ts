@@ -31,22 +31,24 @@ export function getTeamsColor(team: string): string {
 export const Colors = {
   light: {
     text: '#11181C',
-    background: '#fff',
+    background: '#FFFFFF',
     tint: tintColorLight,
     icon: '#687076',
     tabIconDefault: '#687076',
     tabIconSelected: tintColorLight,
-    tabSwitcherBackground: 'rgb(226, 226, 226)',
+    tabSwitcherBackground: 'rgb(239, 239, 239)',
     headerBorder: 'rgba(180, 180, 180, 0.34)',
+    listSeparator: 'rgba(210, 210, 210, 0.5)',
   },
   dark: {
     text: '#ECEDEE',
-    background: '#151718',
+    background: '#000000',
     tint: tintColorDark,
     icon: '#9BA1A6',
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,
-    tabSwitcherBackground: 'rgb(60, 60, 60)',
+    tabSwitcherBackground: 'rgb(41, 41, 41)',
     headerBorder: 'rgba(88, 88, 88, 0.34)',
+    listSeparator: 'rgba(67, 67, 67, 0.5)',
   },
 };

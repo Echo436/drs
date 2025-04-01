@@ -22,6 +22,9 @@ export default function Settings() {
       <Button title="红牛" onPress={() => {
         dispatch(setPrimaryColor(getTeamsColor('red_bull')));
       }} />
+      <Button title="梅赛德斯" onPress={() => {
+        dispatch(setPrimaryColor(getTeamsColor('mercedes')));
+      }} />
     </View>
   );
 }

@@ -23,10 +23,10 @@ export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
 
     // 导航到大奖赛详情页面
     const navigateToGrandPrix = (raceId: string) => {
-        router.push(`/${raceId}`);
+        // router.push(`/race/${raceId}`);
 
         // TODO 当选择的是当前大奖赛时，切换到current
-        // onTabChange('current');
+        onTabChange('first');
     };
 
     const renderItem = ({ item }: { item: GrandPrix }) => {
