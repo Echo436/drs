@@ -4,6 +4,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { Colors } from '@/constants/Colors';
 
 import { useAppSelector } from '@/hooks/useReduxHooks';
+import { useThemeColor } from '@/hooks/useThemeColor';
 
 type Tab = {
     key: string;
@@ -30,6 +31,7 @@ export const CapsuleTabSwitch: React.FC<CapsuleTabSwitchProps> = ({
     tabSelectorStyle,
 }) => {
     const primaryColor = useAppSelector(state => state.theme.primaryColor);
+    const baseColor = useThemeColor({}, 'tabSwitcherBackground')
 
     // 创建动画值用于胶囊切换组件的滑动效果
     const slideAnimation = useRef(new Animated.Value(0)).current;
@@ -40,7 +42,7 @@ export const CapsuleTabSwitch: React.FC<CapsuleTabSwitchProps> = ({
         Animated.timing(slideAnimation, {
             toValue: activeIndex,
             duration: 335,
-            easing: Easing.bezier(.39,1,.32,1),
+            easing: Easing.bezier(.39, 1, .32, 1),
             useNativeDriver: true,
         }).start();
     }, [activeTab, tabs, slideAnimation]);
@@ -53,9 +55,9 @@ export const CapsuleTabSwitch: React.FC<CapsuleTabSwitchProps> = ({
 
     return (
         <View style={[styles.tabContainer, containerStyle]}>
-            <View style={[styles.tabSelector, tabSelectorStyle]}>
+            <View style={[{backgroundColor: baseColor}, styles.tabSelector, tabSelectorStyle]}>
                 {/* 滑动指示器 */}
-                <Animated.View 
+                <Animated.View
                     style={[styles.slideIndicator, {
                         transform: [{ translateX }, { translateX: '-50%' }, { translateY: '-50%' }],
                         backgroundColor: primaryColor
@@ -68,8 +70,11 @@ export const CapsuleTabSwitch: React.FC<CapsuleTabSwitchProps> = ({
                         style={styles.tab}
                         onPress={() => onTabChange(tab.key)}
                     >
-                        <ThemedText 
-                            style={[styles.tabText, activeTab === tab.key && styles.activeTabText]}
+                        <ThemedText
+                            style={[
+                                styles.tabText,
+                                activeTab === tab.key ? styles.activeTabText : null
+                            ]}
                         >
                             {tab.label}
                         </ThemedText>
@@ -90,7 +95,7 @@ const styles = StyleSheet.create({
         height: 35,
         width: 180,
         flexDirection: 'row',
-        backgroundColor: 'rgba(151, 151, 151, 0.2)',
+        // backgroundColor: 'rgba(151, 151, 151, 0.2)',
         borderRadius: 20,
         position: 'relative',
     },
@@ -109,12 +114,20 @@ const styles = StyleSheet.create({
         zIndex: 1,
         left: 0,
         top: '50%',
+        shadowColor: 'rgba(0, 0, 0, 1)',
+        shadowOffset: { width: 0, height: 0.6 },
+        shadowOpacity: 0.2,
+        shadowRadius: 2,
     },
     tabText: {
         fontSize: 12,
+        textShadowColor: 'rgba(0, 0, 0, 0.3)',
+        textShadowOffset: { width: 0, height: 0.6 },
+        textShadowRadius: 2.5,
     },
     activeTabText: {
         color: Colors.dark.text,
         fontWeight: 'bold',
+        textShadowRadius: 2,
     },
 });
