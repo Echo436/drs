@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { View, TouchableOpacity, StyleSheet, Animated, Easing } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
-import { Colors, getCurrentTeamColor } from '@/constants/Colors';
+import { Colors } from '@/constants/Colors';
 
 import { useAppSelector } from '@/hooks/useReduxHooks';
 
