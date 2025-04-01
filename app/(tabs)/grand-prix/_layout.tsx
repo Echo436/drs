@@ -2,13 +2,17 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { CapsuleTabSwitch } from '@/components/CapsuleTabSwitch';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from "@/components/ThemedText";
-import { View, StyleSheet, ScrollView, Dimensions } from 'react-native';
+import { View, StyleSheet, ScrollView, Dimensions, Platform } from 'react-native';
+import { BlurView } from 'expo-blur';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { t } from '@/i18n/utils';
 import Current from './current';
 import Season from './season';
 
 // 大奖赛布局组件，包含当前大奖赛和赛季两个标签页，支持左右滑动切换
-export default function StandingsLayout() {
+export default function GrandPrixLayout() {
+    // 获取安全区域的insets，用于计算顶部安全区域高度
+    const { top } = useSafeAreaInsets();
     // 当前激活的标签页状态，可以是'current'(当前大奖赛)或'season'(赛季)
     const [activeTab, setActiveTab] = useState<'current' | 'season'>('current');
     // ScrollView的引用，用于编程式控制滚动位置
@@ -75,8 +79,17 @@ export default function StandingsLayout() {
         ];
 
         return (
-            // 头部容器，使用主题样式
-            <ThemedView style={styles.headerContainer}>
+            // 头部容器，使用绝对定位和毛玻璃效果
+            <View style={[styles.headerContainer, { paddingTop: top }]}>
+                {Platform.OS === 'ios' ? (
+                    <BlurView
+                        tint="systemChromeMaterial"
+                        intensity={100}
+                        style={StyleSheet.absoluteFill}
+                    />
+                ) : (
+                    <ThemedView style={StyleSheet.absoluteFill} />
+                )}
                 {/* 标签切换器容器 */}
                 <View style={styles.tabSwitchContainer}>
                     <CapsuleTabSwitch
@@ -85,13 +98,12 @@ export default function StandingsLayout() {
                         onTabChange={handleTabChange}
                     />
                 </View>
-            </ThemedView>
+            </View>
         );
     };
     return (
         // 主容器，应用主题样式
         <ThemedView style={styles.container}>
-            {renderHeader()}
             {/* 水平滚动视图，支持分页效果 */}
             <ScrollView
                 ref={scrollViewRef}
@@ -101,6 +113,7 @@ export default function StandingsLayout() {
                 onScroll={handleScroll}
                 scrollEventThrottle={16}
                 style={styles.scrollView}
+                contentContainerStyle={{ paddingTop: 0 }}
             >
                 {/* 当前大奖赛积分榜页面 */}
                 <View style={[styles.page, { width: screenWidth }]}>
@@ -111,6 +124,7 @@ export default function StandingsLayout() {
                     <Season />
                 </View>
             </ScrollView>
+            {renderHeader()}
         </ThemedView>
     )
 }
@@ -125,17 +139,23 @@ const styles = StyleSheet.create({
     page: {
         flex: 1,
     },
-    // 主容器样式，设置上边距
+    // 主容器样式
     container: {
         flex: 1,
-        paddingTop: 50,
     },
-    // 头部容器样式，水平布局
+    // 头部容器样式，绝对定位实现覆盖效果
     headerContainer: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 10,
         flexDirection: 'row',
         alignItems: 'flex-end',
         justifyContent: 'space-between',
         paddingHorizontal: 16,
+        paddingBottom: 10,
+        overflow: 'hidden', // 确保BlurView不会溢出容器
     },
     // 标签切换器容器样式，居中定位
     tabSwitchContainer: {
@@ -143,5 +163,6 @@ const styles = StyleSheet.create({
         left: '50%',
         top: '50%',
         transform: 'translate(-50%, -50%)',
+        zIndex: 2, // 确保在BlurView上方
     },
 });
