@@ -1685,7 +1685,7 @@
   dependencies:
     color "^4.2.3"
 
-"@react-navigation/native-stack@^7.2.0":
+"@react-navigation/native-stack@^7.2.0", "@react-navigation/native-stack@^7.3.3":
   version "7.3.3"
   resolved "https://registry.npmmirror.com/@react-navigation/native-stack/-/native-stack-7.3.3.tgz#0b05b5aea07088ce383ae1a553eb8761fc732b49"
   integrity sha512-piUO4MzYPrdiolrB/FKU25216MPQHd+90tIE2uwqioRLzEAcv78f0Pugi2Hp7RSOMmNjLIIGk6QMwZqr/ot9KQ==
@@ -6030,6 +6030,11 @@ react-native-is-edge-to-edge@^1.1.6:
   resolved "https://registry.npmmirror.com/react-native-is-edge-to-edge/-/react-native-is-edge-to-edge-1.1.6.tgz#69ec13f70d76e9245e275eed4140d0873a78f902"
   integrity sha512-1pHnFTlBahins6UAajXUqeCOHew9l9C2C8tErnpGC3IyLJzvxD+TpYAixnCbrVS52f7+NvMttbiSI290XfwN0w==
 
+react-native-pager-view@^6.7.0:
+  version "6.7.0"
+  resolved "https://registry.npmmirror.com/react-native-pager-view/-/react-native-pager-view-6.7.0.tgz#88f2520e85f07ce55f3f56c57d6637249a215160"
+  integrity sha512-sutxKiMqBuQrEyt4mLaLNzy8taIC7IuYpxfcwQBXfSYBSSpAa0qE9G1FXlP/iXqTSlFgBXyK7BESsl9umOjECQ==
+
 react-native-reanimated@~3.16.1:
   version "3.16.7"
   resolved "https://registry.npmmirror.com/react-native-reanimated/-/react-native-reanimated-3.16.7.tgz#6c7fa516f62c6743c24d955dada00e3c5323d50d"
@@ -6067,6 +6072,13 @@ react-native-storage@^1.0.1:
   dependencies:
     opencollective "^1.0.3"
     opencollective-postinstall "^2.0.2"
+
+react-native-tab-view@^4.0.6:
+  version "4.0.6"
+  resolved "https://registry.npmmirror.com/react-native-tab-view/-/react-native-tab-view-4.0.6.tgz#0e996754430dd6487b843ef2e14e6d56ccc6fc16"
+  integrity sha512-N0kFUSVqsL74Xxf3LrWPnTQTHAI9AMmlndAC9eFai00upLEgWcyLgyRsA3xTJSjmsYLVEZNr8VWjshBhTCp7Jg==
+  dependencies:
+    use-latest-callback "^0.2.1"
 
 react-native-web@~0.19.13:
   version "0.19.13"

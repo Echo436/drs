@@ -1,33 +1,25 @@
 import { ThemedText } from "@/components/ThemedText";
-import { ConstructorStanding, Driver, useF1Data } from "@/context/F1DataContext";
+import { DriverStanding, useF1Data } from "@/context/F1DataContext";
 import React from "react";
 import { View, StyleSheet } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
-import { t } from "@/i18n/utils";
+import { t, translateName } from '@/i18n/utils';
 import renderSeparator from "@/components/ui/RenderSeparator";
 import { layoutStyles } from "@/components/ui/Styles";
 import { getTeamsColor } from "@/constants/Colors";
 
 export default function ConstructorList() {
-    const { constructorList, driverStandingList: driverStandingList ,loading, error, refreshData } = useF1Data();
+    const { driverStandingList: driverList, loading, error, refreshData } = useF1Data();
 
-    const renderItem = ({ item }: { item: ConstructorStanding }) => {
+    const renderItem = ({ item }: { item: DriverStanding }) => {
         return (
             <View style={styles.itemContainer}>
                 <View style={styles.positionContainer}>
                     <ThemedText style={styles.posisionText}>{String(item.position).padStart(2, '0')}</ThemedText>
                 </View>
-                <View style={styles.teamInfoContainer}>
-                    <ThemedText type="itemtitle">{t(item.teamId, 'team')}</ThemedText>
-                    <View style={styles.driversContainer}>
-                        {driverStandingList
-                            .filter(driver => driver.teamId === item.teamId)
-                            .map(driver => (
-                                <ThemedText key={driver.driverId} type="itemsubtitle" style={styles.driverNameText}>
-                                    {driver.driver.shortName}
-                                </ThemedText>
-                            ))}
-                    </View>
+                <View style={styles.driverInfoContainer}>
+                    <ThemedText type="itemtitle">{translateName([item.driver.name, item.driver.surname])}</ThemedText>
+                    <ThemedText type="itemsubtitle" style={{color: getTeamsColor(item.teamId)}}>{t(item.team.teamId, 'team')}</ThemedText>
                 </View>
                 <View style={styles.pointsContainer}>
                     <ThemedText style={styles.pointText}>{item.points}</ThemedText>
@@ -57,20 +49,17 @@ export default function ConstructorList() {
     // 渲染大奖赛列表
     return (
         <FlatList
-            data={constructorList}
+            data={driverList}
             renderItem={renderItem}
-            keyExtractor={(item) => item.teamId}
+            keyExtractor={(item) => item.driverId}
             ItemSeparatorComponent={renderSeparator}
             contentContainerStyle={layoutStyles.listContainer}
+            showsVerticalScrollIndicator={false}
         />
     );
 }
 
 const styles = StyleSheet.create({
-    driversContainer: {
-        flexDirection: 'row',
-        gap: 10,
-    },
     itemContainer: {
         paddingHorizontal: 18,
         paddingVertical:10,
@@ -86,11 +75,8 @@ const styles = StyleSheet.create({
         fontSize: 14,
         textAlign: 'center'
     },
-    teamInfoContainer: {
+    driverInfoContainer: {
         flex: 1,
-    },
-    driverNameText: {
-        fontFamily: 'Formula1-Display-Regular',
     },
     pointsContainer: {
         width: 30,
@@ -98,6 +84,6 @@ const styles = StyleSheet.create({
     pointText: {
         fontFamily: 'Formula1-Display-Bold',
         fontSize: 14,
-        textAlign: 'center'
+        textAlign: 'center',
     }
 });

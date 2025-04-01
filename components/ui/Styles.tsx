@@ -7,6 +7,7 @@ export const layoutStyles = StyleSheet.create({
         alignItems: 'center',
     },
     listContainer: {
+        paddingTop: 120,
         paddingBottom: 100,
         paddingHorizontal: 16,
     },

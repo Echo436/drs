@@ -9,14 +9,24 @@ import { translateGPName } from "@/i18n/utils";
 import { useRouter } from "expo-router";
 
 import { t } from '@/i18n/utils';
+// import { useGrandPrix } from "@/context/GrandPrixContext";
 
-export default function GrandPrixList() {
+interface GrandPrixListProps {
+    onTabChange: (tabKey: string) => void;
+}
+
+export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
     const { grandPrixList, loading, error, refreshData } = useF1Data();
     const router = useRouter();
 
+    // const { activeTab, handleTabChange } = useGrandPrix();
+
     // 导航到大奖赛详情页面
     const navigateToGrandPrix = (raceId: string) => {
-        router.push(`/grand-prix/grandPrixs/${raceId}`);
+        router.push(`/${raceId}`);
+
+        // TODO 当选择的是当前大奖赛时，切换到current
+        // onTabChange('current');
     };
 
     const renderItem = ({ item }: { item: GrandPrix }) => {
@@ -63,6 +73,7 @@ export default function GrandPrixList() {
             keyExtractor={(item) => item.raceId}
             ItemSeparatorComponent={renderSeparator}
             contentContainerStyle={layoutStyles.listContainer}
+            showsVerticalScrollIndicator={false}
         />
     );
 }

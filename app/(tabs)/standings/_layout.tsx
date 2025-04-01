@@ -1,58 +1,95 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { CapsuleTabSwitch } from '@/components/CapsuleTabSwitch';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from "@/components/ThemedText";
-import { View, StyleSheet, ScrollView, Dimensions } from 'react-native';
+import { View, StyleSheet, ScrollView, Dimensions, Platform } from 'react-native';
+import { BlurView } from 'expo-blur';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { t } from '@/i18n/utils';
-import DriverStandings from './driver';
-import ConstructorStandings from './constructor';
+import DriverList from './driver';
+import TeamList from './constructor';
 
-// 积分榜布局组件，包含车手和车队两个标签页，支持左右滑动切换
-export default function StandingsLayout() {
-    // 当前激活的标签页状态，可以是'driver'(车手)或'constructor'(车队)
-    const [activeTab, setActiveTab] = useState<'driver' | 'constructor'>('driver');
+// 积分布局组件，包含车手列表和制造商列表两个标签页，支持左右滑动切换
+export default function GrandPrixLayout() {
+    // 获取安全区域的insets，用于计算顶部安全区域高度
+    const { top } = useSafeAreaInsets();
+    // 当前激活的标签页状态
+    const [activeTab, setActiveTab] = useState<'drivers' | 'teams'>('drivers');
     // ScrollView的引用，用于编程式控制滚动位置
     const scrollViewRef = useRef<ScrollView>(null);
     // 获取屏幕宽度，用于计算滚动距离和页面宽度
     const screenWidth = Dimensions.get('window').width;
+    // 是否监听滚动事件的状态，用于在标签点击切换时暂停监听
+    const [isScrollListenerEnabled, setIsScrollListenerEnabled] = useState(true);
 
     // 处理标签切换的回调函数
     const handleTabChange = useCallback((tabKey: string) => {
         // 更新激活的标签页
-        setActiveTab(tabKey as 'driver' | 'constructor');
+        setActiveTab(tabKey as 'drivers' | 'teams');
+        // 暂停滚动监听，避免在编程式滚动过程中触发重复更新
+        setIsScrollListenerEnabled(false);
         // 计算目标页面索引并滚动到对应位置
-        const pageIndex = tabKey === 'driver' ? 0 : 1;
+        const pageIndex = tabKey === 'drivers' ? 0 : 1;
         scrollViewRef.current?.scrollTo({
             x: pageIndex * screenWidth,
             animated: true
         });
+
+        // 设置定时器，在滚动动画完成后重新启用滚动监听
+        // 通常滚动动画持续约300ms
+        setTimeout(() => {
+            setIsScrollListenerEnabled(true);
+        }, 300);
     }, [screenWidth]);
 
-    // 处理滚动结束事件的回调函数
+    // 处理滚动事件的回调函数，实时监听滑动偏移量
     const handleScroll = useCallback((event: any) => {
+        // 如果滚动监听被禁用，则直接返回不处理
+        if (!isScrollListenerEnabled) return;
+
         // 获取当前水平滚动偏移量
         const offsetX = event.nativeEvent.contentOffset.x;
-        // 根据偏移量计算当前页面索引
-        const pageIndex = Math.round(offsetX / screenWidth);
-        // 根据页面索引确定当前标签页
-        const newTab = pageIndex === 0 ? 'driver' : 'constructor';
-        // 如果标签页发生变化，则更新状态
-        if (newTab !== activeTab) {
-            setActiveTab(newTab);
+        // 计算当前位置相对于页面宽度的比例
+        const ratio = offsetX / screenWidth;
+        // 计算当前页面索引（向下取整，得到当前所在页面的索引）
+        const currentPageIndex = Math.floor(ratio);
+        // 计算滑动进度（在当前页面内的滑动比例）
+        const progress = ratio - currentPageIndex;
+
+        // 当滑动超过50%时，更新标签状态
+        if (progress >= 0.5) {
+            const newTab = currentPageIndex === 0 ? 'teams' : 'drivers';
+            if (newTab !== activeTab) {
+                setActiveTab(newTab);
+            }
+        } else {
+            const newTab = currentPageIndex === 0 ? 'drivers' : 'teams';
+            if (newTab !== activeTab) {
+                setActiveTab(newTab);
+            }
         }
-    }, [screenWidth, activeTab]);
+    }, [screenWidth, activeTab, isScrollListenerEnabled]);
 
     // 渲染页面头部，包含标签切换器和积分文本
     const renderHeader = () => {
         const tabs = [
             // 定义标签页配置，包括标识符和显示文本
-            { key: 'driver', label: t('Drivers', 'tabs') },
-            { key: 'constructor', label: t('Teams', 'tabs') }
+            { key: 'drivers', label: t('Drivers', 'tabs') },
+            { key: 'teams', label: t('Teams', 'tabs') }
         ];
 
         return (
-            // 头部容器，使用主题样式
-            <ThemedView style={styles.headerContainer}>
+            // 头部容器，使用绝对定位和毛玻璃效果
+            <View style={[styles.headerContainer, { paddingTop: top }]}>
+                {Platform.OS === 'ios' ? (
+                    <BlurView
+                        tint="systemChromeMaterial"
+                        intensity={100}
+                        style={StyleSheet.absoluteFill}
+                    />
+                ) : (
+                    <ThemedView style={StyleSheet.absoluteFill} />
+                )}
                 {/* 标签切换器容器 */}
                 <View style={styles.tabSwitchContainer}>
                     <CapsuleTabSwitch
@@ -65,32 +102,33 @@ export default function StandingsLayout() {
                 <View style={styles.scoreTextContainer}>
                     <ThemedText style={styles.scoreText}>{t('points', 'tabs')}</ThemedText>
                 </View>
-            </ThemedView>
+            </View>
         );
     };
     return (
         // 主容器，应用主题样式
         <ThemedView style={styles.container}>
-            {renderHeader()}
             {/* 水平滚动视图，支持分页效果 */}
             <ScrollView
                 ref={scrollViewRef}
                 horizontal
                 pagingEnabled
                 showsHorizontalScrollIndicator={false}
-                onMomentumScrollEnd={handleScroll}
+                onScroll={handleScroll}
                 scrollEventThrottle={16}
                 style={styles.scrollView}
+                contentContainerStyle={{ paddingTop: 0 }}
             >
-                {/* 车手积分榜页面 */}
+                {/* 车手页面 */}
                 <View style={[styles.page, { width: screenWidth }]}>
-                    <DriverStandings />
+                    <DriverList />
                 </View>
-                {/* 车队积分榜页面 */}
+                {/* 车队页面 */}
                 <View style={[styles.page, { width: screenWidth }]}>
-                    <ConstructorStandings />
+                    <TeamList />
                 </View>
             </ScrollView>
+            {renderHeader()}
         </ThemedView>
     )
 }
@@ -105,17 +143,23 @@ const styles = StyleSheet.create({
     page: {
         flex: 1,
     },
-    // 主容器样式，设置上边距
+    // 主容器样式
     container: {
         flex: 1,
-        paddingTop: 50,
     },
-    // 头部容器样式，水平布局
+    // 头部容器样式，绝对定位实现覆盖效果
     headerContainer: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 10,
         flexDirection: 'row',
         alignItems: 'flex-end',
         justifyContent: 'space-between',
-        paddingHorizontal: 16,
+        paddingHorizontal: 16, //用来定位 scoreTextContainer
+        paddingBottom: 10,
+        overflow: 'hidden', // 确保BlurView不会溢出容器
     },
     // 标签切换器容器样式，居中定位
     tabSwitchContainer: {
@@ -123,12 +167,12 @@ const styles = StyleSheet.create({
         left: '50%',
         top: '50%',
         transform: 'translate(-50%, -50%)',
+        zIndex: 2, // 确保在BlurView上方
     },
     // 积分文本容器样式
     scoreTextContainer: {
         width: '10%',
         marginRight: 14.5,
-        marginBottom: 5,
     },
     // 积分文本样式
     scoreText: {
@@ -136,5 +180,6 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         color: '#5F5F5F',
         textAlign: 'center',
+        lineHeight: 15,
     },
 });

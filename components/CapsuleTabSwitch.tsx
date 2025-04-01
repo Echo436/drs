@@ -82,8 +82,6 @@ export const CapsuleTabSwitch: React.FC<CapsuleTabSwitchProps> = ({
 
 const styles = StyleSheet.create({
     tabContainer: {
-        height: 57,
-        paddingBottom: 10,
         zIndex: 10,
         alignItems: 'center',
         justifyContent: 'flex-end',

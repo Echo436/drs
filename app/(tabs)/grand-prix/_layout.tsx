@@ -34,7 +34,7 @@ export default function GrandPrixLayout() {
             x: pageIndex * screenWidth,
             animated: true
         });
-        
+
         // 设置定时器，在滚动动画完成后重新启用滚动监听
         // 通常滚动动画持续约300ms
         setTimeout(() => {
@@ -46,7 +46,7 @@ export default function GrandPrixLayout() {
     const handleScroll = useCallback((event: any) => {
         // 如果滚动监听被禁用，则直接返回不处理
         if (!isScrollListenerEnabled) return;
-        
+
         // 获取当前水平滚动偏移量
         const offsetX = event.nativeEvent.contentOffset.x;
         // 计算当前位置相对于页面宽度的比例
@@ -55,7 +55,7 @@ export default function GrandPrixLayout() {
         const currentPageIndex = Math.floor(ratio);
         // 计算滑动进度（在当前页面内的滑动比例）
         const progress = ratio - currentPageIndex;
-        
+
         // 当滑动超过50%时，更新标签状态
         if (progress >= 0.5) {
             const newTab = currentPageIndex === 0 ? 'season' : 'current';
@@ -121,7 +121,7 @@ export default function GrandPrixLayout() {
                 </View>
                 {/* 赛季积分榜页面 */}
                 <View style={[styles.page, { width: screenWidth }]}>
-                    <Season />
+                    <Season onTabChange={handleTabChange} />
                 </View>
             </ScrollView>
             {renderHeader()}
