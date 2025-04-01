@@ -36,6 +36,8 @@ export const Colors = {
     icon: '#687076',
     tabIconDefault: '#687076',
     tabIconSelected: tintColorLight,
+    tabSwitcherBackground: 'rgb(226, 226, 226)',
+    headerBorder: 'rgba(180, 180, 180, 0.34)',
   },
   dark: {
     text: '#ECEDEE',
@@ -44,5 +46,7 @@ export const Colors = {
     icon: '#9BA1A6',
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,
+    tabSwitcherBackground: 'rgb(60, 60, 60)',
+    headerBorder: 'rgba(88, 88, 88, 0.34)',
   },
 };
