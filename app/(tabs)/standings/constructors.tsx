@@ -77,7 +77,7 @@ export default function ConstructorList() {
 
 const styles = StyleSheet.create({
     itemContainer: {
-        paddingLeft: 15,
+        paddingLeft: 13,
         paddingVertical: 16,
         flexDirection: 'row',
         alignItems: 'center',
@@ -110,6 +110,6 @@ const styles = StyleSheet.create({
         textAlign: 'center'
     },
     chevronContainer: {
-        marginLeft: 3,
+        marginRight: 3,
     },
 });

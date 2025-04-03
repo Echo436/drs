@@ -1,43 +1,19 @@
 import { Tabs } from 'expo-router';
-import React, { useEffect } from 'react';
-import { Platform } from 'react-native';
-
-import { HapticTab } from '@/components/HapticTab';
+import React from 'react';
 import { IconSymbol } from '@/components/ui/IconSymbol';
-import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-import storage from '@/storage/storage';
-import { useAppDispatch, useAppSelector } from '@/hooks/useReduxHooks';
-import { setPrimaryColor } from '@/storage/themeSlice';
 
 import { t } from '@/i18n/utils';
+import MyTabBar from '@/components/TabBar'
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-  
-  const primaryColor = useAppSelector(state => state.theme.primaryColor);
-  const dispatch = useAppDispatch();
-
-
   return (
     <Tabs
+      tabBar={(props) => <MyTabBar {...props} />}
       initialRouteName="grand-prix"
       screenOptions={{
-        // tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        tabBarActiveTintColor: primaryColor,
         headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            // Use a transparent background on iOS to show the blur effect
-            position: 'absolute',
-          },
-          default: {},
-        }),
-      }}>
+      }}
+    >
       <Tabs.Screen
         name="grand-prix"
         options={{

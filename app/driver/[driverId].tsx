@@ -1,7 +1,6 @@
 import { FlatList, StyleSheet, View, RefreshControl, TouchableOpacity, Image } from "react-native";
 import React, { useState, useEffect } from "react";
 import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
 import { Driver, DriverResult, DriverStanding } from "@/context/F1DataContext";
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import { ScrollView } from "react-native-gesture-handler";
@@ -58,9 +57,9 @@ export default function DriverDetail() {
     const driverInitData = initialData ? JSON.parse(initialData) as DriverStanding : null;
     const teamColor = getTeamsColor(driverInitData?.teamId as string);
     const textColor = useThemeColor({}, 'text');
+    const backgroundColor = useThemeColor({}, 'background');
     const numberColor = tinycolor(textColor).setAlpha(0.15).toRgbString();
     const displayTeamColor = tinycolor(teamColor).setAlpha(0.7).toRgbString();
-    const backgroundColor = useThemeColor({}, 'background');
     const cardBorderColor = useThemeColor({}, 'cardBorder');
 
     const raceItem = ({ item }: { item: DriverResult }) => {

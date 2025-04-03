@@ -72,14 +72,18 @@ export default function ConstructorList() {
 
 const styles = StyleSheet.create({
     itemContainer: {
-        paddingLeft: 15,
+        paddingLeft: 13,
         paddingVertical: 16,
         flexDirection: 'row',
         alignItems: 'center',
+
+        // borderWidth: 1,
     },
     positionContainer: {
         width: 30,
         marginRight: 15,
+
+        // borderWidth: 1,
     },
     posisionText: {
         fontFamily: 'Formula1-Display-Regular',
@@ -88,6 +92,8 @@ const styles = StyleSheet.create({
     },
     driverInfoContainer: {
         flex: 1,
+
+        // borderWidth: 1,
     },
     pointsContainer: {
         width: 40,
@@ -105,6 +111,6 @@ const styles = StyleSheet.create({
         // borderWidth: 1,
     },
     chevronContainer: {
-        marginLeft: 3,
+        marginRight: 3,
     },
 });
