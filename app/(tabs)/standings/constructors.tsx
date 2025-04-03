@@ -1,15 +1,18 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ConstructorStanding, Driver, useF1Data } from "@/context/F1DataContext";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { View, StyleSheet } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import { t } from "@/i18n/utils";
 import renderSeparator from "@/components/ui/RenderSeparator";
 import { layoutStyles } from "@/components/ui/Styles";
 import { getTeamsColor } from "@/constants/Colors";
+import { IconSymbol } from "@/components/ui/IconSymbol";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ConstructorList() {
-    const { constructorList, driverStandingList: driverStandingList ,loading, error, refreshData } = useF1Data();
+    const { top } = useSafeAreaInsets();
+    const { constructorList, driverStandingList: driverStandingList, loading, error, refreshData } = useF1Data();
 
     const renderItem = ({ item }: { item: ConstructorStanding }) => {
         return (
@@ -31,6 +34,9 @@ export default function ConstructorList() {
                 </View>
                 <View style={styles.pointsContainer}>
                     <ThemedText style={styles.pointText}>{item.points}</ThemedText>
+                </View>
+                <View style={styles.chevronContainer}>
+                    <IconSymbol name='chevron.right' size={10} color={'gray'}></IconSymbol>
                 </View>
             </View>
         );
@@ -63,18 +69,16 @@ export default function ConstructorList() {
             ItemSeparatorComponent={renderSeparator}
             contentContainerStyle={layoutStyles.listContainer}
             showsVerticalScrollIndicator={false}
+            contentInset={{ top: top+45, left: 0, bottom: 100, right: 0 }}
+            contentOffset={{x: 0, y: -top-45}}
         />
     );
 }
 
 const styles = StyleSheet.create({
-    driversContainer: {
-        flexDirection: 'row',
-        gap: 10,
-    },
     itemContainer: {
-        paddingHorizontal: 18,
-        paddingVertical:10,
+        paddingLeft: 15,
+        paddingVertical: 16,
         flexDirection: 'row',
         alignItems: 'center',
     },
@@ -87,18 +91,25 @@ const styles = StyleSheet.create({
         fontSize: 14,
         textAlign: 'center'
     },
-    teamInfoContainer: {
-        flex: 1,
+    driversContainer: {
+        flexDirection: 'row',
+        gap: 10,
     },
     driverNameText: {
         fontFamily: 'Formula1-Display-Regular',
     },
+    teamInfoContainer: {
+        flex: 1,
+    },
     pointsContainer: {
-        width: 30,
+        width: 40,
     },
     pointText: {
         fontFamily: 'Formula1-Display-Bold',
         fontSize: 14,
         textAlign: 'center'
-    }
+    },
+    chevronContainer: {
+        marginLeft: 3,
+    },
 });

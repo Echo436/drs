@@ -1,5 +1,5 @@
 import { ThemedText } from "@/components/ThemedText";
-import { GrandPrix, useF1Data } from "@/context/F1DataContext";
+import { Race, useF1Data } from "@/context/F1DataContext";
 import React from "react";
 import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
@@ -7,6 +7,7 @@ import renderSeparator from "@/components/ui/RenderSeparator";
 import { layoutStyles } from '@/components/ui/Styles';
 import { translateGPName } from "@/i18n/utils";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { t } from '@/i18n/utils';
 // import { useGrandPrix } from "@/context/GrandPrixContext";
@@ -16,6 +17,7 @@ interface GrandPrixListProps {
 }
 
 export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
+    const { top } = useSafeAreaInsets();
     const { grandPrixList, loading, error, refreshData } = useF1Data();
     const router = useRouter();
 
@@ -29,7 +31,7 @@ export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
         onTabChange('first');
     };
 
-    const renderItem = ({ item }: { item: GrandPrix }) => {
+    const renderItem = ({ item }: { item: Race }) => {
         return (
             <TouchableOpacity 
                 style={styles.itemContainer}
@@ -74,6 +76,8 @@ export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
             ItemSeparatorComponent={renderSeparator}
             contentContainerStyle={layoutStyles.listContainer}
             showsVerticalScrollIndicator={false}
+            contentInset={{ top: top+45, left: 0, bottom: 100, right: 0 }}
+            contentOffset={{x: 0, y: -top-45}}
         />
     );
 }

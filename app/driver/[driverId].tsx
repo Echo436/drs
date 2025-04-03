@@ -1,9 +1,9 @@
-import { FlatList, StyleSheet, View } from "react-native";
+import { FlatList, StyleSheet, View, RefreshControl, TouchableOpacity, Image } from "react-native";
 import React, { useState, useEffect } from "react";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Driver, DriverResult, DriverStanding } from "@/context/F1DataContext";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import { ScrollView } from "react-native-gesture-handler";
 import { layoutStyles } from "@/components/ui/Styles";
 import { BlurView } from "expo-blur";
@@ -12,21 +12,42 @@ import { getTeamsColor } from "@/constants/Colors";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import tinycolor from 'tinycolor2';
 import renderSeparator from "@/components/ui/RenderSeparator";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { IconSymbol } from "@/components/ui/IconSymbol";
 
 export default function DriverDetail() {
+    const { top } = useSafeAreaInsets();
     const [driverSeasonList, setDriverSeasonList] = useState<DriverResult[]>([]);
-    const fetchDriverSeasonData = async (driverId: string) => {
-        await fetch(`https://f1api.dev/api/2024/drivers/${driverId}`)
-            .then(response => response.json())
-            .then(data => {
-                setDriverSeasonList(data.results);
-                return data;
-            });
-    };
+    const [refreshing, setRefreshing] = useState(false);
+
     const { driverId, initialData } = useLocalSearchParams<{
         driverId: string;
         initialData: string;
     }>();
+
+    const wait = (timeout: number | undefined) => {
+        return new Promise(resolve => {
+            setTimeout(resolve, timeout);
+        });
+    }
+
+    const fetchDriverSeasonData = async (driverId: string) => {
+        try {
+            const response = await fetch(`https://f1api.dev/api/2024/drivers/${driverId}`);
+            const data = await response.json();
+            setDriverSeasonList(data.results);
+            return data;
+        } finally {
+            setRefreshing(false);
+        }
+    };
+
+    const onRefresh = React.useCallback(() => {
+        setRefreshing(true);
+        if (driverId) {
+            fetchDriverSeasonData(driverId);
+        }
+    }, [driverId]);
 
     useEffect(() => {
         if (driverId) {
@@ -44,16 +65,19 @@ export default function DriverDetail() {
 
     const raceItem = ({ item }: { item: DriverResult }) => {
         return (
-            <View style={{padding: 10}}>
+            <View style={{ padding: 10 }}>
                 <ThemedText>
-                    {item.race?.name}
+                    {item?.race?.name}
                 </ThemedText>
                 <ThemedText>
-                    {item.result.pointsObtained}
+                    {item?.result.pointsObtained}
                 </ThemedText>
-                <ThemedText>
-                    {item.sprintResult?.raceTime}
-                </ThemedText>
+
+                {/* 冲刺赛信息（如果有） */}
+                {item?.sprintResult &&
+                    <ThemedText>
+                        {item?.sprintResult?.raceTime}
+                    </ThemedText>}
             </View>
         );
     };
@@ -68,10 +92,35 @@ export default function DriverDetail() {
                     title: driverInitData?.driver.name,
                     headerShown: true,
                     headerTransparent: true,
-                    headerBlurEffect: 'regular',
+                    header(props) {
+                        return (
+                            <LinearGradient
+                                colors={[tinycolor.mix(teamColor, backgroundColor, 30).toRgbString(), tinycolor.mix(teamColor, backgroundColor, 30).setAlpha(0).toRgbString()]}
+                                locations={[0.6, 1]}
+                                style={{
+                                    height: top,
+                                    width: '100%'
+                                }}
+                            ></LinearGradient>
+                        )
+                    },
                 }}
             />
-            <ScrollView style={[layoutStyles.listContainer, styles.scrollContainer]}>
+            <ScrollView
+                contentInsetAdjustmentBehavior="automatic"
+                style={[layoutStyles.listContainer]}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                    />
+                }
+            >
+                <View style={{ paddingHorizontal: 5, opacity: 0.5 }}>
+                    <TouchableOpacity onPress={() => router.back()}>
+                        <IconSymbol name="chevron.left" size={22} color={textColor} />
+                    </TouchableOpacity>
+                </View>
                 <View style={styles.profileContainer}>
                     <View style={styles.leftColumn}>
                         <ThemedText type="title" style={styles.firstNameText}>
@@ -79,7 +128,6 @@ export default function DriverDetail() {
                         </ThemedText>
                         <ThemedText type="subtitle" style={styles.lastNameText}>
                             {driverInitData?.driver.surname}
-                            {driverSeasonList?.length}
                         </ThemedText>
                         <View style={styles.positionContainer}>
                             <ThemedText style={styles.positionText}>
@@ -119,23 +167,27 @@ export default function DriverDetail() {
                     <BlurView
                         intensity={20}
                         style={[styles.card, { borderColor: cardBorderColor }]}>
-                        <ThemedText>
-
-                        </ThemedText>
+                        <View style={styles.teamContainer}>
+                            <ThemedText>{driverInitData?.team.teamId}</ThemedText>
+                            <View style={styles.carImgContainer}>
+                                <Image 
+                                    source={{ uri: `https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2025/${driverInitData?.teamId}.png` }} 
+                                    style={styles.carImg}
+                                />
+                            </View>
+                        </View>
                     </BlurView>
                     <BlurView
                         intensity={20}
                         style={[styles.card, { borderColor: cardBorderColor }]}>
                         <FlatList
+                            scrollEnabled={false}
                             data={driverSeasonList}
                             renderItem={raceItem}
                             ItemSeparatorComponent={renderSeparator}
-                            contentContainerStyle={{paddingVertical: 10}}
-                            ListHeaderComponent={
-                                <View>
-                                    <ThemedText>qq123</ThemedText>
-                                </View>
-                            } />
+                            contentContainerStyle={{ paddingVertical: 5 }}
+                            ListEmptyComponent={<View style={{ height: 500 }}></View>}
+                        />
                     </BlurView>
                 </View>
             </ScrollView>
@@ -147,12 +199,9 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
-    scrollContainer: {
-        paddingTop: 100,
-    },
     profileContainer: {
         height: 250,
-        paddingVertical: 20,
+        paddingVertical: 15,
         paddingHorizontal: 10,
         flexDirection: 'row',
     },
@@ -175,19 +224,14 @@ const styles = StyleSheet.create({
     },
     positionContainer: {
         marginTop: 15,
-
         flexDirection: 'row',
         alignItems: 'flex-end',
-
-        // borderWidth: 1,
     },
     positionText: {
         paddingRight: 5,
         fontFamily: 'Formula1-Display-Bold',
         fontSize: 32,
         lineHeight: 32,
-
-        // borderWidth: 1,
     },
     POSText: {
         fontFamily: 'Formula1-Display-Regular',
@@ -235,10 +279,26 @@ const styles = StyleSheet.create({
     },
     card: {
         marginTop: 15,
-        // height: 200,
-        backgroundColor: 'rgba(110, 110, 110, 0.3)',
+        backgroundColor: 'rgba(124, 124, 124, 0.24)',
         borderWidth: 1,
         borderRadius: 15,
         overflow: 'hidden',
-    }
+    },
+
+    teamContainer: {
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        alignItems: 'flex-start',
+    },
+    carImgContainer: {
+        flex: 1,
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+    },
+    carImg: {
+        width: 200,
+        height: 150,
+        resizeMode: 'contain',
+    },
 });

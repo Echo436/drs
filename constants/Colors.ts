@@ -20,12 +20,16 @@ export const TeamColors = {
   rb: '#6692FF',
 };
 
-export function getTeamsColor(team: string): string {
-  if (team in TeamColors) {
-    return TeamColors[team as keyof typeof TeamColors];
+/**
+ * 
+ * @param teamId 
+ * @returns 对应 Color
+ */
+export function getTeamsColor(teamId: string): string {
+  if (teamId in TeamColors) {
+    return TeamColors[teamId as keyof typeof TeamColors];
   }
-  // 返回一个默认颜色或抛出错误
-  return ''; // 默认颜色
+  return '';
 }
 
 export const Colors = {
@@ -39,6 +43,7 @@ export const Colors = {
     tabSwitcherBackground: 'rgb(239, 239, 239)',
     headerBorder: 'rgba(180, 180, 180, 0.34)',
     listSeparator: 'rgba(210, 210, 210, 0.5)',
+    cardBorder: 'rgba(139, 139, 139, 0.25)',
   },
   dark: {
     text: '#ECEDEE',
@@ -50,5 +55,6 @@ export const Colors = {
     tabSwitcherBackground: 'rgb(41, 41, 41)',
     headerBorder: 'rgba(88, 88, 88, 0.34)',
     listSeparator: 'rgba(67, 67, 67, 0.5)',
+    cardBorder: 'rgba(24, 24, 24, 0.34)',
   },
 };

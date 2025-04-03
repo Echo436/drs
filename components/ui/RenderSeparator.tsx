@@ -7,7 +7,6 @@ const renderSeparator = () => {
     return <View style={{
         height: 1,
         backgroundColor: color,
-        marginVertical: 8,
     }}></View>
 }
 

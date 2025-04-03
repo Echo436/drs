@@ -6,6 +6,7 @@ import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { ThemedText } from './ThemedText';
+import { Stack } from 'expo-router';
 
 type TabPageLayoutProps = {
     // 第一个标签页的组件
@@ -145,6 +146,15 @@ export const TabPageLayout: React.FC<TabPageLayoutProps> = ({
     return (
         // 主容器，应用主题样式
         <ThemedView style={styles.container}>
+            <Stack.Screen
+                options={{
+                    headerShown: true,
+                    headerTransparent: true,
+                    header(props) {
+                        return renderHeader();
+                    },
+                }}
+            />
             {/* 水平滚动视图，支持分页效果 */}
             <ScrollView
                 ref={scrollViewRef}
@@ -165,7 +175,6 @@ export const TabPageLayout: React.FC<TabPageLayoutProps> = ({
                     <SecondPage {...secondPageProps} onTabChange={handleTabChange} />
                 </View>
             </ScrollView>
-            {renderHeader()}
         </ThemedView>
     );
 };
@@ -176,36 +185,31 @@ const styles = StyleSheet.create({
     scrollView: {
         flex: 1,
     },
-    // 页面容器样式
-    page: {
-        flex: 1,
-    },
-    // 主容器样式
     container: {
         flex: 1,
     },
-    // 头部容器样式，绝对定位实现覆盖效果
+    page: {
+        flex: 1,
+    },
     headerContainer: {
-        position: 'absolute',
         top: 0,
         left: 0,
         right: 0,
-        zIndex: 10,
         flexDirection: 'row',
         alignItems: 'flex-end',
         justifyContent: 'space-between',
         paddingHorizontal: 16,
         paddingBottom: 10,
-        overflow: 'hidden', // 确保BlurView不会溢出容器
+        overflow: 'hidden',
         borderBottomWidth: 0.2,
+
     },
-    // 标签切换器容器样式，居中定位
     tabSwitchContainer: {
         position: 'relative',
         left: '50%',
         top: '50%',
         transform: 'translate(-50%, -50%)',
-        zIndex: 2, // 确保在BlurView上方
+        zIndex: 2,
     },
     // 积分文本容器样式
     scoreTextContainer: {
