@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Constructor } from 'react-native/types/private/Utilities';
 
 // 车手数据类型
 export type Driver = {
@@ -129,10 +128,14 @@ export type Drivers_openf1 = {
 type F1DataContextType = {
     grandPrixList: Race[];
     driverStandingList: DriverStanding[];
-    driverOpenf1List: Drivers_openf1[];
     constructorList: ConstructorStanding[];
-    loading: boolean;
-    error: string | null;
+    nextRace: Race | null;
+    lastRace: Race | null;
+    grandPrixLoading: boolean;
+    driverLoading: boolean;
+    constructorLoading: boolean;
+    nextRaceLoading: boolean;
+    lastRaceLoading: boolean;
     refreshData: () => Promise<void>;
 };
 
@@ -144,90 +147,121 @@ export const F1DataProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     const [grandPrixList, setGrandPrixList] = useState<Race[]>([]);
     const [driverList, setDriverList] = useState<DriverStanding[]>([]);
     const [constructorList, setConstructorList] = useState<ConstructorStanding[]>([]);
-    const [driverLatestSessionOpenf1List, setDriverLatestSessionOpenf1List] = useState<Drivers_openf1[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const [nextRace, setNextRace] = useState<Race | null>(null);
+    const [lastRace, setLastRace] = useState<Race | null>(null);
+    const [grandPrixLoading, setGrandPrixLoading] = useState(true);
+    const [driverListLoading, setDriverListLoading] = useState(true);
+    const [constructorListLoading, setConstructorListLoading] = useState(true);
+    const [nextRaceLoading, setNextRaceLoading] = useState(true);
+    const [lastRaceLoading, setLastRaceLoading] = useState(true);
 
-    // 获取F1大奖赛数据的函数
-    const fetchGPData = async () => {
+    const fetchGPListData = async () => {
+        setGrandPrixLoading(true);
         try {
-            setLoading(true);
-            setError(null);
             const response = await fetch('https://f1api.dev/api/current')
                 .then(response => response.json());
-
             if (response && response.races && Array.isArray(response.races)) {
                 setGrandPrixList(response.races);
-            } else {
-                setError('大奖赛数据格式不正确');
             }
         } catch (err) {
-            setError('获取大奖赛数据失败，请稍后重试');
             console.error('Error fetching F1 race data:', err);
         } finally {
-            setLoading(false);
+            setGrandPrixLoading(false);
         }
     };
 
-    // 获取F1车手数据的函数
+    const fetchNextRaceData = async () => {
+        try {
+            const response = await fetch('https://f1api.dev/api/current/next')
+                .then(response => response.json());
+            if (response && response.races && Array.isArray(response.races)) {
+                setNextRace(response.races[0]);
+            }
+        } catch (err) {
+            console.error('Error fetching F1 next race data:', err);
+        } finally {
+            setNextRaceLoading(false);
+        }
+    };
+
+    const fetchLastRaceData = async () => {
+        try {
+            const response = await fetch('https://f1api.dev/api/current/last')
+               .then(response => response.json());
+            if (response && response.races && Array.isArray(response.races)) {
+                setLastRace(response.races[0]);
+            }
+        } catch (err) {
+            console.error('Error fetching F1 last race data:', err);
+        } finally {
+            setLastRaceLoading(false);
+        }
+    };
+
     const fetchDriverData = async () => {
+        setDriverListLoading(true);
         try {
             const response = await fetch('https://f1api.dev/api/current/drivers-championship')
                 .then(response => response.json());
-
             if (response && response.drivers_championship && Array.isArray(response.drivers_championship)) {
                 setDriverList(response.drivers_championship);
-            } else {
-                setError('车手数据格式不正确');
             }
         } catch (err) {
-            setError('获取车手数据失败，请稍后重试');
             console.error('Error fetching F1 driver data:', err);
         } finally {
-            setLoading(false);
+            setDriverListLoading(false);
         }
     };
 
-    // 获取F1制造商数据的函数
     const fetchConstructorData = async () => {
+        setConstructorListLoading(true);
         try {
             const response = await fetch('https://f1api.dev/api/current/constructors-championship')
                 .then(response => response.json());
-
             if (response && response.constructors_championship && Array.isArray(response.constructors_championship)) {
                 setConstructorList(response.constructors_championship);
-            } else {
-                setError('制造商数据格式不正确');
             }
         } catch (err) {
-            setError('获取制造商数据失败，请稍后重试');
             console.error('Error fetching F1 constructor data:', err);
         } finally {
-            setLoading(false);
+            setConstructorListLoading(false);
         }
     };
 
-    // 应用启动时自动获取数据
     useEffect(() => {
         const fetchAllData = async () => {
-            await Promise.all([fetchGPData(), fetchDriverData(), fetchConstructorData()]);
+            await Promise.all([
+                fetchGPListData(),
+                fetchDriverData(),
+                fetchConstructorData(),
+                fetchNextRaceData(),
+                fetchLastRaceData()
+            ]);
         };
         fetchAllData();
     }, []);
 
-    // 提供刷新数据的方法
     const refreshData = async () => {
-        await Promise.all([fetchGPData(), fetchDriverData(), fetchConstructorData]);
+        await Promise.all([
+            fetchGPListData(),
+            fetchDriverData(),
+            fetchConstructorData(),
+            fetchNextRaceData(),
+            fetchLastRaceData()
+        ]);
     };
 
-    // 提供Context值
     const contextValue: F1DataContextType = {
         grandPrixList,
         driverStandingList: driverList,
-        driverOpenf1List: driverLatestSessionOpenf1List,
         constructorList,
-        loading,
-        error,
+        nextRace,
+        lastRace,
+        grandPrixLoading,
+        driverLoading: driverListLoading,
+        constructorLoading: constructorListLoading,
+        nextRaceLoading,
+        lastRaceLoading,
         refreshData,
     };
 
