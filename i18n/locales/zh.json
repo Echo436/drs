@@ -19,13 +19,14 @@
     "points": "积分",
     "settings": "设置"
   },
-  "grandPrixSession": {
-    "current": "当前大奖赛",
-    "season": "赛季",
-    "race": "比赛",
-    "qualifying": "排位赛",
-    "practice": "练习赛",
-    "sprint": "短程赛"
+  "session": {
+    "FP1": "练习赛1",
+    "FP2": "练习赛2",
+    "FP3": "练习赛3",
+    "Sprint Qualifying": "冲刺排位赛",
+    "Sprint Race": "冲刺赛",
+    "Qualifying": "排位赛",
+    "Race": "正赛"
   },
   "standings": {
     "driver": "车手",
