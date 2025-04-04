@@ -70,7 +70,7 @@ export type Race = {
     raceName: string;
     schedule: Schedule;
     laps: number;
-    round: number;
+    round: string;
     url: string;
     fast_lap: FastLap;
     circuit: Circuit;
@@ -125,6 +125,8 @@ export type Drivers_openf1 = {
     team_name: string;
 }
 // 定义Context的类型
+type DataType = 'grandPrixList' | 'driverStandingList' | 'constructorList' | 'nextRace' | 'lastRace';
+
 type F1DataContextType = {
     grandPrixList: Race[];
     driverStandingList: DriverStanding[];
@@ -136,7 +138,7 @@ type F1DataContextType = {
     constructorLoading: boolean;
     nextRaceLoading: boolean;
     lastRaceLoading: boolean;
-    refreshData: () => Promise<void>;
+    refreshData: (dataTypes?: DataType[]) => Promise<void>;
 };
 
 // 创建Context
@@ -174,8 +176,8 @@ export const F1DataProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         try {
             const response = await fetch('https://f1api.dev/api/current/next')
                 .then(response => response.json());
-            if (response && response.races && Array.isArray(response.races)) {
-                setNextRace(response.races[0]);
+            if (response && response.race && Array.isArray(response.race)) {
+                setNextRace(response.race[0]);
             }
         } catch (err) {
             console.error('Error fetching F1 next race data:', err);
@@ -241,14 +243,20 @@ export const F1DataProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         fetchAllData();
     }, []);
 
-    const refreshData = async () => {
-        await Promise.all([
-            fetchGPListData(),
-            fetchDriverData(),
-            fetchConstructorData(),
-            fetchNextRaceData(),
-            fetchLastRaceData()
-        ]);
+    const refreshData = async (dataTypes?: DataType[]) => {
+        const fetchFunctions = {
+            grandPrixList: fetchGPListData,
+            driverStandingList: fetchDriverData,
+            constructorList: fetchConstructorData,
+            nextRace: fetchNextRaceData,
+            lastRace: fetchLastRaceData
+        };
+    
+        const functionsToExecute = dataTypes
+            ? dataTypes.map(type => fetchFunctions[type])
+            : Object.values(fetchFunctions);
+    
+        await Promise.all(functionsToExecute.map(fn => fn()));
     };
 
     const contextValue: F1DataContextType = {
