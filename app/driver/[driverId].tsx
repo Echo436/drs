@@ -30,7 +30,7 @@ export default function DriverDetail() {
         });
     }
 
-    const fetchDriverSeasonData = async (driverId: string) => {
+    const fetchDriverSeasonData = async () => {
         try {
             const response = await fetch(`https://f1api.dev/api/2024/drivers/${driverId}`);
             const data = await response.json();
@@ -44,13 +44,13 @@ export default function DriverDetail() {
     const onRefresh = React.useCallback(() => {
         setRefreshing(true);
         if (driverId) {
-            fetchDriverSeasonData(driverId);
+            fetchDriverSeasonData();
         }
     }, [driverId]);
 
     useEffect(() => {
         if (driverId) {
-            fetchDriverSeasonData(driverId);
+            fetchDriverSeasonData();
         }
     }, [driverId]);
 
@@ -131,7 +131,7 @@ export default function DriverDetail() {
                         <View style={styles.positionContainer}>
                             <ThemedText style={styles.positionText}>
                                 <ThemedText style={{ fontSize: 22, lineHeight: 32, fontFamily: 'Formula1-Display-Regular' }}>#</ThemedText>
-                                {driverInitData?.position}
+                                {driverInitData?.position || '0'}
                             </ThemedText>
                             <ThemedText style={styles.POSText}>
                                 POS
@@ -149,7 +149,7 @@ export default function DriverDetail() {
                     <View style={styles.rightColumn}>
                         <View style={styles.pointContainer}>
                             <ThemedText style={styles.pointText}>
-                                {driverInitData?.points}
+                                {driverInitData?.points || '- - '}
                             </ThemedText>
                             <ThemedText style={[styles.PTSText, { color: backgroundColor, backgroundColor: textColor }]}>
                                 PTS
