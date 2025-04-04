@@ -13,7 +13,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ConstructorList() {
     const { top } = useSafeAreaInsets();
-    const { driverStandingList: driverList, loading, error, refreshData } = useF1Data();
+    const { driverStandingList: driverList } = useF1Data();
 
     const renderItem = ({ item }: { item: DriverStanding }) => {
         return (
@@ -36,24 +36,6 @@ export default function ConstructorList() {
             </Link>
         );
     };
-
-    // 如果正在加载，显示加载信息
-    if (loading) {
-        return (
-            <View style={layoutStyles.centerContainer}>
-                <ThemedText>加载中...</ThemedText>
-            </View>
-        );
-    }
-
-    // 如果有错误，显示错误信息
-    if (error) {
-        return (
-            <View style={layoutStyles.centerContainer}>
-                <ThemedText>{error}</ThemedText>
-            </View>
-        );
-    }
 
     // 渲染大奖赛列表
     return (
