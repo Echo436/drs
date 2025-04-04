@@ -6,7 +6,7 @@ import { FlatList } from "react-native-gesture-handler";
 import renderSeparator from "@/components/ui/RenderSeparator";
 import { layoutStyles } from '@/components/ui/Styles';
 import { translateGPName } from "@/i18n/utils";
-import { useRouter } from "expo-router";
+import { router, useRouter } from "expo-router";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { DateTime, Interval } from 'luxon'
 import { useLocales } from "expo-localization";
@@ -26,7 +26,7 @@ export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
     const timeZoneOffset = DateTime.local().offset / 60;
 
     const { top } = useSafeAreaInsets();
-    const { grandPrixList, loading, error, refreshData } = useF1Data();
+    const { grandPrixList, nextRace, refreshData } = useF1Data();
 
     const flags = {
         'Australia': '🇦🇺',
@@ -54,22 +54,27 @@ export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
     }
 
     // 导航到大奖赛详情页面
-    const navigateToGrandPrix = (raceId: string) => {
-        // router.push(`/race/${raceId}`);
-
-        // TODO 当选择的是当前大奖赛时，切换到current
-        onTabChange('first');
+    const navigateToGrandPrix = async (raceId: string, round: string, year: string, initialData: string, raceDate: DateTime<true> | DateTime<false>) => {
+        if (!nextRace) {
+            await refreshData(['nextRace'])
+        }
+        const nextRaceDate = DateTime.fromISO(`${nextRace?.schedule.race.date}T${nextRace?.schedule.race.time}`)
+        if (raceDate.equals(nextRaceDate)) {
+            onTabChange('first');
+        } else {
+            router.push({ pathname: `/race/[raceId]`, params: { raceId, year, round, initialData } });
+        }
     };
 
     const renderItem = ({ item }: { item: Race }) => {
         // MM/dd or dd/MM
-        const fp1Date = DateTime.fromISO(`${item.schedule.fp1.date}T${item.schedule.fp1.time}`).setLocale(languageCode).toLocaleString({ day: "2-digit", month: "2-digit" })
-        const raceDate = DateTime.fromISO(`${item.schedule.race.date}T${item.schedule.race.time}`).setLocale(languageCode).toLocaleString({ day: "2-digit", month: "2-digit" })
-
+        const fp1DateDisplay = DateTime.fromISO(`${item.schedule.fp1.date}T${item.schedule.fp1.time}`).setLocale(languageCode).toLocaleString({ day: "2-digit", month: "2-digit" });
+        const raceDate = DateTime.fromISO(`${item.schedule.race.date}T${item.schedule.race.time}`);
+        const raceDateDisplay = raceDate.setLocale(languageCode).toLocaleString({ day: "2-digit", month: "2-digit" });
         return (
             <TouchableOpacity
                 style={styles.itemContainer}
-                onPress={() => navigateToGrandPrix(item.raceId)}
+                onPress={() => navigateToGrandPrix(item.raceId, item.round, DateTime.fromISO(item.schedule.race.date).year.toString(), JSON.stringify(item), raceDate)}
                 activeOpacity={0.7}
             >
                 <View style={styles.roundContainer}>
@@ -79,7 +84,7 @@ export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
                     <ThemedText type="itemtitle">{`${translateGPName(item.raceId)} ${flags[item.circuit.country as keyof typeof flags] || ''}`}</ThemedText>
                     <View style={styles.positionAndDateContainer}>
                         <ThemedText type='itemsubtitle'>{t(item.circuit.circuitId, 'circuit-id') + '·'}</ThemedText>
-                        <ThemedText type="itemsubtitle">{`${fp1Date} - ${raceDate}`}</ThemedText>
+                        <ThemedText type="itemsubtitle">{`${fp1DateDisplay} - ${raceDateDisplay}`}</ThemedText>
                         <ThemedText style={{ paddingTop: 3, fontSize: 8, lineHeight: 8, fontWeight: 600, color: 'rgb(128, 128, 128)' }}>{` - UTC${timeZoneOffset >= 0 ? `+${timeZoneOffset}` : timeZoneOffset}`}</ThemedText>
                     </View>
                 </View>
@@ -89,24 +94,6 @@ export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
             </TouchableOpacity>
         );
     };
-
-    // 如果正在加载，显示加载信息
-    if (loading) {
-        return (
-            <View style={layoutStyles.centerContainer}>
-                <ThemedText>加载中...</ThemedText>
-            </View>
-        );
-    }
-
-    // 如果有错误，显示错误信息
-    if (error) {
-        return (
-            <View style={layoutStyles.centerContainer}>
-                <ThemedText>{error}</ThemedText>
-            </View>
-        );
-    }
 
     // 渲染大奖赛列表
     return (
