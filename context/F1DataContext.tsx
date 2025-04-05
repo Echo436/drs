@@ -3,10 +3,15 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 // 车手数据类型
 export type Driver = {
     driverId: string;
+    permanentNumber: string,
+    code: string,
+    givenName: string;
+    famulyName: string;
     name: string;
     surname: string;
     nationality: string;
     birthday: string;
+    dateOfBirth: string;
     number: number;
     shortName: string;
     url: string;
@@ -22,6 +27,12 @@ export type Team = {
     constructorsChampionships: number;
     driversChampionships: number;
     url: string;
+}
+export type Constructor = {
+    constructorId: string;
+    uri: string;
+    name: string;
+    nationality: string;
 }
 // 赛道数据类型
 export type Circuit = {
@@ -85,9 +96,11 @@ export type DriverStanding = {
     teamId: string;
     points: number;
     position: number;
+    positionText: string;
     wins: number;
     driver: Driver;
     team: Team;
+    Constructor: Constructor;
 }
 export type Result = {
     finishingPosition: number;
@@ -107,8 +120,10 @@ export type ConstructorStanding = {
     teamId: string;
     points: number;
     position: number;
+    positionText: string;
     wins: number;
     team: Team;
+    Constructor: Constructor;
 }
 export type Drivers_openf1 = {
     broadcast_name: string;
