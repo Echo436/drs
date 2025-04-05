@@ -6,7 +6,7 @@ export type Driver = {
     permanentNumber: string,
     code: string,
     givenName: string;
-    famulyName: string;
+    familyName: string;
     name: string;
     surname: string;
     nationality: string;
@@ -99,8 +99,9 @@ export type DriverStanding = {
     positionText: string;
     wins: number;
     driver: Driver;
+    Driver: Driver;
     team: Team;
-    Constructor: Constructor;
+    Constructors: Constructor[];
 }
 export type Result = {
     finishingPosition: number;
@@ -218,11 +219,16 @@ export const F1DataProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     const fetchDriverData = async () => {
         setDriverListLoading(true);
         try {
-            const response = await fetch('https://f1api.dev/api/current/drivers-championship')
+            const response = await fetch('https://api.jolpi.ca/ergast/f1/2024/driverstandings/')
                 .then(response => response.json());
-            if (response && response.drivers_championship && Array.isArray(response.drivers_championship)) {
-                setDriverList(response.drivers_championship);
-            }
+            // if (response && response.drivers_championship && Array.isArray(response.drivers_championship)) {
+                setDriverList(response.MRData.StandingsTable.StandingsLists[0].DriverStandings);
+            // }
+            // const response = await fetch('https://f1api.dev/api/current/drivers-championship')
+            //     .then(response => response.json());
+            // if (response && response.drivers_championship && Array.isArray(response.drivers_championship)) {
+            //     setDriverList(response.drivers_championship);
+            // }
         } catch (err) {
             console.error('Error fetching F1 driver data:', err);
         } finally {

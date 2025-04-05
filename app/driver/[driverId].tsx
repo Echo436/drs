@@ -55,7 +55,8 @@ export default function DriverDetail() {
     }, [driverId]);
 
     const driverInitData = initialData ? JSON.parse(initialData) as DriverStanding : null;
-    const teamColor = getTeamsColor(driverInitData?.teamId as string);
+    const teamColor = getTeamsColor(driverInitData?.Constructors[0].constructorId as string);
+    // const teamColor = getTeamsColor(driverInitData?.teamId as string);
     const textColor = useThemeColor({}, 'text');
     const backgroundColor = useThemeColor({}, 'background');
     const numberColor = tinycolor(textColor).setAlpha(0.15).toRgbString();
@@ -88,7 +89,7 @@ export default function DriverDetail() {
             style={[layoutStyles.centerContainer, styles.container]}>
             <Stack.Screen
                 options={{
-                    title: driverInitData?.driver.name,
+                    // title: driverInitData?.driver.name,
                     headerShown: true,
                     headerTransparent: true,
                     header(props) {
@@ -123,15 +124,18 @@ export default function DriverDetail() {
                 <View style={styles.profileContainer}>
                     <View style={styles.leftColumn}>
                         <ThemedText type="title" style={styles.firstNameText}>
-                            {driverInitData?.driver.name}
+                            {driverInitData?.Driver.givenName}
+                            {/* {driverInitData?.driver.name} */}
                         </ThemedText>
                         <ThemedText type="subtitle" style={styles.lastNameText}>
-                            {driverInitData?.driver.surname}
+                            {driverInitData?.Driver.familyName}
+                            {/* {driverInitData?.driver.surname} */}
                         </ThemedText>
                         <View style={styles.positionContainer}>
                             <ThemedText style={styles.positionText}>
                                 <ThemedText style={{ fontSize: 22, lineHeight: 32, fontFamily: 'Formula1-Display-Regular' }}>#</ThemedText>
-                                {driverInitData?.position || '0'}
+                                {driverInitData?.positionText || '0'}
+                                {/* {driverInitData?.position || '0'} */}
                             </ThemedText>
                             <ThemedText style={styles.POSText}>
                                 POS
@@ -160,14 +164,16 @@ export default function DriverDetail() {
                 <View style={styles.cardsContainer}>
                     <View style={styles.numberContainer}>
                         <ThemedText style={[styles.numberText, { color: numberColor }]}>
-                            {driverInitData?.driver.number}
+                            {driverInitData?.Driver.permanentNumber}
+                            {/* {driverInitData?.driver.number} */}
                         </ThemedText>
                     </View>
                     <BlurView
                         intensity={20}
                         style={[styles.card, { borderColor: cardBorderColor }]}>
                         <View style={styles.teamContainer}>
-                            <ThemedText>{driverInitData?.team.teamId}</ThemedText>
+                            <ThemedText>{driverInitData?.Constructors[0].name}</ThemedText>
+                            {/* <ThemedText>{driverInitData?.team.teamId}</ThemedText> */}
                             <View style={styles.carImgContainer}>
                                 <Image 
                                     source={{ uri: `https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2025/${driverInitData?.teamId}.png` }} 
@@ -205,7 +211,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
     },
     leftColumn: {
-        flex: 2,
+        flex: 3,
         flexDirection: 'column',
         alignItems: 'flex-start',
     },
@@ -239,21 +245,22 @@ const styles = StyleSheet.create({
     },
 
     pointContainer: {
-        paddingTop: 8,
+        paddingTop: 2,
         alignItems: 'flex-end',
         justifyContent: 'center',
         overflow: 'hidden',
     },
     pointText: {
         fontFamily: 'Formula1-Display-Wide',
-        fontSize: 20,
-        lineHeight: 22,
+        fontSize: 18,
+        lineHeight: 20,
     },
     PTSText: {
         fontFamily: 'Formula1-Display-Wide',
-        fontSize: 12,
-        lineHeight: 14,
+        fontSize: 12.5,
+        lineHeight: 12,
         paddingHorizontal: 10,
+        paddingVertical: 1,
         borderRadius: 5,
     },
 
