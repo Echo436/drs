@@ -2,7 +2,7 @@ import { FlatList, StyleSheet, View, RefreshControl, TouchableOpacity, Image } f
 import React, { useState, useEffect } from "react";
 import { ThemedText } from "@/components/ThemedText";
 import { Race } from "@/context/F1DataContext";
-import { router, Stack, useLocalSearchParams } from "expo-router";
+import { Link, router, Stack, useLocalSearchParams } from "expo-router";
 import { ScrollView } from "react-native-gesture-handler";
 import { layoutStyles } from "@/components/ui/Styles";
 import { LinearGradient } from 'expo-linear-gradient';
@@ -115,12 +115,17 @@ export default function GrandPrixDetail({ isCurrentPage = false }: { isCurrentPa
                 )}
                 <View style={styles.profileContainer}>
 
+                    <ThemedText style={styles.roundText}>
+                        {`R${String(raceInitData?.round || nextRace?.round).padStart(2, '0')}`}
+                    </ThemedText>
+
                     <ThemedText type="title" style={[styles.title, { fontFamily: getFontFamily() }]}>
                         {translateGPName(raceInitData?.raceId || nextRace?.raceId || '')}
                     </ThemedText>
                     <ThemedText type="itemtitle" style={[styles.circuitName, { fontFamily: getFontFamily() }]}>
                         {t(raceInitData?.circuit.circuitName || nextRace?.circuit.circuitName || '', 'circuit-name')}
                     </ThemedText>
+                    <Link href={'/session/sessionLive'}>test</Link>
 
                 </View>
 
@@ -188,6 +193,10 @@ const styles = StyleSheet.create({
         paddingVertical: 15,
         paddingHorizontal: 10,
         flexDirection: 'column',
+    },
+    roundText: {
+        fontFamily: 'Formula1-Display-Regular',
+        paddingLeft: 2,
     },
     leftColumn: {
         flex: 2,
