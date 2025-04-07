@@ -25,14 +25,13 @@ const getFontFamily = () => {
     }
 }
 
-export default function GrandPrixDetail({ isCurrentPage = false }: { isCurrentPage?: boolean }) {
+export default function GrandPrixDetail({ isCurrentPage = false, currentRound = '0', currentRace }: { isCurrentPage?: boolean, currentRound?: string, currentRace?: Race }) {
     const { top } = useSafeAreaInsets();
     const [raceData, setRaceData] = useState<Race | null>(null);
     const [refreshing, setRefreshing] = useState(false);
     const { refreshData, nextRace } = useF1Data();
 
-    const { raceId, round, year, initialData } = useLocalSearchParams<{
-        raceId: string;
+    const { round, year, initialData } = useLocalSearchParams<{
         round: string;
         year: string;
         initialData: string;
@@ -43,6 +42,18 @@ export default function GrandPrixDetail({ isCurrentPage = false }: { isCurrentPa
             setTimeout(resolve, timeout);
         });
     }
+
+    const fetchData = async () => {
+        setRefreshing(true);
+        try {
+            const response = await fetch(`http://api.jolpi.ca/ergast/f1/current/${isCurrentPage ? currentRound : round}/races`)
+                .then(response => response.json());
+            const raceData = response.MRData.RaceTable.Races[0];
+            setRaceData(raceData);
+        } finally {
+            setRefreshing(false);
+        }
+    };
 
     const onRefresh = React.useCallback(async () => {
         setRefreshing(true);
@@ -55,6 +66,9 @@ export default function GrandPrixDetail({ isCurrentPage = false }: { isCurrentPa
     }, []);
 
     useEffect(() => {
+        if (isCurrentPage) {
+            setRaceData(currentRace || null);
+        }
     }, []);
 
     const raceInitData = initialData ? JSON.parse(initialData) as Race : null;
@@ -64,14 +78,28 @@ export default function GrandPrixDetail({ isCurrentPage = false }: { isCurrentPa
     const cardBorderColor = useThemeColor({}, 'cardBorder');
 
     const scheduleData = [
-        { key: 'fp1', name: t('FP1', 'session'), session: (raceInitData || nextRace)?.schedule.fp1 },
-        { key: 'fp2', name: t('FP2', 'session'), session: (raceInitData || nextRace)?.schedule.fp2 },
-        { key: 'fp3', name: t('FP3', 'session'), session: (raceInitData || nextRace)?.schedule.fp3 },
-        { key: 'sprintQualy', name: t('Sprint Qualifying', 'session'), session: (raceInitData || nextRace)?.schedule.sprintQualy },
-        { key: 'sprintRace', name: t('Sprint Race', 'session'), session: (raceInitData || nextRace)?.schedule.sprintRace },
-        { key: 'qualy', name: t('Qualifying', 'session'), session: (raceInitData || nextRace)?.schedule.qualy },
-        { key: 'race', name: t('Race', 'session'), session: (raceInitData || nextRace)?.schedule.race },
+        { key: 'fp1', name: t('FP1', 'session'), session: (raceInitData || raceData)?.FirstPractice },
+        { key: 'fp2', name: t('FP2', 'session'), session: (raceInitData || raceData)?.SecondPractice },
+        { key: 'fp3', name: t('FP3', 'session'), session: (raceInitData || raceData)?.ThirdPractice },
+        { key: 'sprintQualy', name: t('Sprint Qualifying', 'session'), session: (raceInitData || raceData)?.SprintQualifying },
+        { key: 'sprintRace', name: t('Sprint Race', 'session'), session: (raceInitData || raceData)?.Sprint },
+        { key: 'qualy', name: t('Qualifying', 'session'), session: (raceInitData || raceData)?.Qualifying },
+        {
+            key: 'race', name: t('Race', 'session'), session: {
+                date: (raceInitData || raceData)?.date,
+                time: (raceInitData || raceData)?.time,
+            }
+        },
     ].filter(item => item.session && item.session.date !== null);
+    // const scheduleData = [
+    //     { key: 'fp1', name: t('FP1', 'session'), session: (raceInitData || nextRace)?.schedule.fp1 },
+    //     { key: 'fp2', name: t('FP2', 'session'), session: (raceInitData || nextRace)?.schedule.fp2 },
+    //     { key: 'fp3', name: t('FP3', 'session'), session: (raceInitData || nextRace)?.schedule.fp3 },
+    //     { key: 'sprintQualy', name: t('Sprint Qualifying', 'session'), session: (raceInitData || nextRace)?.schedule.sprintQualy },
+    //     { key: 'sprintRace', name: t('Sprint Race', 'session'), session: (raceInitData || nextRace)?.schedule.sprintRace },
+    //     { key: 'qualy', name: t('Qualifying', 'session'), session: (raceInitData || nextRace)?.schedule.qualy },
+    //     { key: 'race', name: t('Race', 'session'), session: (raceInitData || nextRace)?.schedule.race },
+    // ].filter(item => item.session && item.session.date !== null);
 
 
     return (
@@ -116,14 +144,16 @@ export default function GrandPrixDetail({ isCurrentPage = false }: { isCurrentPa
                 <View style={styles.profileContainer}>
 
                     <ThemedText style={styles.roundText}>
-                        {`R${String(raceInitData?.round || nextRace?.round).padStart(2, '0')}`}
+                        {`R${String(raceInitData?.round || raceData?.round).padStart(2, '0')}`}
+                        {/* {`R${String(raceInitData?.round || nextRace?.round).padStart(2, '0')}`} */}
                     </ThemedText>
 
                     <ThemedText type="title" style={[styles.title, { fontFamily: getFontFamily() }]}>
-                        {translateGPName(raceInitData?.raceId || nextRace?.raceId || '')}
+                        {t(raceInitData?.raceName || raceData?.raceName || '', 'grand-prix-name')}
                     </ThemedText>
                     <ThemedText type="itemtitle" style={[styles.circuitName, { fontFamily: getFontFamily() }]}>
-                        {t(raceInitData?.circuit.circuitName || nextRace?.circuit.circuitName || '', 'circuit-name')}
+                        {t(raceInitData?.Circuit.circuitName || raceData?.Circuit.circuitName || '', 'circuit-name')}
+                        {/* {t(raceInitData?.circuit.circuitName || nextRace?.circuit.circuitName || '', 'circuit-name')} */}
                     </ThemedText>
                     <Link href={'/session/sessionLive'}>test</Link>
 
@@ -162,13 +192,15 @@ export default function GrandPrixDetail({ isCurrentPage = false }: { isCurrentPa
                                                     <ThemedText style={styles.date}>{dateDisplay}</ThemedText>
                                                 </View>)}
                                             </View>
-                                            {/* 每天的日程（右侧列） */}
                                             <View style={{ flex: 1 }}>
                                                 {showInDayTopSeparator && (<View style={{ height: 1, backgroundColor: 'gray' }}></View>)}
-                                                <View style={styles.sessionColumn}>
-                                                    <ThemedText style={styles.sessionName}>{item.name}</ThemedText>
-                                                    <ThemedText style={styles.sessionTime}>{timeDisplay}</ThemedText>
-                                                </View>
+                                                {/* 每天的日程（右侧列） */}
+                                                <Link href={{ pathname: '/result/[round]', params: { year: 2025, round: isCurrentPage ? currentRound : round, session: item.key } }} asChild>
+                                                    <TouchableOpacity style={styles.sessionColumn}>
+                                                        <ThemedText style={styles.sessionName}>{item.name}</ThemedText>
+                                                        <ThemedText style={styles.sessionTime}>{timeDisplay}</ThemedText>
+                                                    </TouchableOpacity>
+                                                </Link>
                                             </View>
                                         </View>
                                     </View>

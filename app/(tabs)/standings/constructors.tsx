@@ -12,7 +12,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ConstructorList() {
     const { top } = useSafeAreaInsets();
-    const { constructorList, driverStandingList: driverStandingList, loading, error, refreshData } = useF1Data();
+    const { constructorList, driverStandingList: driverStandingList } = useF1Data();
 
     const renderItem = ({ item }: { item: ConstructorStanding }) => {
         return (
@@ -21,13 +21,16 @@ export default function ConstructorList() {
                     <ThemedText style={styles.posisionText}>{String(item.position).padStart(2, '0')}</ThemedText>
                 </View>
                 <View style={styles.teamInfoContainer}>
-                    <ThemedText type="itemtitle">{t(item.teamId, 'team')}</ThemedText>
+                    <ThemedText type="itemtitle">{t(item.Constructor.constructorId, 'team')}</ThemedText>
+                    {/* <ThemedText type="itemtitle">{t(item.teamId, 'team')}</ThemedText> */}
                     <View style={styles.driversContainer}>
                         {driverStandingList
-                            .filter(driver => driver.teamId === item.teamId)
+                            .filter(driver => driver.Constructors[0].constructorId === item.Constructor.constructorId)
+                            // .filter(driver => driver.teamId === item.teamId)
                             .map(driver => (
-                                <ThemedText key={driver.driverId} type="itemsubtitle" style={styles.driverNameText}>
-                                    {driver.driver.shortName}
+                                <ThemedText key={driver.Driver.driverId} type="itemsubtitle" style={styles.driverNameText}>
+                                    {driver.Driver.code}
+                                    {/* {driver.driver.shortName} */}
                                 </ThemedText>
                             ))}
                     </View>
@@ -42,30 +45,12 @@ export default function ConstructorList() {
         );
     };
 
-    // 如果正在加载，显示加载信息
-    if (loading) {
-        return (
-            <View style={layoutStyles.centerContainer}>
-                <ThemedText>加载中...</ThemedText>
-            </View>
-        );
-    }
-
-    // 如果有错误，显示错误信息
-    if (error) {
-        return (
-            <View style={layoutStyles.centerContainer}>
-                <ThemedText>{error}</ThemedText>
-            </View>
-        );
-    }
-
     // 渲染大奖赛列表
     return (
         <FlatList
             data={constructorList}
             renderItem={renderItem}
-            keyExtractor={(item) => item.teamId}
+            keyExtractor={(item) => item.Constructor.constructorId}
             ItemSeparatorComponent={renderSeparator}
             contentContainerStyle={layoutStyles.listContainer}
             showsVerticalScrollIndicator={false}

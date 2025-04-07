@@ -46,7 +46,7 @@ export default function ConstructorList() {
         <FlatList
             data={driverList}
             renderItem={renderItem}
-            keyExtractor={(item) => item.driverId}
+            keyExtractor={(item) => item.Driver.driverId}
             ItemSeparatorComponent={renderSeparator}
             contentContainerStyle={layoutStyles.listContainer}
             showsVerticalScrollIndicator={false}

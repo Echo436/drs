@@ -1,5 +1,20 @@
 // API数据类型定义
 
+interface Driver {
+    session_key: number;
+    meeting_key: number;
+    broadcast_name: string;
+    country_code: string;
+    first_name: string;
+    full_name: string;
+    headshot_url: string;
+    last_name: string;
+    driver_number: number;
+    team_colour: string;
+    team_name: string;
+    name_acronym: string;
+}
+
 // Some data about each car, at a sample rate of about 3.7 Hz.
 interface CarData {
     brake: number;
@@ -99,34 +114,36 @@ interface DriverData {
 
 const API_BASE_URL = 'https://api.openf1.org/v1';
 // 默认数据刷新间隔时间（毫秒），根据API更新频率设置为4000毫秒
-const DEFAULT_REFRESH_INTERVAL = 40000000000000;
+const DEFAULT_REFRESH_INTERVAL = 4000;
 
-const DRIVERS: Driver[] = [
-    { driver_number: 16, name: 'LEC' },
-    { driver_number: 44, name: 'HAM' },
-    { driver_number: 1, name: 'VER' },
-    { driver_number: 4, name: 'NOR' },
-    { driver_number: 63, name: 'RUS' },
-    { driver_number: 81, name: 'PIA' },
-    { driver_number: 12, name: 'ANT' },
-    { driver_number: 23, name: 'ALB' },
-    { driver_number: 31, name: 'OCO' },
-    { driver_number: 18, name: 'STR' },
-    { driver_number: 27, name: 'HUL' },
-    { driver_number: 87, name: 'BEA' },
-    { driver_number: 22, name: 'TSU' },
-    { driver_number: 55, name: 'SAI' },
-    { driver_number: 10, name: 'GAS' },
-    { driver_number: 6, name: 'HAD' },
-    { driver_number: 30, name: 'LAW' },
-    { driver_number: 7, name: 'DOO' },
-    { driver_number: 5, name: 'BOR' },
-    { driver_number: 14, name: 'ALO' },
-    // Add more drivers as needed
-];
+// 获取车手数据
+const fetchDriverData = async (sessionKey: number = 10006): Promise<Driver[]> => {
+    try {
+        const res = await fetch(`${API_BASE_URL}/drivers?session_key=${sessionKey}`);
+        const data = await res.json();
+        // 将API返回的数据映射到我们的Driver接口
+        return data.map((driver: any) => ({
+            session_key: driver.session_key,
+            meeting_key: driver.meeting_key,
+            broadcast_name: driver.broadcast_name,
+            country_code: driver.country_code,
+            first_name: driver.first_name,
+            full_name: driver.full_name,
+            headshot_url: driver.headshot_url,
+            last_name: driver.last_name,
+            driver_number: driver.driver_number,
+            team_colour: driver.team_colour,
+            team_name: driver.team_name,
+            name_acronym: driver.name_acronym
+        }));
+    } catch (err) {
+        console.warn('Failed to fetch driver data', err);
+        return [];
+    }
+};
 
 // 获取位置数据
-const fetchPositionData = async (sessionKey: number = 10002): Promise<Position[]> => {
+const fetchPositionData = async (sessionKey: number = 10006): Promise<Position[]> => {
     try {
         const res = await fetch(`${API_BASE_URL}/position?session_key=${sessionKey}`);
         return await res.json();
@@ -137,7 +154,7 @@ const fetchPositionData = async (sessionKey: number = 10002): Promise<Position[]
 };
 
 // 获取车辆数据
-const fetchCarData = async (sessionKey: number = 10002): Promise<CarData[]> => {
+const fetchCarData = async (sessionKey: number = 10006): Promise<CarData[]> => {
     try {
         const res = await fetch(`${API_BASE_URL}/car_data?session_key=${sessionKey}`);
         return await res.json();
@@ -148,7 +165,7 @@ const fetchCarData = async (sessionKey: number = 10002): Promise<CarData[]> => {
 };
 
 // 获取间隔数据
-const fetchIntervalData = async (sessionKey: number = 10002): Promise<Interval[]> => {
+const fetchIntervalData = async (sessionKey: number = 10006): Promise<Interval[]> => {
     try {
         const res = await fetch(`${API_BASE_URL}/intervals?session_key=${sessionKey}`);
         return await res.json();
@@ -159,7 +176,7 @@ const fetchIntervalData = async (sessionKey: number = 10002): Promise<Interval[]
 };
 
 // 获取圈速数据
-const fetchLapData = async (sessionKey: number = 10002): Promise<Lap[]> => {
+const fetchLapData = async (sessionKey: number = 10006): Promise<Lap[]> => {
     try {
         const res = await fetch(`${API_BASE_URL}/laps?session_key=${sessionKey}`);
         return await res.json();
@@ -170,7 +187,7 @@ const fetchLapData = async (sessionKey: number = 10002): Promise<Lap[]> => {
 };
 
 // 获取进站数据
-const fetchPitData = async (sessionKey: number = 10002): Promise<Pit[]> => {
+const fetchPitData = async (sessionKey: number = 10006): Promise<Pit[]> => {
     try {
         const res = await fetch(`${API_BASE_URL}/pit?session_key=${sessionKey}`);
         return await res.json();
@@ -185,7 +202,8 @@ interface RaceMonitorProps {
     sessionKey?: number; // 可选参数，允许自定义session_key
 }
 
-const RaceMonitor = ({ refreshInterval = DEFAULT_REFRESH_INTERVAL, sessionKey = 10002 }: RaceMonitorProps = {}) => {
+const RaceMonitor = ({ refreshInterval = DEFAULT_REFRESH_INTERVAL, sessionKey = 10006 }: RaceMonitorProps = {}) => {
+    const [drivers, setDrivers] = useState<Driver[]>([]);
     const [positions, setPositions] = useState<Record<number, Position | undefined>>({});
     const [carData, setCarData] = useState<Record<number, CarData | undefined>>({});
     const [intervals, setIntervals] = useState<Record<number, Interval | undefined>>({});
@@ -193,8 +211,23 @@ const RaceMonitor = ({ refreshInterval = DEFAULT_REFRESH_INTERVAL, sessionKey = 
     const [pits, setPits] = useState<Record<number, Pit | undefined>>({});
     const [driverData, setDriverData] = useState<Record<number, DriverData>>({});
     const [lastUpdated, setLastUpdated] = useState<string>('');
+    
+    // 首次挂载时获取车手数据
+    useEffect(() => {
+        const loadDrivers = async () => {
+            const driverData = await fetchDriverData(sessionKey);
+            if (driverData.length > 0) {
+                setDrivers(driverData);
+            }
+        };
+        
+        loadDrivers();
+    }, [sessionKey]);
 
     useEffect(() => {
+        // 如果没有车手数据，不执行数据获取
+        if (drivers.length === 0) return;
+        
         const fetchData = async () => {
             // 并行获取所有数据
             const [positionData, carDataResult, intervalData, lapData, pitData] = await Promise.all([
@@ -204,62 +237,64 @@ const RaceMonitor = ({ refreshInterval = DEFAULT_REFRESH_INTERVAL, sessionKey = 
                 fetchLapData(sessionKey),
                 fetchPitData(sessionKey)
             ]);
-            
+
             // 处理位置数据
             const latestPositions: Record<number, Position | undefined> = {};
             if (positionData.length > 0) {
-                DRIVERS.forEach(driver => {
+                drivers.forEach(driver => {
                     const latest = [...positionData].reverse().find(pos => pos.driver_number === driver.driver_number);
                     latestPositions[driver.driver_number] = latest;
                 });
                 setPositions(latestPositions);
             }
-            
+
             // 处理车辆数据
             const latestCarData: Record<number, CarData | undefined> = {};
             if (carDataResult.length > 0) {
-                DRIVERS.forEach(driver => {
+                drivers.forEach(driver => {
                     const latest = [...carDataResult].reverse().find(data => data.driver_number === driver.driver_number);
                     latestCarData[driver.driver_number] = latest;
                 });
                 setCarData(latestCarData);
             }
-            
+
             // 处理间隔数据
             const latestIntervals: Record<number, Interval | undefined> = {};
             if (intervalData.length > 0) {
-                DRIVERS.forEach(driver => {
+                drivers.forEach(driver => {
                     const latest = [...intervalData].reverse().find(data => data.driver_number === driver.driver_number);
                     latestIntervals[driver.driver_number] = latest;
                 });
                 setIntervals(latestIntervals);
             }
-            
+
             // 处理圈速数据
             const latestLaps: Record<number, Lap | undefined> = {};
             if (lapData.length > 0) {
-                DRIVERS.forEach(driver => {
+                drivers.forEach(driver => {
+                    // console.log(lapData);
                     const latest = [...lapData].reverse().find(data => data.driver_number === driver.driver_number);
                     latestLaps[driver.driver_number] = latest;
                 });
                 setLaps(latestLaps);
             }
-            
+
             // 处理进站数据
             const latestPits: Record<number, Pit | undefined> = {};
             if (pitData.length > 0) {
-                DRIVERS.forEach(driver => {
+                drivers.forEach(driver => {
                     const latest = [...pitData].reverse().find(data => data.driver_number === driver.driver_number);
                     latestPits[driver.driver_number] = latest;
                 });
                 setPits(latestPits);
             }
-            
+
             // 整合所有数据
             const combinedData: Record<number, DriverData> = {};
-            DRIVERS.forEach(driver => {
+            drivers.forEach(driver => {
                 combinedData[driver.driver_number] = {
-                    ...driver,
+                    driver_number: driver.driver_number,
+                    name: driver.name_acronym || `${driver.first_name.charAt(0)}${driver.last_name.charAt(0)}`,
                     position: latestPositions[driver.driver_number],
                     carData: latestCarData[driver.driver_number],
                     interval: latestIntervals[driver.driver_number],
@@ -268,7 +303,7 @@ const RaceMonitor = ({ refreshInterval = DEFAULT_REFRESH_INTERVAL, sessionKey = 
                 };
             });
             setDriverData(combinedData);
-            
+
             setLastUpdated(new Date().toLocaleTimeString());
         };
 
@@ -279,35 +314,35 @@ const RaceMonitor = ({ refreshInterval = DEFAULT_REFRESH_INTERVAL, sessionKey = 
         const interval = setInterval(fetchData, refreshInterval);
 
         return () => clearInterval(interval);
-    }, [refreshInterval, sessionKey]);
+    }, [refreshInterval, sessionKey, drivers]);
 
     // 根据position对驾驶员进行排序
-    const sortedDrivers = [...DRIVERS].sort((a, b) => {
+    const sortedDrivers = [...drivers].sort((a, b) => {
         const posA = positions[a.driver_number]?.position ?? Number.MAX_SAFE_INTEGER;
         const posB = positions[b.driver_number]?.position ?? Number.MAX_SAFE_INTEGER;
         return posA - posB;
     });
-    
+
     // 获取驾驶员的最新DRS状态
     const getDrsStatus = (driverNumber: number): string => {
         const drsValue = carData[driverNumber]?.drs;
         if (drsValue === undefined) return 'N/A';
         return drsValue === 1 ? '开启' : '关闭';
     };
-    
+
     // 获取驾驶员的最新速度
     const getSpeed = (driverNumber: number): string => {
         const speed = carData[driverNumber]?.speed;
         return speed !== undefined ? `${speed} km/h` : 'N/A';
     };
-    
+
     // 获取驾驶员的最新间隔
     const getInterval = (driverNumber: number): string => {
         const interval = intervals[driverNumber]?.interval;
-        if (interval === undefined) return 'N/A';
+        if (interval === undefined || interval === null) return 'N/A';
         return interval === 0 ? 'LEADER' : `+${interval.toFixed(3)}s`;
     };
-    
+
     // 获取驾驶员的最新圈速
     const getLapTime = (driverNumber: number): string => {
         const lapDuration = laps[driverNumber]?.lap_duration;
@@ -329,7 +364,7 @@ const RaceMonitor = ({ refreshInterval = DEFAULT_REFRESH_INTERVAL, sessionKey = 
                     <View style={styles.itemContainer}>
                         <View style={styles.positionContainer}>
                             <Text style={styles.positionText}>{positions[item.driver_number]?.position ?? '-'}</Text>
-                            <Text style={styles.driverName}>{item.name} (#{item.driver_number})</Text>
+                            <Text style={styles.driverName}>{item.name_acronym || `${item.first_name.charAt(0)}${item.last_name.charAt(0)}`} (#{item.driver_number})</Text>
                         </View>
                         <View style={styles.dataContainer}>
                             <View style={styles.dataRow}>
@@ -345,8 +380,12 @@ const RaceMonitor = ({ refreshInterval = DEFAULT_REFRESH_INTERVAL, sessionKey = 
                                 <ThemedText style={styles.dataValue}>{getInterval(item.driver_number)}</ThemedText>
                             </View>
                             <View style={styles.dataRow}>
-                                <ThemedText style={styles.dataLabel}>最新圈速:</ThemedText>
+                                <ThemedText style={styles.dataLabel}>上一圈:</ThemedText>
                                 <ThemedText style={styles.dataValue}>{getLapTime(item.driver_number)}</ThemedText>
+                            </View>
+                            <View style={styles.dataRow}>
+                                <ThemedText style={styles.dataLabel}>text:</ThemedText>
+                                <ThemedText style={styles.dataValue}>{laps[item.driver_number]?.segments_sector_1}</ThemedText>
                             </View>
                         </View>
                     </View>

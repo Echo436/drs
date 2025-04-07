@@ -1,5 +1,10 @@
+import { DateTime } from 'luxon';
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
+export type Season = {
+    season: string;
+    url: string;
+}
 // 车手数据类型
 export type Driver = {
     driverId: string;
@@ -51,6 +56,12 @@ export type Circuit = {
     fastestLapTeamId: string;
     fastestLapYear: number;
     url: string;
+    Location: {
+        lat: string;
+        long: string;
+        locality: string;
+        country: string;
+    }
 }
 // 比赛阶段数据类型
 export type Schedule = {
@@ -75,6 +86,7 @@ export type FastLap = {
 };
 // 大奖赛数据类型
 export type Race = {
+    season: string;
     raceId: string;
     championshipId: string;
     name: string;
@@ -85,9 +97,17 @@ export type Race = {
     url: string;
     fast_lap: FastLap;
     circuit: Circuit;
+    Circuit: Circuit;
     winner: Driver;
     teamWinner: Team;
     date: string;
+    time: string;
+    FirstPractice: Session;
+    SecondPractice: Session;
+    ThirdPractice: Session;
+    Qualifying: Session;
+    Sprint: Session;
+    SprintQualifying: Session;
 };
 // 车手（排名）数据类型
 export type DriverStanding = {
@@ -144,7 +164,9 @@ export type Drivers_openf1 = {
 type DataType = 'grandPrixList' | 'driverStandingList' | 'constructorList' | 'nextRace' | 'lastRace';
 
 type F1DataContextType = {
+    seasons: Season[];
     grandPrixList: Race[];
+    currentRound: string;
     driverStandingList: DriverStanding[];
     constructorList: ConstructorStanding[];
     nextRace: Race | null;
@@ -162,7 +184,9 @@ const F1DataContext = createContext<F1DataContextType | undefined>(undefined);
 
 // Provider组件
 export const F1DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+    const [seasons, setSeasons] = useState<Season[]>([]);
     const [grandPrixList, setGrandPrixList] = useState<Race[]>([]);
+    const [currentRound, setCurrentRound] = useState<string>('0');
     const [driverList, setDriverList] = useState<DriverStanding[]>([]);
     const [constructorList, setConstructorList] = useState<ConstructorStanding[]>([]);
     const [nextRace, setNextRace] = useState<Race | null>(null);
@@ -173,14 +197,33 @@ export const F1DataProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     const [nextRaceLoading, setNextRaceLoading] = useState(true);
     const [lastRaceLoading, setLastRaceLoading] = useState(true);
 
+    const fetchSeasonsData = () => {
+        fetch('https://api.jolpi.ca/ergast/f1/seasons/?limit=100')
+            .then(response => response.json())
+            .then(data => {
+                setSeasons(data.MRData.SeasonTable.Seasons.reverse());
+            })
+    }
+
     const fetchGPListData = async () => {
         setGrandPrixLoading(true);
         try {
-            const response = await fetch('https://f1api.dev/api/current')
+            const response = await fetch('http://api.jolpi.ca/ergast/f1/current/races')
                 .then(response => response.json());
-            if (response && response.races && Array.isArray(response.races)) {
-                setGrandPrixList(response.races);
+            const data: Race[] = response.MRData.RaceTable.Races;
+            setGrandPrixList(data);
+            for (const race of data) {
+                const date = DateTime.fromISO(`${race.date}T${race.time}`);
+                if (date.plus({ day: 2 }) > DateTime.now()) {
+                    setCurrentRound(race.round);
+                    break;
+                }
             }
+            // const response = await fetch('https://f1api.dev/api/current')
+            //     .then(response => response.json());
+            // if (response && response.races && Array.isArray(response.races)) {
+            //     setGrandPrixList(response.races);
+            // }
         } catch (err) {
             console.error('Error fetching F1 race data:', err);
         } finally {
@@ -205,7 +248,7 @@ export const F1DataProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     const fetchLastRaceData = async () => {
         try {
             const response = await fetch('https://f1api.dev/api/current/last')
-               .then(response => response.json());
+                .then(response => response.json());
             if (response && response.races && Array.isArray(response.races)) {
                 setLastRace(response.races[0]);
             }
@@ -222,7 +265,7 @@ export const F1DataProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             const response = await fetch('https://api.jolpi.ca/ergast/f1/2024/driverstandings/')
                 .then(response => response.json());
             // if (response && response.drivers_championship && Array.isArray(response.drivers_championship)) {
-                setDriverList(response.MRData.StandingsTable.StandingsLists[0].DriverStandings);
+            setDriverList(response.MRData.StandingsTable.StandingsLists[0].DriverStandings);
             // }
             // const response = await fetch('https://f1api.dev/api/current/drivers-championship')
             //     .then(response => response.json());
@@ -239,11 +282,14 @@ export const F1DataProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     const fetchConstructorData = async () => {
         setConstructorListLoading(true);
         try {
-            const response = await fetch('https://f1api.dev/api/current/constructors-championship')
+            const response = await fetch('https://api.jolpi.ca/ergast/f1/2024/constructorstandings/')
                 .then(response => response.json());
-            if (response && response.constructors_championship && Array.isArray(response.constructors_championship)) {
-                setConstructorList(response.constructors_championship);
-            }
+            setConstructorList(response.MRData.StandingsTable.StandingsLists[0].ConstructorStandings);
+            // const response = await fetch('https://f1api.dev/api/current/constructors-championship')
+            //     .then(response => response.json());
+            // if (response && response.constructors_championship && Array.isArray(response.constructors_championship)) {
+            //     setConstructorList(response.constructors_championship);
+            // }
         } catch (err) {
             console.error('Error fetching F1 constructor data:', err);
         } finally {
@@ -254,6 +300,7 @@ export const F1DataProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     useEffect(() => {
         const fetchAllData = async () => {
             await Promise.all([
+                fetchSeasonsData(),
                 fetchGPListData(),
                 fetchDriverData(),
                 fetchConstructorData(),
@@ -272,16 +319,18 @@ export const F1DataProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             nextRace: fetchNextRaceData,
             lastRace: fetchLastRaceData
         };
-    
+
         const functionsToExecute = dataTypes
             ? dataTypes.map(type => fetchFunctions[type])
             : Object.values(fetchFunctions);
-    
+
         await Promise.all(functionsToExecute.map(fn => fn()));
     };
 
     const contextValue: F1DataContextType = {
+        seasons,
         grandPrixList,
+        currentRound,
         driverStandingList: driverList,
         constructorList,
         nextRace,
