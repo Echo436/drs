@@ -56,7 +56,6 @@ export default function DriverDetail() {
 
     const driverInitData = initialData ? JSON.parse(initialData) as DriverStanding : null;
     const teamColor = getTeamsColor(driverInitData?.Constructors[0].constructorId as string);
-    // const teamColor = getTeamsColor(driverInitData?.teamId as string);
     const textColor = useThemeColor({}, 'text');
     const backgroundColor = useThemeColor({}, 'background');
     const numberColor = tinycolor(textColor).setAlpha(0.15).toRgbString();
@@ -89,7 +88,6 @@ export default function DriverDetail() {
             style={[layoutStyles.centerContainer, styles.container]}>
             <Stack.Screen
                 options={{
-                    // title: driverInitData?.driver.name,
                     headerShown: true,
                     headerTransparent: true,
                     header(props) {

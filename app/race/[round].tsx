@@ -91,16 +91,6 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
             }
         },
     ].filter(item => item.session && item.session.date !== null);
-    // const scheduleData = [
-    //     { key: 'fp1', name: t('FP1', 'session'), session: (raceInitData || nextRace)?.schedule.fp1 },
-    //     { key: 'fp2', name: t('FP2', 'session'), session: (raceInitData || nextRace)?.schedule.fp2 },
-    //     { key: 'fp3', name: t('FP3', 'session'), session: (raceInitData || nextRace)?.schedule.fp3 },
-    //     { key: 'sprintQualy', name: t('Sprint Qualifying', 'session'), session: (raceInitData || nextRace)?.schedule.sprintQualy },
-    //     { key: 'sprintRace', name: t('Sprint Race', 'session'), session: (raceInitData || nextRace)?.schedule.sprintRace },
-    //     { key: 'qualy', name: t('Qualifying', 'session'), session: (raceInitData || nextRace)?.schedule.qualy },
-    //     { key: 'race', name: t('Race', 'session'), session: (raceInitData || nextRace)?.schedule.race },
-    // ].filter(item => item.session && item.session.date !== null);
-
 
     return (
         <ThemedView
@@ -145,7 +135,6 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
 
                     <ThemedText style={styles.roundText}>
                         {`R${String(raceInitData?.round || raceData?.round).padStart(2, '0')}`}
-                        {/* {`R${String(raceInitData?.round || nextRace?.round).padStart(2, '0')}`} */}
                     </ThemedText>
 
                     <ThemedText type="title" style={[styles.title, { fontFamily: getFontFamily() }]}>
@@ -153,7 +142,6 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                     </ThemedText>
                     <ThemedText type="itemtitle" style={[styles.circuitName, { fontFamily: getFontFamily() }]}>
                         {t(raceInitData?.Circuit.circuitName || raceData?.Circuit.circuitName || '', 'circuit-name')}
-                        {/* {t(raceInitData?.circuit.circuitName || nextRace?.circuit.circuitName || '', 'circuit-name')} */}
                     </ThemedText>
                     <Link href={'/session/sessionLive'}>test</Link>
 

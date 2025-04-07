@@ -18,25 +18,22 @@ export default function ConstructorList() {
         return (
             <View style={styles.itemContainer}>
                 <View style={styles.positionContainer}>
-                    <ThemedText style={styles.posisionText}>{String(item.position).padStart(2, '0')}</ThemedText>
+                    <ThemedText style={styles.posisionText}>{String(item.position || '--').padStart(2, '0')}</ThemedText>
                 </View>
                 <View style={styles.teamInfoContainer}>
-                    <ThemedText type="itemtitle">{t(item.Constructor.constructorId, 'team')}</ThemedText>
-                    {/* <ThemedText type="itemtitle">{t(item.teamId, 'team')}</ThemedText> */}
+                    <ThemedText type="itemtitle">{t(item.Constructor.name, 'team')}</ThemedText>
                     <View style={styles.driversContainer}>
                         {driverStandingList
                             .filter(driver => driver.Constructors[0].constructorId === item.Constructor.constructorId)
-                            // .filter(driver => driver.teamId === item.teamId)
                             .map(driver => (
                                 <ThemedText key={driver.Driver.driverId} type="itemsubtitle" style={styles.driverNameText}>
-                                    {driver.Driver.code}
-                                    {/* {driver.driver.shortName} */}
+                                    {driver.Driver.code || driver.Driver.familyName}
                                 </ThemedText>
                             ))}
                     </View>
                 </View>
                 <View style={styles.pointsContainer}>
-                    <ThemedText style={styles.pointText}>{item.points}</ThemedText>
+                    <ThemedText style={styles.pointText}>{item.points || '-'}</ThemedText>
                 </View>
                 <View style={styles.chevronContainer}>
                     <IconSymbol name='chevron.right' size={10} color={'gray'}></IconSymbol>
@@ -87,7 +84,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     pointsContainer: {
-        width: 40,
+        width: 50,
     },
     pointText: {
         fontFamily: 'Formula1-Display-Bold',

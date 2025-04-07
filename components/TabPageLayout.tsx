@@ -7,6 +7,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { ThemedText } from './ThemedText';
 import { Stack } from 'expo-router';
+import { useF1Data } from '@/context/F1DataContext';
+import { Dropdown } from 'react-native-element-dropdown';
 
 type TabPageLayoutProps = {
     // 第一个标签页的组件
@@ -48,7 +50,7 @@ export const TabPageLayout: React.FC<TabPageLayoutProps> = ({
     rightBottomText = '',
 }) => {
     const headerBorderColor = useThemeColor({}, 'headerBorder');
-
+    const { selectedSeason, setSelectedSeason, seasons } = useF1Data();
     // 获取安全区域的insets，用于计算顶部安全区域高度
     const { top } = useSafeAreaInsets();
     // 当前激活的标签页状态
@@ -127,6 +129,24 @@ export const TabPageLayout: React.FC<TabPageLayoutProps> = ({
                 ) : (
                     <ThemedView style={StyleSheet.absoluteFill} />
                 )}
+                <View style={styles.pickerContainer}>
+                    <Dropdown
+                        style={{
+                            paddingHorizontal: 10,
+                        }}
+                        data={seasons}
+                        labelField="season"
+                        valueField="season"
+                        placeholder="----"
+                        value={selectedSeason}
+                        onChange={(item) => {
+                            setSelectedSeason(item.season);
+                        }}
+                        selectedTextStyle={{fontSize: 12}}
+                        itemTextStyle={{fontSize: 12}}
+                    />
+
+                </View>
                 {/* 标签切换器容器 */}
                 <View style={styles.tabSwitchContainer}>
                     <CapsuleTabSwitch
@@ -205,16 +225,17 @@ const styles = StyleSheet.create({
 
     },
     tabSwitchContainer: {
-        position: 'relative',
-        left: '50%',
-        top: '50%',
-        transform: 'translate(-50%, -50%)',
-        zIndex: 2,
+        flex: 3,
+    },
+    // 赛季选择器容器样式
+    pickerContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        marginLeft: 5,
     },
     // 积分文本容器样式
     scoreTextContainer: {
-        width: '10%',
-        marginRight: 14.5,
+        flex: 1,
     },
     // 积分文本样式
     scoreText: {
@@ -223,5 +244,6 @@ const styles = StyleSheet.create({
         color: '#5F5F5F',
         textAlign: 'center',
         lineHeight: 15,
+        paddingRight: 3,
     },
 });

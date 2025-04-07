@@ -92,20 +92,15 @@
     "Franco": "弗兰科",
     "Colapinto": "科拉平托",
     "Logan": "洛根",
-    "Sargeant": "萨金特"
+    "Sargeant": "萨金特",
+    "Sebastian": "塞巴斯蒂安",
+    "Vettel": "维特尔",
+    "Michael": "迈克尔",
+    "Schumacher": "舒马赫",
+    "Räikkönen": "莱科宁",
+    "Andrea Kimi": "安德里亚·基米"
   },
   "team": {
-    "mercedes": "梅赛德斯",
-    "ferrari": "法拉利",
-    "red_bull": "红牛",
-    "alpine": "Alpine",
-    "mclaren": "迈凯伦",
-    "aston_martin": "阿斯顿马丁",
-    "sauber": "索伯",
-    "haas": "哈斯",
-    "williams": "威廉姆斯",
-    "rb": "RB",
-
     "Mercedes": "梅赛德斯",
     "Mercedes Formula 1 Team": "梅赛德斯",
     "Ferrari": "法拉利",
@@ -124,7 +119,18 @@
     "Sauber": "索伯",
     "Sauber F1 Team": "索伯",
     "Hass": "哈斯",
-    "Haas F1 Team": "哈斯"
+    "Haas F1 Team": "哈斯",
+    "Alfa Romeo": "阿尔法·罗密欧",
+    "AlphaTauri": "阿尔法托利",
+    "Renault": "雷诺",
+    "Racing Point": "赛点",
+    "Toro Rosso": "托罗·罗索",
+    "Force India": "印度力量",
+    "Manor Marussia": "玛鲁西亚",
+    "Marussia": "玛鲁西亚",
+    "Lotus F1": "路特斯",
+    "Lotus": "莲花",
+    "Caterham": "卡特汉姆"
   },
   "GrandPrix": {
     "australian": "澳大利亚大奖赛",

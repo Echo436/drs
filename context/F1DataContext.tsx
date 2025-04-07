@@ -165,18 +165,15 @@ type DataType = 'grandPrixList' | 'driverStandingList' | 'constructorList' | 'ne
 
 type F1DataContextType = {
     seasons: Season[];
+    selectedSeason: string;
+    setSelectedSeason: (season: string) => void;
     grandPrixList: Race[];
     currentRound: string;
     driverStandingList: DriverStanding[];
     constructorList: ConstructorStanding[];
-    nextRace: Race | null;
-    lastRace: Race | null;
     grandPrixLoading: boolean;
     driverLoading: boolean;
     constructorLoading: boolean;
-    nextRaceLoading: boolean;
-    lastRaceLoading: boolean;
-    refreshData: (dataTypes?: DataType[]) => Promise<void>;
 };
 
 // 创建Context
@@ -185,30 +182,30 @@ const F1DataContext = createContext<F1DataContextType | undefined>(undefined);
 // Provider组件
 export const F1DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [seasons, setSeasons] = useState<Season[]>([]);
+    const [selectedSeason, setSelectedSeason] = useState<string>('current');
     const [grandPrixList, setGrandPrixList] = useState<Race[]>([]);
     const [currentRound, setCurrentRound] = useState<string>('0');
     const [driverList, setDriverList] = useState<DriverStanding[]>([]);
     const [constructorList, setConstructorList] = useState<ConstructorStanding[]>([]);
-    const [nextRace, setNextRace] = useState<Race | null>(null);
-    const [lastRace, setLastRace] = useState<Race | null>(null);
     const [grandPrixLoading, setGrandPrixLoading] = useState(true);
     const [driverListLoading, setDriverListLoading] = useState(true);
     const [constructorListLoading, setConstructorListLoading] = useState(true);
-    const [nextRaceLoading, setNextRaceLoading] = useState(true);
-    const [lastRaceLoading, setLastRaceLoading] = useState(true);
+    const [isSeasonListFetched, setIsSeasonListFetched] = useState(false);
 
-    const fetchSeasonsData = () => {
+    const fetchSeasonListData = () => {
         fetch('https://api.jolpi.ca/ergast/f1/seasons/?limit=100')
             .then(response => response.json())
             .then(data => {
-                setSeasons(data.MRData.SeasonTable.Seasons.reverse());
+                const seasonsData = data.MRData.SeasonTable.Seasons.reverse()
+                setSeasons(seasonsData);
+                setSelectedSeason(seasonsData[0].season);
             })
     }
 
-    const fetchGPListData = async () => {
+    const fetchGPListData = async (year: string) => {
         setGrandPrixLoading(true);
         try {
-            const response = await fetch('http://api.jolpi.ca/ergast/f1/current/races')
+            const response = await fetch(`http://api.jolpi.ca/ergast/f1/${year}/races`)
                 .then(response => response.json());
             const data: Race[] = response.MRData.RaceTable.Races;
             setGrandPrixList(data);
@@ -219,11 +216,6 @@ export const F1DataProvider: React.FC<{ children: ReactNode }> = ({ children }) 
                     break;
                 }
             }
-            // const response = await fetch('https://f1api.dev/api/current')
-            //     .then(response => response.json());
-            // if (response && response.races && Array.isArray(response.races)) {
-            //     setGrandPrixList(response.races);
-            // }
         } catch (err) {
             console.error('Error fetching F1 race data:', err);
         } finally {
@@ -231,47 +223,12 @@ export const F1DataProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         }
     };
 
-    const fetchNextRaceData = async () => {
-        try {
-            const response = await fetch('https://f1api.dev/api/current/next')
-                .then(response => response.json());
-            if (response && response.race && Array.isArray(response.race)) {
-                setNextRace(response.race[0]);
-            }
-        } catch (err) {
-            console.error('Error fetching F1 next race data:', err);
-        } finally {
-            setNextRaceLoading(false);
-        }
-    };
-
-    const fetchLastRaceData = async () => {
-        try {
-            const response = await fetch('https://f1api.dev/api/current/last')
-                .then(response => response.json());
-            if (response && response.races && Array.isArray(response.races)) {
-                setLastRace(response.races[0]);
-            }
-        } catch (err) {
-            console.error('Error fetching F1 last race data:', err);
-        } finally {
-            setLastRaceLoading(false);
-        }
-    };
-
-    const fetchDriverData = async () => {
+    const fetchDriverListData = async (year: string) => {
         setDriverListLoading(true);
         try {
-            const response = await fetch('https://api.jolpi.ca/ergast/f1/2024/driverstandings/')
+            const response = await fetch(`https://api.jolpi.ca/ergast/f1/${year}/driverstandings/`)
                 .then(response => response.json());
-            // if (response && response.drivers_championship && Array.isArray(response.drivers_championship)) {
             setDriverList(response.MRData.StandingsTable.StandingsLists[0].DriverStandings);
-            // }
-            // const response = await fetch('https://f1api.dev/api/current/drivers-championship')
-            //     .then(response => response.json());
-            // if (response && response.drivers_championship && Array.isArray(response.drivers_championship)) {
-            //     setDriverList(response.drivers_championship);
-            // }
         } catch (err) {
             console.error('Error fetching F1 driver data:', err);
         } finally {
@@ -279,17 +236,12 @@ export const F1DataProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         }
     };
 
-    const fetchConstructorData = async () => {
+    const fetchConstructorListData = async (year: string) => {
         setConstructorListLoading(true);
         try {
-            const response = await fetch('https://api.jolpi.ca/ergast/f1/2024/constructorstandings/')
+            const response = await fetch(`https://api.jolpi.ca/ergast/f1/${year}/constructorstandings/`)
                 .then(response => response.json());
             setConstructorList(response.MRData.StandingsTable.StandingsLists[0].ConstructorStandings);
-            // const response = await fetch('https://f1api.dev/api/current/constructors-championship')
-            //     .then(response => response.json());
-            // if (response && response.constructors_championship && Array.isArray(response.constructors_championship)) {
-            //     setConstructorList(response.constructors_championship);
-            // }
         } catch (err) {
             console.error('Error fetching F1 constructor data:', err);
         } finally {
@@ -298,49 +250,34 @@ export const F1DataProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     };
 
     useEffect(() => {
+        if (!isSeasonListFetched) {
+            fetchSeasonListData();
+            setIsSeasonListFetched(true);
+        }
+    }, []);
+
+    useEffect(() => {
         const fetchAllData = async () => {
             await Promise.all([
-                fetchSeasonsData(),
-                fetchGPListData(),
-                fetchDriverData(),
-                fetchConstructorData(),
-                fetchNextRaceData(),
-                fetchLastRaceData()
+                fetchGPListData(selectedSeason),
+                fetchDriverListData(selectedSeason),
+                fetchConstructorListData(selectedSeason)
             ]);
         };
         fetchAllData();
-    }, []);
-
-    const refreshData = async (dataTypes?: DataType[]) => {
-        const fetchFunctions = {
-            grandPrixList: fetchGPListData,
-            driverStandingList: fetchDriverData,
-            constructorList: fetchConstructorData,
-            nextRace: fetchNextRaceData,
-            lastRace: fetchLastRaceData
-        };
-
-        const functionsToExecute = dataTypes
-            ? dataTypes.map(type => fetchFunctions[type])
-            : Object.values(fetchFunctions);
-
-        await Promise.all(functionsToExecute.map(fn => fn()));
-    };
+    }, [selectedSeason]);
 
     const contextValue: F1DataContextType = {
         seasons,
+        selectedSeason,
+        setSelectedSeason,
         grandPrixList,
         currentRound,
         driverStandingList: driverList,
         constructorList,
-        nextRace,
-        lastRace,
         grandPrixLoading,
         driverLoading: driverListLoading,
-        constructorLoading: constructorListLoading,
-        nextRaceLoading,
-        lastRaceLoading,
-        refreshData,
+        constructorLoading: constructorListLoading
     };
 
     return <F1DataContext.Provider value={contextValue}>{children}</F1DataContext.Provider>;

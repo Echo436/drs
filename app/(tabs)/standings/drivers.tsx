@@ -18,17 +18,13 @@ export default function ConstructorList() {
     const renderItem = ({ item }: { item: DriverStanding }) => {
         return (
             <Link href={{ pathname: '/driver/[driverId]', params: { driverId: item.Driver.driverId, initialData: JSON.stringify(item) } }} asChild>
-            {/* <Link href={{ pathname: '/driver/[driverId]', params: { driverId: item.driverId, initialData: JSON.stringify(item) } }} asChild> */}
                 <TouchableOpacity style={styles.itemContainer}>
                     <View style={styles.positionContainer}>
                         <ThemedText style={styles.posisionText}>{String(item.positionText).padStart(2, '0')}</ThemedText>
-                        {/* <ThemedText style={styles.posisionText}>{String(item.position).padStart(2, '0')}</ThemedText> */}
                     </View>
                     <View style={styles.driverInfoContainer}>
                         <ThemedText type="itemtitle">{translateName([item?.Driver?.givenName, item?.Driver?.familyName])}</ThemedText>
-                        {/* <ThemedText type="itemtitle">{translateName([item.driver.name, item.driver.surname])}</ThemedText> */}
-                        <ThemedText type="itemsubtitle" style={{ color: getTeamsColor(item.Constructors[0].constructorId) }}>{t(item.Constructors[0].constructorId, 'team')}</ThemedText>
-                        {/* <ThemedText type="itemsubtitle" style={{ color: getTeamsColor(item.teamId) }}>{t(item.team.teamId, 'team')}</ThemedText> */}
+                        <ThemedText type="itemsubtitle" style={{ color: getTeamsColor(item.Constructors[0].constructorId) }}>{t(item.Constructors[0].name, 'team')}</ThemedText>
                     </View>
                     <View style={styles.pointsContainer}>
                         <ThemedText style={styles.pointText}>{item.points}</ThemedText>
@@ -78,23 +74,14 @@ const styles = StyleSheet.create({
     },
     driverInfoContainer: {
         flex: 1,
-
-        // borderWidth: 1,
     },
     pointsContainer: {
-        width: 40,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
+        width: 50,
     },
     pointText: {
         fontFamily: 'Formula1-Display-Bold',
         fontSize: 14,
         textAlign: 'center',
-
-        width: 40,
-
-        // borderWidth: 1,
     },
     chevronContainer: {
         marginRight: 3,

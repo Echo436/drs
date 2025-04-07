@@ -26,7 +26,7 @@ export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
     const timeZoneOffset = DateTime.local().offset / 60;
 
     const { top } = useSafeAreaInsets();
-    const { grandPrixList, nextRace, refreshData, currentRound } = useF1Data();
+    const { grandPrixList, currentRound } = useF1Data();
 
     const flags = {
         'Australia': '🇦🇺',
@@ -58,10 +58,6 @@ export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
 
     // 导航到大奖赛详情页面
     const navigateToGrandPrix = async (round: string, year: string, initialData: string, raceDate: DateTime<true> | DateTime<false>) => {
-        // if (!nextRace) {
-        //     await refreshData(['nextRace'])
-        // }
-        // const nextRaceDate = DateTime.fromISO(`${nextRace?.schedule.race.date}T${nextRace?.schedule.race.time}`)
         if (round == currentRound) {
             onTabChange('first');
         } else {
@@ -71,16 +67,18 @@ export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
 
     const renderItem = ({ item }: { item: Race }) => {
         // MM/dd or dd/MM
-        const fp1DateDisplay = DateTime.fromISO(`${item.FirstPractice.date}T${item.FirstPractice.time}`).setLocale(languageCode).toLocaleString({ day: "2-digit", month: "2-digit" });
-        const raceDate = DateTime.fromISO(`${item.date}T${item.time}`);
-        // const fp1DateDisplay = DateTime.fromISO(`${item.schedule.fp1.date}T${item.schedule.fp1.time}`).setLocale(languageCode).toLocaleString({ day: "2-digit", month: "2-digit" });
-        // const raceDate = DateTime.fromISO(`${item.schedule.race.date}T${item.schedule.race.time}`);
-        const raceDateDisplay = raceDate.setLocale(languageCode).toLocaleString({ day: "2-digit", month: "2-digit" });
+        let fp1DateDisplay = '--';
+        if (item.FirstPractice && item.FirstPractice.date) { fp1DateDisplay = DateTime.fromISO(`${item.FirstPractice.date}T${item.FirstPractice.time}`).setLocale(languageCode).toLocaleString({ day: "2-digit", month: "2-digit" }); }
+        let raceDate: DateTime<true> | DateTime<false>;
+        let raceDateDisplay = '--'
+        if (item.date && item.time) {
+            raceDate = DateTime.fromISO(`${item.date}T${item.time}`);
+            raceDateDisplay = raceDate.setLocale(languageCode).toLocaleString({ day: "2-digit", month: "2-digit" });
+        }
         return (
             <TouchableOpacity
                 style={styles.itemContainer}
                 onPress={() => navigateToGrandPrix(item.round, DateTime.fromISO(item.date).year.toString(), JSON.stringify(item), raceDate)}
-                // onPress={() => navigateToGrandPrix(item.raceId, item.round, DateTime.fromISO(item.schedule.race.date).year.toString(), JSON.stringify(item), raceDate)}
                 activeOpacity={0.7}
             >
                 <View style={styles.roundContainer}>
@@ -88,10 +86,8 @@ export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
                 </View>
                 <View style={styles.raceDetailContainer}>
                     <ThemedText type="itemtitle">{`${t(item.raceName, 'grand-prix-name')} ${flags[item.Circuit.Location.country as keyof typeof flags] || ''}`}</ThemedText>
-                    {/* <ThemedText type="itemtitle">{`${translateGPName(item.raceId)} ${flags[item.circuit.country as keyof typeof flags] || ''}`}</ThemedText> */}
                     <View style={styles.positionAndDateContainer}>
                         <ThemedText type='itemsubtitle'>{t(item.Circuit.Location.locality, 'city') + '·'}</ThemedText>
-                        {/* <ThemedText type='itemsubtitle'>{t(item.circuit.circuitId, 'circuit-id') + '·'}</ThemedText> */}
                         <ThemedText type="itemsubtitle">{`${fp1DateDisplay} - ${raceDateDisplay}`}</ThemedText>
                         <ThemedText style={{ paddingTop: 3, fontSize: 8, lineHeight: 8, fontWeight: 600, color: 'rgb(128, 128, 128)' }}>{` - UTC${timeZoneOffset >= 0 ? `+${timeZoneOffset}` : timeZoneOffset}`}</ThemedText>
                     </View>
@@ -109,7 +105,6 @@ export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
             data={grandPrixList}
             renderItem={renderItem}
             keyExtractor={(item) => item.round}
-            // keyExtractor={(item) => item.raceId}
             ItemSeparatorComponent={renderSeparator}
             contentContainerStyle={layoutStyles.listContainer}
             showsVerticalScrollIndicator={false}
@@ -125,14 +120,10 @@ const styles = StyleSheet.create({
         paddingVertical: 16,
         flexDirection: 'row',
         alignItems: 'center',
-
-        // borderWidth: 1,
     },
     roundContainer: {
         width: 40,
         marginRight: 10,
-
-        // borderWidth: 1,
     },
     roundText: {
         fontFamily: 'Formula1-Display-Regular',
@@ -143,15 +134,11 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'column',
         alignItems: 'flex-start',
-
-        // borderWidth: 1,
     },
     positionAndDateContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-
-        // borderWidth: 1,
     },
     chevronContainer: {
         marginRight: 3,
