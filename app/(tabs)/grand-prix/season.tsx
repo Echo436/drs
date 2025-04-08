@@ -5,17 +5,12 @@ import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import renderSeparator from "@/components/ui/RenderSeparator";
 import { layoutStyles } from '@/components/ui/Styles';
-import { translateGPName } from "@/i18n/utils";
-import { router, useRouter } from "expo-router";
+import { router } from "expo-router";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { DateTime, Interval } from 'luxon'
+import { DateTime } from 'luxon'
 import { useLocales } from "expo-localization";
-import tinycolor from "tinycolor2";
-
 import { t } from '@/i18n/utils';
-import { useThemeColor } from "@/hooks/useThemeColor";
 import { IconSymbol } from "@/components/ui/IconSymbol";
-// import { useGrandPrix } from "@/context/GrandPrixContext";
 
 interface GrandPrixListProps {
     onTabChange: (tabKey: string) => void;
