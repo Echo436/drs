@@ -13,11 +13,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ConstructorList() {
     const { top } = useSafeAreaInsets();
-    const { driverStandingList: driverList } = useF1Data();
+    const { driverStandingList: driverList, selectedSeason } = useF1Data();
 
     const renderItem = ({ item }: { item: DriverStanding }) => {
         return (
-            <Link href={{ pathname: '/driver/[driverId]', params: { driverId: item.Driver.driverId, initialData: JSON.stringify(item) } }} asChild>
+            <Link href={{ pathname: '/driver/[driverId]', params: { driverId: item.Driver.driverId, year: selectedSeason, initialData: JSON.stringify(item) } }} asChild>
                 <TouchableOpacity style={styles.itemContainer}>
                     <View style={styles.positionContainer}>
                         <ThemedText style={styles.posisionText}>{String(item.positionText).padStart(2, '0')}</ThemedText>
