@@ -3,7 +3,6 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 
 export type Season = {
     season: string;
-    url: string;
 }
 // 车手数据类型
 export type Driver = {
@@ -196,7 +195,9 @@ export const F1DataProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         fetch('https://api.jolpi.ca/ergast/f1/seasons/?limit=100')
             .then(response => response.json())
             .then(data => {
-                const seasonsData = data.MRData.SeasonTable.Seasons.reverse()
+                const seasonsData = data.MRData.SeasonTable.Seasons.map(season => ({
+                    season: season.season
+                })).reverse();
                 setSeasons(seasonsData);
                 setSelectedSeason(seasonsData[0].season);
             })
