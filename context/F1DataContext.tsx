@@ -173,6 +173,9 @@ type F1DataContextType = {
     grandPrixLoading: boolean;
     driverLoading: boolean;
     constructorLoading: boolean;
+    setDriverList: (driverList: DriverStanding[]) => void;
+    setConstructorList: (constructorList: ConstructorStanding[]) => void;
+    setGrandPrixList: (grandPrixList: Race[]) => void;
 };
 
 // 创建Context
@@ -278,7 +281,10 @@ export const F1DataProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         constructorList,
         grandPrixLoading,
         driverLoading: driverListLoading,
-        constructorLoading: constructorListLoading
+        constructorLoading: constructorListLoading,
+        setDriverList,
+        setConstructorList,
+        setGrandPrixList
     };
 
     return <F1DataContext.Provider value={contextValue}>{children}</F1DataContext.Provider>;

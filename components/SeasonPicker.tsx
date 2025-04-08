@@ -6,6 +6,7 @@ import { BlurView } from 'expo-blur';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { Platform } from 'react-native';
 import { IconSymbol } from './ui/IconSymbol';
+import { useF1Data } from '@/context/F1DataContext';
 
 type Season = {
     season: string;
@@ -26,9 +27,13 @@ export const SeasonPicker: React.FC<SeasonPickerProps> = ({
 }) => {
     const [modalVisible, setModalVisible] = useState(false);
     const textColor = useThemeColor({}, 'text');
-    const cardBorderColor = useThemeColor({'light': 'rgb(175, 175, 175)', 'dark': 'rgb(80, 80, 80)'}, 'cardBorder');
+    const { setDriverList, setConstructorList, setGrandPrixList } = useF1Data();
+    const cardBorderColor = useThemeColor({ 'light': 'rgb(175, 175, 175)', 'dark': 'rgb(80, 80, 80)' }, 'cardBorder');
 
     const handleSelect = (season: string) => {
+        setDriverList([]);
+        setConstructorList([]);
+        setGrandPrixList([]);
         onChange(season);
         setModalVisible(false);
     };
@@ -53,7 +58,7 @@ export const SeasonPicker: React.FC<SeasonPickerProps> = ({
                 <ThemedText style={[styles.buttonText, { color: '#5F5F5F' }]}>
                     {value || placeholder}
                 </ThemedText>
-                <View style={{paddingLeft: 2}}>
+                <View style={{ paddingLeft: 2 }}>
                     <IconSymbol name='chevron.down' size={8} color={'#5F5F5F'}></IconSymbol>
                 </View>
             </TouchableOpacity>
