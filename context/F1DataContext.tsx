@@ -180,7 +180,7 @@ const F1DataContext = createContext<F1DataContextType | undefined>(undefined);
 
 // Provider组件
 export const F1DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [seasons, setSeasons] = useState<Season[]>([]);
+    const [seasons, setSeasons] = useState<Season[]>([{ season: 'current'}]);
     const [selectedSeason, setSelectedSeason] = useState<string>('current');
     const [grandPrixList, setGrandPrixList] = useState<Race[]>([]);
     const [currentRound, setCurrentRound] = useState<string>('0');
