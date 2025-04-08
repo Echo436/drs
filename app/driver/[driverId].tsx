@@ -1,7 +1,7 @@
 import { FlatList, StyleSheet, View, RefreshControl, TouchableOpacity, Image } from "react-native";
 import React, { useState, useEffect } from "react";
 import { ThemedText } from "@/components/ThemedText";
-import { Driver, DriverResult, DriverStanding } from "@/context/F1DataContext";
+import { Driver, DriverStanding } from "@/context/F1DataContext";
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import { ScrollView } from "react-native-gesture-handler";
 import { layoutStyles } from "@/components/ui/Styles";
@@ -13,14 +13,17 @@ import tinycolor from 'tinycolor2';
 import renderSeparator from "@/components/ui/RenderSeparator";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import { RaceResult } from "../result/[round]";
+import { t } from '@/i18n/utils';
 
 export default function DriverDetail() {
     const { top } = useSafeAreaInsets();
-    const [driverSeasonList, setDriverSeasonList] = useState<DriverResult[]>([]);
+    const [driverSeasonList, setDriverSeasonList] = useState<RaceResult[]>([]);
     const [refreshing, setRefreshing] = useState(false);
 
-    const { driverId, initialData } = useLocalSearchParams<{
+    const { driverId, year, initialData } = useLocalSearchParams<{
         driverId: string;
+        year: string;
         initialData: string;
     }>();
 
@@ -32,9 +35,9 @@ export default function DriverDetail() {
 
     const fetchDriverSeasonData = async () => {
         try {
-            const response = await fetch(`https://f1api.dev/api/2024/drivers/${driverId}`);
+            const response = await fetch(`http://api.jolpi.ca/ergast/f1/${year}/drivers/${driverId}/results`);
             const data = await response.json();
-            setDriverSeasonList(data.results);
+            setDriverSeasonList(data.MRData.RaceTable.Races);
             return data;
         } finally {
             setRefreshing(false);
@@ -62,21 +65,28 @@ export default function DriverDetail() {
     const displayTeamColor = tinycolor(teamColor).setAlpha(0.7).toRgbString();
     const cardBorderColor = useThemeColor({}, 'cardBorder');
 
-    const raceItem = ({ item }: { item: DriverResult }) => {
+    const raceItem = ({ item }: { item: RaceResult }) => {
         return (
-            <View style={{ padding: 10 }}>
-                <ThemedText>
-                    {item?.race?.name}
+            <View style={{ paddingVertical: 15, paddingHorizontal: 20 }}>
+                <ThemedText style={{fontFamily: 'Formula1-Display-Regular', fontSize: 12}}>
+                    R{String(item?.round).padStart(2, '0')}
                 </ThemedText>
-                <ThemedText>
-                    {item?.result.pointsObtained}
-                </ThemedText>
-
+                <View style={{ flexDirection: 'row' }}>
+                    <ThemedText style={{flex: 6}}>
+                        {t(item?.raceName, 'grand-prix-name')}
+                    </ThemedText>
+                    <ThemedText style={{flex: 1, fontFamily: 'Formula1-Display-Regular', fontSize: 12}}>
+                        P{item.Results[0].position}
+                    </ThemedText>
+                    <ThemedText style={{flex: 1, fontFamily: 'Formula1-Display-Regular', fontSize: 12, textAlign: 'center'}}>
+                        {item.Results[0].points}
+                    </ThemedText>
+                </View>
                 {/* 冲刺赛信息（如果有） */}
-                {item?.sprintResult &&
+                {/* {item?.sprintResult &&
                     <ThemedText>
                         {item?.sprintResult?.raceTime}
-                    </ThemedText>}
+                    </ThemedText>} */}
             </View>
         );
     };
@@ -123,17 +133,14 @@ export default function DriverDetail() {
                     <View style={styles.leftColumn}>
                         <ThemedText type="title" style={styles.firstNameText}>
                             {driverInitData?.Driver.givenName}
-                            {/* {driverInitData?.driver.name} */}
                         </ThemedText>
                         <ThemedText type="subtitle" style={styles.lastNameText}>
                             {driverInitData?.Driver.familyName}
-                            {/* {driverInitData?.driver.surname} */}
                         </ThemedText>
                         <View style={styles.positionContainer}>
                             <ThemedText style={styles.positionText}>
                                 <ThemedText style={{ fontSize: 22, lineHeight: 32, fontFamily: 'Formula1-Display-Regular' }}>#</ThemedText>
                                 {driverInitData?.positionText || '0'}
-                                {/* {driverInitData?.position || '0'} */}
                             </ThemedText>
                             <ThemedText style={styles.POSText}>
                                 POS
@@ -163,23 +170,8 @@ export default function DriverDetail() {
                     <View style={styles.numberContainer}>
                         <ThemedText style={[styles.numberText, { color: numberColor }]}>
                             {driverInitData?.Driver.permanentNumber}
-                            {/* {driverInitData?.driver.number} */}
                         </ThemedText>
                     </View>
-                    <BlurView
-                        intensity={20}
-                        style={[styles.card, { borderColor: cardBorderColor }]}>
-                        <View style={styles.teamContainer}>
-                            <ThemedText>{driverInitData?.Constructors[0].name}</ThemedText>
-                            {/* <ThemedText>{driverInitData?.team.teamId}</ThemedText> */}
-                            <View style={styles.carImgContainer}>
-                                <Image 
-                                    source={{ uri: `https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2025/${driverInitData?.teamId}.png` }} 
-                                    style={styles.carImg}
-                                />
-                            </View>
-                        </View>
-                    </BlurView>
                     <BlurView
                         intensity={20}
                         style={[styles.card, { borderColor: cardBorderColor }]}>
@@ -188,7 +180,7 @@ export default function DriverDetail() {
                             data={driverSeasonList}
                             renderItem={raceItem}
                             ItemSeparatorComponent={renderSeparator}
-                            contentContainerStyle={{ paddingVertical: 5 }}
+                            contentContainerStyle={{ paddingVertical: 3 }}
                             ListEmptyComponent={<View style={{ height: 500 }}></View>}
                         />
                     </BlurView>
@@ -287,22 +279,5 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 15,
         overflow: 'hidden',
-    },
-
-    teamContainer: {
-        flex: 1,
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        alignItems: 'flex-start',
-    },
-    carImgContainer: {
-        flex: 1,
-        flexDirection: 'column',
-        alignItems: 'flex-start',
-    },
-    carImg: {
-        width: 200,
-        height: 150,
-        resizeMode: 'contain',
     },
 });
