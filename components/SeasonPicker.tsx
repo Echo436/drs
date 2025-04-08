@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     buttonText: {
-        fontSize: 12,
+        fontSize: 10,
         lineHeight: 15,
     },
     modalOverlay: {
