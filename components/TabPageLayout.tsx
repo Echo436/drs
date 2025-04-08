@@ -8,7 +8,7 @@ import { useThemeColor } from '@/hooks/useThemeColor';
 import { ThemedText } from './ThemedText';
 import { Stack } from 'expo-router';
 import { useF1Data } from '@/context/F1DataContext';
-import { Dropdown } from 'react-native-element-dropdown';
+import { SeasonPicker } from './SeasonPicker';
 
 type TabPageLayoutProps = {
     // 第一个标签页的组件
@@ -61,6 +61,8 @@ export const TabPageLayout: React.FC<TabPageLayoutProps> = ({
     const screenWidth = Dimensions.get('window').width;
     // 是否监听滚动事件的状态，用于在标签点击切换时暂停监听
     const [isScrollListenerEnabled, setIsScrollListenerEnabled] = useState(true);
+    const textColor = useThemeColor({}, 'text');
+    const backgroundColor = useThemeColor({}, 'background');
 
     // 处理标签切换的回调函数
     const handleTabChange = useCallback((tabKey: string) => {
@@ -130,20 +132,11 @@ export const TabPageLayout: React.FC<TabPageLayoutProps> = ({
                     <ThemedView style={StyleSheet.absoluteFill} />
                 )}
                 <View style={styles.pickerContainer}>
-                    <Dropdown
-                        style={{
-                            paddingHorizontal: 10,
-                        }}
+                    <SeasonPicker
                         data={seasons}
-                        labelField="season"
-                        valueField="season"
-                        placeholder="----"
                         value={selectedSeason}
-                        onChange={(item) => {
-                            setSelectedSeason(item.season);
-                        }}
-                        selectedTextStyle={{fontSize: 12}}
-                        itemTextStyle={{fontSize: 12}}
+                        onChange={setSelectedSeason}
+                        placeholder="----"
                     />
 
                 </View>
@@ -230,8 +223,7 @@ const styles = StyleSheet.create({
     // 赛季选择器容器样式
     pickerContainer: {
         flex: 1,
-        justifyContent: 'center',
-        marginLeft: 5,
+        height: 15,
     },
     // 积分文本容器样式
     scoreTextContainer: {
