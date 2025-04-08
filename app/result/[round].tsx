@@ -8,7 +8,37 @@ import { layoutStyles } from "@/components/ui/Styles";
 import { translateName } from "@/i18n/utils";
 import renderSeparator from "@/components/ui/RenderSeparator";
 
-export default function Redsult() {
+export type Result = {
+    number: string;
+    position: string;
+    points: string;
+    Driver: Driver;
+    Constructor: Constructor;
+    Q1: string;
+    Q2: string;
+    Q3: string;
+    grid: string;
+    laps: string;
+    status: string;
+    Time: {
+        millis: string;
+        time: string;
+    };
+    FastestLap: {
+        rank: string;
+        lap: string;
+        Time: {
+            time: string;
+        };
+    }
+}
+
+export type RaceResult = Race & {
+    Results: Result[];
+    QualifyingResults: Result[];
+}
+
+export default function Result() {
     const { year, round, session } = useLocalSearchParams<{
         year: string;
         round: string;
@@ -16,36 +46,6 @@ export default function Redsult() {
     }>();
 
     const [resultData, setResult] = useState<RaceResult | null>(null);
-
-    type Result = {
-        number: string;
-        position: string;
-        points: string;
-        Driver: Driver;
-        Constructor: Constructor;
-        Q1: string;
-        Q2: string;
-        Q3: string;
-        grid: string;
-        laps: string;
-        status: string;
-        Time: {
-            millis: string;
-            time: string;
-        };
-        FastestLap: {
-            rank: string;
-            lap: string;
-            Time: {
-                time: string;
-            };
-        }
-    }
-
-    type RaceResult = Race & {
-        Results: Result[];
-        QualifyingResults: Result[];
-    }
 
     useEffect(() => {
         switch (session) {
