@@ -29,7 +29,7 @@ export default function MyTabBar({
                 title?: string;
                 tabBarAccessibilityLabel?: string;
                 tabBarTestID?: string;
-                tabBarIcon?: ({ color }: { color: string }) => { props: { name: string } };
+                tabBarIcon?: ({ color }: { color: string }) => { props: { name: string, size: number } };
             };
         };
     };
@@ -110,7 +110,7 @@ export default function MyTabBar({
                         >
                             <View style={styles.tabContent}>
                                 <IconSymbol
-                                    size={28}
+                                    size={options.tabBarIcon?.({ color: isFocused? primaryColor : tabIconColor }).props.size}
                                     name={options.tabBarIcon?.({ color: isFocused ? primaryColor : tabIconColor }).props.name}
                                     color={isFocused ? primaryColor : tabIconColor}
                                 />
