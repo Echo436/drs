@@ -18,21 +18,21 @@ export default function TabLayout() {
         name="grand-prix"
         options={{
           title: t('GrandPrix', 'tabs'),
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="flag.checkered" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={26} name="flag.pattern.checkered" color={color} />,
         }}
       />
       <Tabs.Screen
         name="standings"
         options={{
           title: t('Standings', 'tabs'),
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="chart.bar" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={26} name="trophy" color={color} />,
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
           title: t('settings', 'tabs'),
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="gear" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={26} name="gear" color={color} />,
         }}
       />
       <Tabs.Screen
