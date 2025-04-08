@@ -12,7 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { useF1Data } from "@/context/F1DataContext";
 import { ThemedView } from "@/components/ThemedView";
-import { t, translateGPName } from "@/i18n/utils";
+import { t } from "@/i18n/utils";
 import { getLocales } from "expo-localization";
 import { DateTime } from 'luxon';
 
@@ -29,7 +29,17 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
     const { top } = useSafeAreaInsets();
     const [raceData, setRaceData] = useState<Race | null>(null);
     const [refreshing, setRefreshing] = useState(false);
-    const { refreshData, nextRace } = useF1Data();
+    const { refreshData, nextRace, selectedSeason, seasons } = useF1Data();
+
+    if (selectedSeason !== seasons[0].season) {
+        return (
+            <ThemedView style={layoutStyles.centerContainer}>
+                <ThemedText>
+                    Coming soon
+                </ThemedText>
+            </ThemedView>
+        )
+    }
 
     const { round, year, initialData } = useLocalSearchParams<{
         round: string;
