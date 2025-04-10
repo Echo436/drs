@@ -1,50 +1,36 @@
-# Welcome to your Expo app 👋
+# DRS - F1赛事应用
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## 项目简介
+DRS是一个基于React Native开发的F1赛事应用，为F1赛车爱好者提供实时赛事信息、车手积分、车队排名等功能。应用采用现代化的UI设计，支持多语言，并提供流畅的用户体验。
 
-## Get started
+## 技术栈
+- React Native
+- Expo
+- TypeScript
 
-1. Install dependencies
+## 主要功能
+- 实时赛事信息展示
+- 车手积分排名
+- 车队积分榜
+- 大奖赛赛程
+- 比赛结果统计
+- 暗黑模式支持
+- 多语言支持（中文/英文）
 
-   ```bash
-   npm install
-   ```
+## 开发指南
 
-2. Start the app
+### 环境要求
+- Node.js 16+
+- Yarn包管理器
+- iOS模拟器（用于iOS开发）
+- Android模拟器（用于Android开发）
 
-   ```bash
-    npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
+### 安装依赖
 ```bash
-npm run reset-project
+yarn install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### 启动开发服务器
+```bash
+yarn expo start
+```
