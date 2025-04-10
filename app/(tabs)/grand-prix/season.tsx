@@ -105,6 +105,13 @@ export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
             showsVerticalScrollIndicator={false}
             contentInset={{ top: top + 45, left: 0, bottom: 100, right: 0 }}
             contentOffset={{ x: 0, y: -top - 45 }}
+            ListEmptyComponent={() => {
+                return (
+                    <View style={layoutStyles.centerContainer}>
+                        <ThemedText style={{}}>{t('loading', 'common')}</ThemedText>
+                    </View>
+                )
+            }}
         />
     );
 }
