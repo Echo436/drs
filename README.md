@@ -9,7 +9,7 @@ DRS是一个基于React Native开发的F1赛事应用，为F1赛车爱好者提�
 - TypeScript
 
 ## API
-- [jopica-f1](http://https://github.com/jolpica/jolpica-f1)
+- [jopica-f1](https://github.com/jolpica/jolpica-f1)
 
 ## 主要功能
 - 自1950年以来的所有F1赛事数据
