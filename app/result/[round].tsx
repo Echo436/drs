@@ -1,7 +1,7 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Constructor, Driver, Race } from "@/context/F1DataContext";
-import { useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { FlatList, View } from "react-native";
 import { layoutStyles } from "@/components/ui/Styles";
@@ -85,6 +85,14 @@ export default function Result() {
 
     return (
         <ThemedView>
+            <Stack.Screen
+                options={{
+                    headerShown: true,
+                    title: session === 'qualy' ? 'Qualifying' : 'Race',
+                    headerBackVisible: true,
+                    headerBackTitle: 'Back',
+                }}
+            />
             <FlatList
                 data={session === 'qualy' ? resultData?.QualifyingResults : resultData?.Results}
                 renderItem={({ item }) => (
