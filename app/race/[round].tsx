@@ -31,7 +31,7 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
     const [refreshing, setRefreshing] = useState(false);
     const { refreshData, nextRace, selectedSeason, seasons } = useF1Data();
 
-    if (selectedSeason !== seasons[0].season) {
+    if (selectedSeason !== seasons[0].season && isCurrentPage) {
         return (
             <ThemedView style={layoutStyles.centerContainer}>
                 <ThemedText>
@@ -193,7 +193,7 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                                             <View style={{ flex: 1 }}>
                                                 {showInDayTopSeparator && (<View style={{ height: 1, backgroundColor: 'gray' }}></View>)}
                                                 {/* 每天的日程（右侧列） */}
-                                                <Link href={{ pathname: '/result/[round]', params: { year: 2025, round: isCurrentPage ? currentRound : round, session: item.key } }} asChild>
+                                                <Link href={{ pathname: '/result/[round]', params: { year: year, round: isCurrentPage ? currentRound : round, session: item.key } }} asChild>
                                                     <TouchableOpacity style={styles.sessionColumn}>
                                                         <ThemedText style={styles.sessionName}>{item.name}</ThemedText>
                                                         <ThemedText style={styles.sessionTime}>{timeDisplay}</ThemedText>
