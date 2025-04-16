@@ -11,6 +11,10 @@ import { DateTime } from 'luxon'
 import { useLocales } from "expo-localization";
 import { t } from '@/i18n/utils';
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import Slash1 from '@/assets/icon/slash-1.svg'
+import Slash2 from '@/assets/icon/slash-2.svg'
+import Slash3 from '@/assets/icon/slash-3.svg'
+import { getTeamsColor } from "@/constants/Colors";
 
 interface GrandPrixListProps {
     onTabChange: (tabKey: string) => void;
@@ -86,6 +90,18 @@ export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
                         <ThemedText type="itemsubtitle">{`${fp1DateDisplay} - ${raceDateDisplay}`}</ThemedText>
                         <ThemedText style={{ paddingTop: 3, fontSize: 8, lineHeight: 8, fontWeight: 600, color: 'rgb(128, 128, 128)' }}>{` - UTC${timeZoneOffset >= 0 ? `+${timeZoneOffset}` : timeZoneOffset}`}</ThemedText>
                     </View>
+                    {item.Results.length === 3 && (<View style={styles.podiumContainer}>
+                        {[1, 2, 3].map((position) => (
+                            <View key={position} style={styles.podiumItem}>
+                                {position === 1 && <Slash1 style={styles.slashIcon} fill={getTeamsColor(item.Results.find(r => r.position === position.toString())?.Constructor.constructorId || '')} />}
+                                {position === 2 && <Slash2 style={styles.slashIcon} fill={getTeamsColor(item.Results.find(r => r.position === position.toString())?.Constructor.constructorId || '')} />}
+                                {position === 3 && <Slash3 style={styles.slashIcon} fill={getTeamsColor(item.Results.find(r => r.position === position.toString())?.Constructor.constructorId || '')} />}
+                                <ThemedText style={styles.driverCode}>
+                                    {item.Results.find(r => r.position === position.toString())?.Driver.code}
+                                </ThemedText>
+                            </View>
+                        ))}
+                    </View>)}
                 </View>
                 <View style={styles.chevronContainer}>
                     <IconSymbol name='chevron.right' size={10} color={'gray'}></IconSymbol>
@@ -141,6 +157,28 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
+    },
+    podiumContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingRight: 50,
+        marginTop: -3,
+        marginBottom: -8
+    },
+    podiumItem: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    slashIcon: {
+        position: 'relative',
+        bottom: 1.5
+    },
+    driverCode: {
+        fontSize: 10,
+        lineHeight: 10,
+        fontFamily: 'Formula1-Display-Bold',
+        marginLeft: 4,
     },
     chevronContainer: {
         marginRight: 3,
