@@ -209,7 +209,7 @@ export const F1DataProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     const fetchGPListData = async (year: string) => {
         setGrandPrixLoading(true);
         try {
-            const response = await fetch(`http://api.jolpi.ca/ergast/f1/${year}/races`)
+            const response = await fetch(`https://api.jolpi.ca/ergast/f1/${year}/races`)
                 .then(response => response.json());
             const data: Race[] = response.MRData.RaceTable.Races;
             setGrandPrixList(data);
