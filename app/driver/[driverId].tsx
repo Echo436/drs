@@ -139,11 +139,18 @@ export default function DriverDetail() {
                         </ThemedText>
                         <View style={styles.positionContainer}>
                             <ThemedText style={styles.positionText}>
-                                <ThemedText style={{ fontSize: 22, lineHeight: 32, fontFamily: 'Formula1-Display-Regular' }}>#</ThemedText>
-                                {driverInitData?.positionText || '0'}
+                                {driverInitData?.positionText || '-'}
                             </ThemedText>
                             <ThemedText style={styles.POSText}>
-                                POS
+                                {t('POS', 'tabs')}
+                            </ThemedText>
+                        </View>
+                        <View style={styles.positionContainer}>
+                            <ThemedText style={styles.positionText}>
+                                {driverInitData?.points || '0'}
+                            </ThemedText>
+                            <ThemedText style={styles.POSText}>
+                                {t('PTS', 'tabs')}
                             </ThemedText>
                         </View>
                         <View style={styles.positionContainer}>
@@ -151,17 +158,19 @@ export default function DriverDetail() {
                                 {driverInitData?.wins || '0'}
                             </ThemedText>
                             <ThemedText style={styles.POSText}>
-                                Wins
+                                {t('Wins', 'tabs')}
                             </ThemedText>
                         </View>
                     </View>
                     <View style={styles.rightColumn}>
-                        <View style={styles.pointContainer}>
-                            <ThemedText style={styles.pointText}>
-                                {driverInitData?.points || '- - '}
-                            </ThemedText>
-                            <ThemedText style={[styles.PTSText, { color: backgroundColor, backgroundColor: textColor }]}>
-                                PTS
+                        <View style={{flexDirection: 'column', justifyContent: 'flex-end', paddingTop: 12}}>
+                            <ThemedText style={{
+                                textAlign: 'right', 
+                                fontSize: 14,
+                                lineHeight: 18,
+                                fontFamily: 'Formula1-Display-Bold',
+                                }}>
+                                {year}
                             </ThemedText>
                         </View>
                     </View>
@@ -225,33 +234,13 @@ const styles = StyleSheet.create({
     positionText: {
         paddingRight: 5,
         fontFamily: 'Formula1-Display-Bold',
-        fontSize: 32,
-        lineHeight: 32,
+        fontSize: 28,
+        lineHeight: 30,
     },
     POSText: {
         fontFamily: 'Formula1-Display-Regular',
-        fontSize: 14,
+        fontSize: 12,
         lineHeight: 21
-    },
-
-    pointContainer: {
-        paddingTop: 2,
-        alignItems: 'flex-end',
-        justifyContent: 'center',
-        overflow: 'hidden',
-    },
-    pointText: {
-        fontFamily: 'Formula1-Display-Wide',
-        fontSize: 18,
-        lineHeight: 20,
-    },
-    PTSText: {
-        fontFamily: 'Formula1-Display-Wide',
-        fontSize: 12.5,
-        lineHeight: 12,
-        paddingHorizontal: 10,
-        paddingVertical: 1,
-        borderRadius: 5,
     },
 
     cardsContainer: {
