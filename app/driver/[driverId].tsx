@@ -85,8 +85,8 @@ export default function DriverDetail() {
                     <ThemedText style={{ fontFamily: 'Formula1-Display-Regular', fontSize: 12 }}>
                         R{String(item?.round).padStart(2, '0')}
                     </ThemedText>
-                    <View style={{ flexDirection: 'row', paddingTop: 2 }}>
-                        <ThemedText style={{ flex: 6, fontSize: 16, lineHeight: 16 }}>
+                    <View style={{ flexDirection: 'row', marginTop: 1}}>
+                        <ThemedText style={{ flex: 6, fontSize: 16, lineHeight: 20}}>
                             {t(item?.raceName, 'grand-prix-name')}
                         </ThemedText>
                         <ThemedText style={{ flex: 1, fontFamily: 'Formula1-Display-Regular', fontSize: 12 }}>
@@ -98,7 +98,7 @@ export default function DriverDetail() {
                     </View>
                     {item.SprintResults && (
                         <View style={{ flexDirection: 'row' }}>
-                            <ThemedText style={{ flex: 6, fontSize: 14, lineHeight: 16 }}>
+                            <ThemedText style={{ flex: 6, fontSize: 14, lineHeight: 20 }}>
                                 {t('Sprint', 'session')}
                             </ThemedText>
                             <ThemedText style={{ flex: 1, fontFamily: 'Formula1-Display-Regular', fontSize: 12 }}>
