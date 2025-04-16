@@ -36,6 +36,7 @@ export type Result = {
 export type RaceResult = Race & {
     Results: Result[];
     QualifyingResults: Result[];
+    SprintResults: Result[];
 }
 
 export default function Result() {
