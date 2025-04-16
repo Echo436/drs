@@ -47,12 +47,6 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
         initialData: string;
     }>();
 
-    const wait = (timeout: number | undefined) => {
-        return new Promise(resolve => {
-            setTimeout(resolve, timeout);
-        });
-    }
-
     const fetchData = async () => {
         setRefreshing(true);
         try {
@@ -140,7 +134,7 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                 <View style={styles.profileContainer}>
 
                     <ThemedText style={styles.roundText}>
-                        {year}
+                        {year || raceData?.season || raceInitData?.season}
                         <ThemedText style={{fontFamily: ' '}}>
                         ·
                         </ThemedText>
