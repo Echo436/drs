@@ -204,7 +204,7 @@ const F1DataContext = createContext<F1DataContextType | undefined>(undefined);
 
 // Provider组件
 export const F1DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [seasons, setSeasons] = useState<Season[]>([{ season: 'current'}]);
+    const [seasons, setSeasons] = useState<Season[]>([{ season: 'current' }]);
     const [selectedSeason, setSelectedSeason] = useState<string>('current');
     const [grandPrixList, setGrandPrixList] = useState<Race[]>([]);
     const [currentRound, setCurrentRound] = useState<string>('0');
@@ -230,9 +230,29 @@ export const F1DataProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     const fetchGPListData = async (year: string) => {
         setGrandPrixLoading(true);
         try {
-            const response = await fetch(`https://api.jolpi.ca/ergast/f1/${year}/races`)
-                .then(response => response.json());
-            const data: Race[] = response.MRData.RaceTable.Races;
+            const seasonGpResponse = await fetch(`https://api.jolpi.ca/ergast/f1/${year}/races`).then(response => response.json());
+            const p1Results = await fetch(`https://api.jolpi.ca/ergast/f1/${year}/results/1`).then(response => response.json());
+            const p2Results = await fetch(`https://api.jolpi.ca/ergast/f1/${year}/results/2`).then(response => response.json());
+            const p3Results = await fetch(`https://api.jolpi.ca/ergast/f1/${year}/results/3`).then(response => response.json());
+            const data: Race[] = seasonGpResponse.MRData.RaceTable.Races;
+
+            // 合并前三名的比赛结果到对应的race对象
+            const p1Races: Race[] = p1Results.MRData.RaceTable.Races;
+            const p2Races: Race[] = p2Results.MRData.RaceTable.Races;
+            const p3Races: Race[] = p3Results.MRData.RaceTable.Races;
+
+            data.forEach(race => {
+                const p1Race = p1Races.find(r => r.round === race.round);
+                const p2Race = p2Races.find(r => r.round === race.round);
+                const p3Race = p3Races.find(r => r.round === race.round);
+
+                race.Results = [
+                    ...(p1Race?.Results || []),
+                    ...(p2Race?.Results || []),
+                    ...(p3Race?.Results || [])
+                ];
+            });
+
             setGrandPrixList(data);
             for (const race of data) {
                 const date = DateTime.fromISO(`${race.date}T${race.time}`);
