@@ -1,43 +1,12 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { Constructor, Driver, Race } from "@/context/F1DataContext";
+import { Race } from "@/context/F1DataContext";
 import { Stack, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { FlatList, View } from "react-native";
 import { layoutStyles } from "@/components/ui/Styles";
 import { translateName } from "@/i18n/utils";
 import renderSeparator from "@/components/ui/RenderSeparator";
-
-export type Result = {
-    number: string;
-    position: string;
-    points: string;
-    Driver: Driver;
-    Constructor: Constructor;
-    Q1: string;
-    Q2: string;
-    Q3: string;
-    grid: string;
-    laps: string;
-    status: string;
-    Time: {
-        millis: string;
-        time: string;
-    };
-    FastestLap: {
-        rank: string;
-        lap: string;
-        Time: {
-            time: string;
-        };
-    }
-}
-
-export type RaceResult = Race & {
-    Results: Result[];
-    QualifyingResults: Result[];
-    SprintResults: Result[];
-}
 
 export default function Result() {
     const { year, round, session } = useLocalSearchParams<{
@@ -46,7 +15,7 @@ export default function Result() {
         session: 'fp1' | 'fp2' | 'fp3' | 'sprintQualy' | 'sprintRace' | 'qualy' | 'race'
     }>();
 
-    const [resultData, setResult] = useState<RaceResult | null>(null);
+    const [resultData, setResult] = useState<Race | null>(null);
 
     useEffect(() => {
         switch (session) {

@@ -2,7 +2,7 @@ import { FlatList, StyleSheet, View, RefreshControl, TouchableOpacity, Image } f
 import React, { useState, useEffect } from "react";
 import { ThemedText } from "@/components/ThemedText";
 import { Driver, DriverStanding, Race } from "@/context/F1DataContext";
-import { Link, router, Stack, useLocalSearchParams } from "expo-router";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import { ScrollView } from "react-native-gesture-handler";
 import { layoutStyles } from "@/components/ui/Styles";
 import { BlurView } from "expo-blur";
@@ -13,12 +13,11 @@ import tinycolor from 'tinycolor2';
 import renderSeparator from "@/components/ui/RenderSeparator";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { IconSymbol } from "@/components/ui/IconSymbol";
-import { RaceResult } from "../result/[round]";
 import { t } from '@/i18n/utils';
 
 export default function DriverDetail() {
     const { top } = useSafeAreaInsets();
-    const [driverSeasonList, setDriverSeasonList] = useState<RaceResult[]>([]);
+    const [driverSeasonList, setDriverSeasonList] = useState<Race[]>([]);
     const [refreshing, setRefreshing] = useState(false);
 
     const { driverId, year, initialData } = useLocalSearchParams<{
@@ -27,29 +26,18 @@ export default function DriverDetail() {
         initialData: string;
     }>();
 
+    const wait = (timeout: number | undefined) => {
+        return new Promise(resolve => {
+            setTimeout(resolve, timeout);
+        });
+    }
+
     const fetchDriverSeasonData = async () => {
         try {
-            const [raceResponse, sprintResponse] = await Promise.all([
-                fetch(`https://api.jolpi.ca/ergast/f1/${year}/drivers/${driverId}/results`),
-                fetch(`https://api.jolpi.ca/ergast/f1/${year}/drivers/${driverId}/sprint`)
-            ]);
-            const raceData = await raceResponse.json();
-            const sprintData = await sprintResponse.json();
-
-            const raceList: RaceResult[] = raceData.MRData.RaceTable.Races;
-            const sprintList: RaceResult[] = sprintData.MRData.RaceTable.Races;
-
-            // 合并短程赛数据到对应的比赛数据中
-            const mergedList = raceList.map(race => {
-                const sprint = sprintList.find(s => s.round === race.round);
-                if (sprint) {
-                    return { ...race, SprintResults: sprint.SprintResults };
-                }
-                return race;
-            });
-
-            setDriverSeasonList(mergedList);
-            return mergedList;
+            const response = await fetch(`http://api.jolpi.ca/ergast/f1/${year}/drivers/${driverId}/results`);
+            const data = await response.json();
+            setDriverSeasonList(data.MRData.RaceTable.Races);
+            return data;
         } finally {
             setRefreshing(false);
         }
@@ -76,42 +64,29 @@ export default function DriverDetail() {
     const displayTeamColor = tinycolor(teamColor).setAlpha(0.7).toRgbString();
     const cardBorderColor = useThemeColor({}, 'cardBorder');
 
-    const raceItem = ({ item }: { item: RaceResult }) => {
+    const raceItem = ({ item }: { item: Race }) => {
         return (
-            <Link
-                href={{ pathname: '/race/[round]', params: { round: item.round, year: year, initialData: JSON.stringify(item) } }}
-                asChild
-            >
-                <TouchableOpacity style={{ paddingVertical: 12, paddingHorizontal: 20 }}>
-                    <ThemedText style={{ fontFamily: 'Formula1-Display-Regular', fontSize: 12 }}>
-                        R{String(item?.round).padStart(2, '0')}
+            <View style={{ paddingVertical: 15, paddingHorizontal: 20 }}>
+                <ThemedText style={{fontFamily: 'Formula1-Display-Regular', fontSize: 12}}>
+                    R{String(item?.round).padStart(2, '0')}
+                </ThemedText>
+                <View style={{ flexDirection: 'row' }}>
+                    <ThemedText style={{flex: 6}}>
+                        {t(item?.raceName, 'grand-prix-name')}
                     </ThemedText>
-                    <View style={{ flexDirection: 'row', paddingTop: 2 }}>
-                        <ThemedText style={{ flex: 6, fontSize: 16, lineHeight: 16 }}>
-                            {t(item?.raceName, 'grand-prix-name')}
-                        </ThemedText>
-                        <ThemedText style={{ flex: 1, fontFamily: 'Formula1-Display-Regular', fontSize: 12 }}>
-                            P{item.Results[0].position}
-                        </ThemedText>
-                        <ThemedText style={{ flex: 1, fontFamily: 'Formula1-Display-Regular', fontSize: 12, textAlign: 'center' }}>
-                            {item.Results[0].points}
-                        </ThemedText>
-                    </View>
-                    {item.SprintResults && (
-                        <View style={{ flexDirection: 'row' }}>
-                            <ThemedText style={{ flex: 6, fontSize: 14, lineHeight: 16 }}>
-                                {t('Sprint', 'session')}
-                            </ThemedText>
-                            <ThemedText style={{ flex: 1, fontFamily: 'Formula1-Display-Regular', fontSize: 12 }}>
-                                P{item.SprintResults[0].position}
-                            </ThemedText>
-                            <ThemedText style={{ flex: 1, fontFamily: 'Formula1-Display-Regular', fontSize: 12, textAlign: 'center' }}>
-                                {item.SprintResults[0].points}
-                            </ThemedText>
-                        </View>
-                    )}
-                </TouchableOpacity>
-            </Link>
+                    <ThemedText style={{flex: 1, fontFamily: 'Formula1-Display-Regular', fontSize: 12}}>
+                        P{item.Results[0].position}
+                    </ThemedText>
+                    <ThemedText style={{flex: 1, fontFamily: 'Formula1-Display-Regular', fontSize: 12, textAlign: 'center'}}>
+                        {item.Results[0].points}
+                    </ThemedText>
+                </View>
+                {/* 冲刺赛信息（如果有） */}
+                {/* {item?.sprintResult &&
+                    <ThemedText>
+                        {item?.sprintResult?.raceTime}
+                    </ThemedText>} */}
+            </View>
         );
     };
 
@@ -163,18 +138,11 @@ export default function DriverDetail() {
                         </ThemedText>
                         <View style={styles.positionContainer}>
                             <ThemedText style={styles.positionText}>
-                                {driverInitData?.positionText || '-'}
+                                <ThemedText style={{ fontSize: 22, lineHeight: 32, fontFamily: 'Formula1-Display-Regular' }}>#</ThemedText>
+                                {driverInitData?.positionText || '0'}
                             </ThemedText>
                             <ThemedText style={styles.POSText}>
-                                {t('POS', 'tabs')}
-                            </ThemedText>
-                        </View>
-                        <View style={styles.positionContainer}>
-                            <ThemedText style={styles.positionText}>
-                                {driverInitData?.points || '0'}
-                            </ThemedText>
-                            <ThemedText style={styles.POSText}>
-                                {t('PTS', 'tabs')}
+                                POS
                             </ThemedText>
                         </View>
                         <View style={styles.positionContainer}>
@@ -182,19 +150,17 @@ export default function DriverDetail() {
                                 {driverInitData?.wins || '0'}
                             </ThemedText>
                             <ThemedText style={styles.POSText}>
-                                {t('Wins', 'tabs')}
+                                Wins
                             </ThemedText>
                         </View>
                     </View>
                     <View style={styles.rightColumn}>
-                        <View style={{ flexDirection: 'column', justifyContent: 'flex-end', paddingTop: 12 }}>
-                            <ThemedText style={{
-                                textAlign: 'right',
-                                fontSize: 14,
-                                lineHeight: 18,
-                                fontFamily: 'Formula1-Display-Bold',
-                            }}>
-                                {year}
+                        <View style={styles.pointContainer}>
+                            <ThemedText style={styles.pointText}>
+                                {driverInitData?.points || '- - '}
+                            </ThemedText>
+                            <ThemedText style={[styles.PTSText, { color: backgroundColor, backgroundColor: textColor }]}>
+                                PTS
                             </ThemedText>
                         </View>
                     </View>
@@ -258,13 +224,33 @@ const styles = StyleSheet.create({
     positionText: {
         paddingRight: 5,
         fontFamily: 'Formula1-Display-Bold',
-        fontSize: 28,
-        lineHeight: 30,
+        fontSize: 32,
+        lineHeight: 32,
     },
     POSText: {
         fontFamily: 'Formula1-Display-Regular',
-        fontSize: 12,
+        fontSize: 14,
         lineHeight: 21
+    },
+
+    pointContainer: {
+        paddingTop: 2,
+        alignItems: 'flex-end',
+        justifyContent: 'center',
+        overflow: 'hidden',
+    },
+    pointText: {
+        fontFamily: 'Formula1-Display-Wide',
+        fontSize: 18,
+        lineHeight: 20,
+    },
+    PTSText: {
+        fontFamily: 'Formula1-Display-Wide',
+        fontSize: 12.5,
+        lineHeight: 12,
+        paddingHorizontal: 10,
+        paddingVertical: 1,
+        borderRadius: 5,
     },
 
     cardsContainer: {

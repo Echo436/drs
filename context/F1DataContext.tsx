@@ -107,6 +107,33 @@ export type Race = {
     Qualifying: Session;
     Sprint: Session;
     SprintQualifying: Session;
+    Results: Result[];
+    QualifyingResults: Result[];
+    SprintResults: Result[];
+};
+export type Result = {
+    number: string;
+    position: string;
+    points: string;
+    Driver: Driver;
+    Constructor: Constructor;
+    Q1: string;
+    Q2: string;
+    Q3: string;
+    grid: string;
+    laps: string;
+    status: string;
+    Time: {
+        millis: string;
+        time: string;
+    };
+    FastestLap: {
+        rank: string;
+        lap: string;
+        Time: {
+            time: string;
+        };
+    }
 };
 // 车手（排名）数据类型
 export type DriverStanding = {
@@ -122,13 +149,7 @@ export type DriverStanding = {
     team: Team;
     Constructors: Constructor[];
 }
-export type Result = {
-    finishingPosition: number;
-    gridPosition: number;
-    raceTime: string;
-    pointsObtained: number;
-    retired: boolean;
-};
+
 export type DriverResult = {
     race: Race;
     result: Result;
