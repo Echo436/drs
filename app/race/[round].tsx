@@ -29,7 +29,7 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
     const { top } = useSafeAreaInsets();
     const [raceData, setRaceData] = useState<Race | null>(null);
     const [refreshing, setRefreshing] = useState(false);
-    const { refreshData, nextRace, selectedSeason, seasons } = useF1Data();
+    const { selectedSeason, seasons } = useF1Data();
 
     if (selectedSeason !== seasons[0].season && isCurrentPage) {
         return (
@@ -56,7 +56,7 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
     const fetchData = async () => {
         setRefreshing(true);
         try {
-            const response = await fetch(`http://api.jolpi.ca/ergast/f1/current/${isCurrentPage ? currentRound : round}/races`)
+            const response = await fetch(`http://api.jolpi.ca/ergast/f1/${year}/${isCurrentPage ? currentRound : round}/races`)
                 .then(response => response.json());
             const raceData = response.MRData.RaceTable.Races[0];
             setRaceData(raceData);
@@ -67,18 +67,14 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
 
     const onRefresh = React.useCallback(async () => {
         setRefreshing(true);
-        if (isCurrentPage) {
-            try {
-                await refreshData(['nextRace']);
-                setRaceData(nextRace)
-            } finally { setRefreshing(false) }
-        }
+        fetchData();
     }, []);
 
     useEffect(() => {
         if (isCurrentPage) {
             setRaceData(currentRace || null);
         }
+        fetchData();
     }, []);
 
     const raceInitData = initialData ? JSON.parse(initialData) as Race : null;
@@ -88,16 +84,16 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
     const cardBorderColor = useThemeColor({}, 'cardBorder');
 
     const scheduleData = [
-        { key: 'fp1', name: t('FP1', 'session'), session: (raceInitData || raceData)?.FirstPractice },
-        { key: 'fp2', name: t('FP2', 'session'), session: (raceInitData || raceData)?.SecondPractice },
-        { key: 'fp3', name: t('FP3', 'session'), session: (raceInitData || raceData)?.ThirdPractice },
-        { key: 'sprintQualy', name: t('Sprint Qualifying', 'session'), session: (raceInitData || raceData)?.SprintQualifying },
-        { key: 'sprintRace', name: t('Sprint Race', 'session'), session: (raceInitData || raceData)?.Sprint },
-        { key: 'qualy', name: t('Qualifying', 'session'), session: (raceInitData || raceData)?.Qualifying },
+        { key: 'fp1', name: t('FP1', 'session'), session: (raceData || raceInitData)?.FirstPractice },
+        { key: 'fp2', name: t('FP2', 'session'), session: (raceData || raceInitData)?.SecondPractice },
+        { key: 'fp3', name: t('FP3', 'session'), session: (raceData || raceInitData)?.ThirdPractice },
+        { key: 'sprintQualy', name: t('Sprint Qualifying', 'session'), session: (raceData || raceInitData)?.SprintQualifying },
+        { key: 'sprintRace', name: t('Sprint Race', 'session'), session: (raceData || raceInitData)?.Sprint },
+        { key: 'qualy', name: t('Qualifying', 'session'), session: (raceData || raceInitData)?.Qualifying },
         {
             key: 'race', name: t('Race', 'session'), session: {
-                date: (raceInitData || raceData)?.date,
-                time: (raceInitData || raceData)?.time,
+                date: (raceData || raceInitData)?.date,
+                time: (raceData || raceInitData)?.time,
             }
         },
     ].filter(item => item.session && item.session.date !== null);
@@ -144,9 +140,12 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                 <View style={styles.profileContainer}>
 
                     <ThemedText style={styles.roundText}>
+                        {year}
+                        <ThemedText style={{fontFamily: ' '}}>
+                        ·
+                        </ThemedText>
                         {`R${String(raceInitData?.round || raceData?.round).padStart(2, '0')}`}
                     </ThemedText>
-
                     <ThemedText type="title" style={[styles.title, { fontFamily: getFontFamily() }]}>
                         {t(raceInitData?.raceName || raceData?.raceName || '', 'grand-prix-name')}
                     </ThemedText>
@@ -169,11 +168,17 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                             scrollEnabled={false}
                             data={scheduleData}
                             renderItem={({ item, index }) => {
-                                const sessionDate = DateTime.fromISO(`${item.session.date}T${item.session.time}`);
-                                const languageCode = getLocales()[0].languageCode || 'en';
-                                const weekDisplay = sessionDate.setLocale(languageCode).toLocaleString({ weekday: 'short' });
-                                const dateDisplay = sessionDate.setLocale(languageCode).toLocaleString({ day: '2-digit', month: '2-digit' });
-                                const timeDisplay = sessionDate.setLocale(languageCode).toLocaleString({ hour: '2-digit', minute: '2-digit' });
+                                let weekDisplay = '--';
+                                let dateDisplay = '--';
+                                let timeDisplay = '--';
+
+                                if (item.session.date && item.session.time) {
+                                    const sessionDate = DateTime.fromISO(`${item.session.date}T${item.session.time}`);
+                                    const languageCode = getLocales()[0].languageCode || 'en';
+                                    weekDisplay = sessionDate.setLocale(languageCode).toLocaleString({ weekday: 'short' });
+                                    dateDisplay = sessionDate.setLocale(languageCode).toLocaleString({ day: '2-digit', month: '2-digit' });
+                                    timeDisplay = sessionDate.setLocale(languageCode).toLocaleString({ hour: '2-digit', minute: '2-digit' });
+                                }
 
                                 const showDate = index === 0 || scheduleData[index - 1].session.date !== item.session?.date;
                                 const showInDayTopSeparator = !showDate;
