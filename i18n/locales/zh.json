@@ -16,7 +16,10 @@
     "Drivers": "车手",
     "Constructors": "制造商",
     "Teams": "车队",
+    "POS": "排名",
     "points": "积分",
+    "PTS": "积分",
+    "Wins": "胜场",
     "settings": "设置"
   },
   "session": {
