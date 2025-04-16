@@ -24,7 +24,7 @@ export default function ConstructorList() {
                     </View>
                     <View style={styles.driverInfoContainer}>
                         <ThemedText type="itemtitle">{translateName([item?.Driver?.givenName, item?.Driver?.familyName])}</ThemedText>
-                        <ThemedText type="itemsubtitle" style={{ color: getTeamsColor(item.Constructors[0].constructorId) }}>{t(item.Constructors[0].name, 'team')}</ThemedText>
+                        <ThemedText type="itemsubtitle" style={{ color: getTeamsColor(item.Constructors[item.Constructors.length - 1].constructorId) }}>{t(item.Constructors[item.Constructors.length - 1].name, 'team')}</ThemedText>
                     </View>
                     <View style={styles.pointsContainer}>
                         <ThemedText style={styles.pointText}>{item.points}</ThemedText>

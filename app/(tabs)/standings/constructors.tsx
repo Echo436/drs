@@ -15,6 +15,8 @@ export default function ConstructorList() {
     const { constructorList, driverStandingList: driverStandingList } = useF1Data();
 
     const renderItem = ({ item }: { item: ConstructorStanding }) => {
+        const driverList = driverStandingList
+            .filter(driver => driver.Constructors[driver.Constructors.length - 1].constructorId === item.Constructor.constructorId);
         return (
             <View style={styles.itemContainer}>
                 <View style={styles.positionContainer}>
@@ -23,8 +25,7 @@ export default function ConstructorList() {
                 <View style={styles.teamInfoContainer}>
                     <ThemedText type="itemtitle">{t(item.Constructor.name, 'team')}</ThemedText>
                     <View style={styles.driversContainer}>
-                        {driverStandingList
-                            .filter(driver => driver.Constructors[0].constructorId === item.Constructor.constructorId)
+                        {driverList
                             .map(driver => (
                                 <ThemedText key={driver.Driver.driverId} type="itemsubtitle" style={styles.driverNameText}>
                                     {driver.Driver.code || driver.Driver.familyName}
@@ -51,8 +52,8 @@ export default function ConstructorList() {
             ItemSeparatorComponent={renderSeparator}
             contentContainerStyle={layoutStyles.listContainer}
             showsVerticalScrollIndicator={false}
-            contentInset={{ top: top+45, left: 0, bottom: 100, right: 0 }}
-            contentOffset={{x: 0, y: -top-45}}
+            contentInset={{ top: top + 45, left: 0, bottom: 100, right: 0 }}
+            contentOffset={{ x: 0, y: -top - 45 }}
         />
     );
 }
