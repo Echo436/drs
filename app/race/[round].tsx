@@ -50,7 +50,7 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
     const fetchData = async () => {
         setRefreshing(true);
         try {
-            const response = await fetch(`http://api.jolpi.ca/ergast/f1/${year}/${isCurrentPage ? currentRound : round}/races`)
+            const response = await fetch(`https://api.jolpi.ca/ergast/f1/${year}/${isCurrentPage ? currentRound : round}/races`)
                 .then(response => response.json());
             const raceData = response.MRData.RaceTable.Races[0];
             setRaceData(raceData);

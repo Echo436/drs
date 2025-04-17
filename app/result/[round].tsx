@@ -35,14 +35,14 @@ export default function Result() {
                 console.log('sprint');
                 break;
             case 'qualy':
-                fetch(`http://api.jolpi.ca/ergast/f1/${year}/${round}/qualifying/`)
+                fetch(`https://api.jolpi.ca/ergast/f1/${year}/${round}/qualifying/`)
                     .then((response) => response.json())
                     .then((data) => {
                         setResult(data.MRData.RaceTable.Races[0]);
                     });
                 break;
             case 'race':
-                fetch(`http://api.jolpi.ca/ergast/f1/${year}/${round}/results/`)
+                fetch(`https://api.jolpi.ca/ergast/f1/${year}/${round}/results/`)
                     .then((response) => response.json())
                     .then((data) => {
                         setResult(data.MRData.RaceTable.Races[0]);
