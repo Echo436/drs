@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "drs",
+    "name": "DRS",
     "slug": "drs",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -9,8 +9,16 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
+      "icon": {
+        "dark": "./assets/images/ios-dark.png",
+        "light": "./assets/images/ios-light.png",
+        "tinted": "./assets/images/ios-tinted.png"
+      },
       "supportsTablet": true,
-      "bundleIdentifier": "com.keee.drs"
+      "bundleIdentifier": "com.keee.drs",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -38,10 +46,14 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/splash-icon-light.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#000000",
+          "dark": {
+            "image":"./assets/images/splash-icon-dark.png",
+            "backgroundColor": "#ffffff"
+          }
         }
       ],
       "expo-localization"
