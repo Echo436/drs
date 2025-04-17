@@ -2,10 +2,12 @@
 
 import { configureStore } from '@reduxjs/toolkit'
 import themeReducer from './themeSlice'
+import initDataReducer from './initDataSlice'
 
 export const store = configureStore({
     reducer: {
-        theme: themeReducer
+        theme: themeReducer,
+        initData: initDataReducer
     }
 })
 
