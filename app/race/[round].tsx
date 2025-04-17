@@ -146,7 +146,7 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                     <ThemedText type="itemtitle" style={[styles.circuitName, { fontFamily: getFontFamily() }]}>
                         {t(raceInitData?.Circuit.circuitName || raceData?.Circuit.circuitName || '', 'circuit-name')}
                     </ThemedText>
-                    <Link href={'/session/sessionLive'}>test</Link>
+                    {/* <Link href={'/session/sessionLive'}>test</Link> */}
 
                 </View>
 
