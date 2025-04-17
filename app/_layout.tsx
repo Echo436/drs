@@ -47,6 +47,7 @@ function ThemeWrapper() {
 }
 
 export default function RootLayout() {
+  const initDataStatus = useAppSelector(state => state.initData.isReady);
   const [loaded] = useFonts({
     // 添加字体需要在这里配置字体名称和对应的字体文件路径
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
@@ -56,10 +57,17 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    if (loaded) {
+    const timer = setTimeout(() => {
+      SplashScreen.hideAsync();
+    }, 5000);
+
+    if (loaded && initDataStatus) {
+      clearTimeout(timer);
       SplashScreen.hideAsync();
     }
-  }, [loaded]);
+
+    return () => clearTimeout(timer);
+  }, [loaded, initDataStatus]);
 
   if (!loaded) {
     return null;
