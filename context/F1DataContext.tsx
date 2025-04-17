@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon';
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useAppDispatch } from '@/hooks/useReduxHooks';
-import { setInitDataStatus } from '@/storage/initDataSlice';
+import * as SplashScreen from 'expo-splash-screen';
 
 export type Season = {
     season: string;
@@ -217,8 +217,6 @@ export const F1DataProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     const [constructorListLoading, setConstructorListLoading] = useState(true);
     const [isSeasonListFetched, setIsSeasonListFetched] = useState(false);
 
-    const dispatch = useAppDispatch();
-
     const fetchSeasonListData = () => {
         fetch('https://api.jolpi.ca/ergast/f1/seasons/?limit=100')
             .then(response => response.json())
@@ -258,7 +256,9 @@ export const F1DataProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             });
 
             setGrandPrixList(data);
-            dispatch(setInitDataStatus(true));
+            setTimeout(() => {
+                SplashScreen.hideAsync();
+              }, 100);
             for (const race of data) {
                 const date = DateTime.fromISO(`${race.date}T${race.time}`);
                 if (date.plus({ day: 2 }) > DateTime.now()) {

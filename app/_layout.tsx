@@ -13,13 +13,16 @@ import { I18nProvider } from '@/i18n/I18nProvider';
 
 import store from '@/storage/configureStore';
 import { Provider } from 'react-redux';
-import { useAppDispatch, useAppSelector } from '@/hooks/useReduxHooks';
+import { useAppDispatch } from '@/hooks/useReduxHooks';
 import { setPrimaryColor } from '@/storage/themeSlice';
 
 import storage from '@/storage/storage';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
+SplashScreen.setOptions({
+  fade: true,
+})
 
 function ThemeWrapper() {
   const dispatch = useAppDispatch();
@@ -47,7 +50,6 @@ function ThemeWrapper() {
 }
 
 export default function RootLayout() {
-  const initDataStatus = useAppSelector(state => state.initData.isReady);
   const [loaded] = useFonts({
     // 添加字体需要在这里配置字体名称和对应的字体文件路径
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
@@ -57,17 +59,12 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      SplashScreen.hideAsync();
-    }, 5000);
-
-    if (loaded && initDataStatus) {
-      clearTimeout(timer);
-      SplashScreen.hideAsync();
+    if (loaded) {
+      setTimeout(() => {
+        SplashScreen.hideAsync();
+      }, 5000);
     }
-
-    return () => clearTimeout(timer);
-  }, [loaded, initDataStatus]);
+  }, [loaded]);
 
   if (!loaded) {
     return null;
