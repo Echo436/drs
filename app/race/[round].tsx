@@ -15,6 +15,10 @@ import { ThemedView } from "@/components/ThemedView";
 import { t } from "@/i18n/utils";
 import { getLocales } from "expo-localization";
 import { DateTime } from 'luxon';
+import Slash1 from '@/assets/icon/slash-1.svg'
+import Slash2 from '@/assets/icon/slash-2.svg'
+import Slash3 from '@/assets/icon/slash-3.svg'
+import { getTeamsColor } from "@/constants/Colors";
 
 const getFontFamily = () => {
     const locales = getLocales();
@@ -229,10 +233,36 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                                                     }
                                                 }} asChild>
                                                     <TouchableOpacity style={styles.sessionColumn}>
-                                                        <View>
+                                                        <View style={{flex: 1}}>
                                                             <ThemedText style={styles.sessionName}>{item.name}</ThemedText>
                                                             <ThemedText style={styles.sessionTime}>{timeDisplay}</ThemedText>
                                                         </View>
+                                                        {(() => {
+                                                            const itemResultData = (() => {
+                                                                switch (item.key) {
+                                                                    case 'sprintRace':
+                                                                        return sprintResultData;
+                                                                    case 'qualy':
+                                                                        return qualyResultData;
+                                                                    case 'race':
+                                                                        return raceResultData;
+                                                                    default:
+                                                                        return null;
+                                                                }
+                                                            })();
+                                                            return itemResultData && (<View style={styles.podiumContainer}>
+                                                                {[1, 2, 3].map((position) => (
+                                                                    <View key={position} style={styles.podiumItem}>
+                                                                        {position === 1 && <Slash1 style={styles.slashIcon} fill={getTeamsColor(itemResultData.find(r => r.position === position.toString())?.Constructor.constructorId || '')} width={28} />}
+                                                                        {position === 2 && <Slash2 style={styles.slashIcon} fill={getTeamsColor(itemResultData.find(r => r.position === position.toString())?.Constructor.constructorId || '')} width={28} />}
+                                                                        {position === 3 && <Slash3 style={styles.slashIcon} fill={getTeamsColor(itemResultData.find(r => r.position === position.toString())?.Constructor.constructorId || '')} width={28} />}
+                                                                        <ThemedText style={styles.driverCode}>
+                                                                            {itemResultData.find(r => r.position === position.toString())?.Driver.code}
+                                                                        </ThemedText>
+                                                                    </View>
+                                                                ))}
+                                                            </View>);
+                                                        })()}
                                                     </TouchableOpacity>
                                                 </Link>
                                             </View>
@@ -348,5 +378,26 @@ const styles = StyleSheet.create({
         fontSize: 12,
         fontFamily: 'Formula1-Display-Regular',
         opacity: 0.8,
+    },
+    podiumContainer: {
+        flex: 3,
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        marginTop: -4,
+    },
+    podiumItem: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    slashIcon: {
+        position: 'relative',
+        bottom: 1.5
+    },
+    driverCode: {
+        fontSize: 8,
+        lineHeight: 8,
+        fontFamily: 'Formula1-Display-Bold',
+        marginLeft: 1,
     },
 });
