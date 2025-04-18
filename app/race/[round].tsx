@@ -28,6 +28,9 @@ const getFontFamily = () => {
 export default function GrandPrixDetail({ isCurrentPage = false, currentRound = '0', currentRace }: { isCurrentPage?: boolean, currentRound?: string, currentRace?: Race }) {
     const { top } = useSafeAreaInsets();
     const [raceData, setRaceData] = useState<Race | null>(null);
+    const [qualyResultData, setQualyResult] = useState<Race | null>(null);
+    const [sprintResultData, setSprintResult] = useState<Race | null>(null);
+    const [raceResultData, setRaceResult] = useState<Race | null>(null);
     const [refreshing, setRefreshing] = useState(false);
     const { selectedSeason, seasons } = useF1Data();
 
@@ -54,6 +57,22 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                 .then(response => response.json());
             const raceData = response.MRData.RaceTable.Races[0];
             setRaceData(raceData);
+
+            fetch(`https://api.jolpi.ca/ergast/f1/${year}/${isCurrentPage ? currentRound : round}/sprint/`)
+                .then((response) => response.json())
+                .then((data) => {
+                    setSprintResult(data.MRData.RaceTable.Races[0]);
+                });
+            fetch(`https://api.jolpi.ca/ergast/f1/${year}/${isCurrentPage ? currentRound : round}/qualifying/`)
+                .then((response) => response.json())
+                .then((data) => {
+                    setQualyResult(data.MRData.RaceTable.Races[0]);
+                });
+            fetch(`https://api.jolpi.ca/ergast/f1/${year}/${isCurrentPage ? currentRound : round}/results/`)
+                .then((response) => response.json())
+                .then((data) => {
+                    setRaceResult(data.MRData.RaceTable.Races[0]);
+                });
         } finally {
             setRefreshing(false);
         }
@@ -135,8 +154,8 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
 
                     <ThemedText style={styles.roundText}>
                         {year || raceData?.season || raceInitData?.season}
-                        <ThemedText style={{fontFamily: ' '}}>
-                        ·
+                        <ThemedText style={{ fontFamily: ' ' }}>
+                            ·
                         </ThemedText>
                         {`R${String(raceInitData?.round || raceData?.round).padStart(2, '0')}`}
                     </ThemedText>
@@ -192,10 +211,28 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                                             <View style={{ flex: 1 }}>
                                                 {showInDayTopSeparator && (<View style={{ height: 1, backgroundColor: 'gray' }}></View>)}
                                                 {/* 每天的日程（右侧列） */}
-                                                <Link href={{ pathname: '/result/[round]', params: { year: year, round: isCurrentPage ? currentRound : round, session: item.key } }} asChild>
+                                                <Link href={{
+                                                    pathname: '/result/[round]', params: {
+                                                        year: year, round: isCurrentPage ? currentRound : round, session: item.key,
+                                                        initialData: (() => {
+                                                            switch (item.key) {
+                                                                case 'sprintRace':
+                                                                    return JSON.stringify(sprintResultData);
+                                                                case 'qualy':
+                                                                    return JSON.stringify(qualyResultData);
+                                                                case 'race':
+                                                                    return JSON.stringify(raceResultData);
+                                                                default:
+                                                                    return null;
+                                                            }
+                                                        })()
+                                                    }
+                                                }} asChild>
                                                     <TouchableOpacity style={styles.sessionColumn}>
-                                                        <ThemedText style={styles.sessionName}>{item.name}</ThemedText>
-                                                        <ThemedText style={styles.sessionTime}>{timeDisplay}</ThemedText>
+                                                        <View>
+                                                            <ThemedText style={styles.sessionName}>{item.name}</ThemedText>
+                                                            <ThemedText style={styles.sessionTime}>{timeDisplay}</ThemedText>
+                                                        </View>
                                                     </TouchableOpacity>
                                                 </Link>
                                             </View>
@@ -298,8 +335,7 @@ const styles = StyleSheet.create({
         opacity: 0.8,
     },
     sessionColumn: {
-        flexDirection: 'column',
-        alignItems: 'flex-start',
+        flexDirection: 'row',
         paddingLeft: 5,
         paddingTop: 10,
         paddingBottom: 9,

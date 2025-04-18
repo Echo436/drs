@@ -5,51 +5,58 @@ import { Stack, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { FlatList, View } from "react-native";
 import { layoutStyles } from "@/components/ui/Styles";
-import { translateName } from "@/i18n/utils";
+import { t, translateName } from "@/i18n/utils";
 import renderSeparator from "@/components/ui/RenderSeparator";
 
 export default function Result() {
-    const { year, round, session } = useLocalSearchParams<{
+    const { year, round, session, initialData } = useLocalSearchParams<{
         year: string;
         round: string;
-        session: 'fp1' | 'fp2' | 'fp3' | 'sprintQualy' | 'sprintRace' | 'qualy' | 'race'
+        session: 'fp1' | 'fp2' | 'fp3' | 'sprintQualy' | 'sprintRace' | 'qualy' | 'race';
+        initialData?: string;
     }>();
 
     const [resultData, setResult] = useState<Race | null>(null);
+    const [refreshing, setRefreshing] = useState(false);
+
+    const fetchSessionData = async () => {
+        setRefreshing(true);
+        try {
+            let endpoint = '';
+            switch (session) {
+                case 'sprintRace':
+                    endpoint = 'sprint';
+                    break;
+                case 'qualy':
+                    endpoint = 'qualifying';
+                    break;
+                case 'race':
+                    endpoint = 'results';
+                    break;
+                default:
+                    return;
+            }
+            
+            const response = await fetch(`https://api.jolpi.ca/ergast/f1/${year}/${round}/${endpoint}/`);
+            const data = await response.json();
+            setResult(data.MRData.RaceTable.Races[0]);
+        } catch (error) {
+            console.error('Error fetching session data:', error);
+        } finally {
+            setRefreshing(false);
+        }
+    };
+
+    const onRefresh = React.useCallback(() => {
+        fetchSessionData();
+    }, [year, round, session]);
 
     useEffect(() => {
-        switch (session) {
-            case 'fp1':
-                console.log('fp1');
-                break;
-            case 'fp2':
-                console.log('fp2');
-                break;
-            case 'fp3':
-                console.log('fp3');
-                break;
-            case 'sprintQualy':
-                console.log('sprintQualifying');
-                break;
-            case 'sprintRace':
-                console.log('sprint');
-                break;
-            case 'qualy':
-                fetch(`https://api.jolpi.ca/ergast/f1/${year}/${round}/qualifying/`)
-                    .then((response) => response.json())
-                    .then((data) => {
-                        setResult(data.MRData.RaceTable.Races[0]);
-                    });
-                break;
-            case 'race':
-                fetch(`https://api.jolpi.ca/ergast/f1/${year}/${round}/results/`)
-                    .then((response) => response.json())
-                    .then((data) => {
-                        setResult(data.MRData.RaceTable.Races[0]);
-                    })
-                break;
-            default:
-                break;
+        if (initialData) {
+            setResult(JSON.parse(initialData));
+            return;
+        } else {
+            fetchSessionData();
         }
     }, [year, round, session])
 
@@ -58,13 +65,41 @@ export default function Result() {
             <Stack.Screen
                 options={{
                     headerShown: true,
-                    title: session === 'qualy' ? 'Qualifying' : 'Race',
+                    title: (() => {
+                        switch (session) {
+                            case 'qualy':
+                                return t('Qualifying', 'session');
+                            case 'sprintQualy':
+                                return t('Sprint Qualifying', 'session');
+                            case 'sprintRace':
+                                return t('Sprint Race', 'session');
+                            case 'fp1':
+                                return t('FP1', 'session');
+                            case 'fp2':
+                                return t('FP2', 'session');
+                            case 'fp3':
+                                return t('FP3', 'session');
+                            default:
+                                return t('Race', 'session');
+                        }
+                    })(),
                     headerBackVisible: true,
                     headerBackTitle: 'Back',
                 }}
             />
             <FlatList
-                data={session === 'qualy' ? resultData?.QualifyingResults : resultData?.Results}
+                data={(() => {
+                    switch (session) {
+                        case 'sprintRace':
+                            return resultData?.SprintResults;
+                        case 'qualy':
+                            return resultData?.QualifyingResults;
+                        case 'race':
+                            return resultData?.Results;
+                        default:
+                            return resultData?.Results;
+                    }
+                })()}
                 renderItem={({ item }) => (
                     <View style={{ paddingHorizontal: 10, paddingVertical: 15, flexDirection: 'row', alignItems: 'center' }}>
                         <View style={{ width: 30, marginRight: 10 }}>
@@ -103,7 +138,7 @@ export default function Result() {
                             </View>
                         </View>
                         <View>
-                            {session === 'race' && (<ThemedText style={{ fontFamily: 'Formula1-Display-Bold', width: 40, textAlign: 'center' }}>
+                            {(session === 'race' || session === 'sprintRace') && (<ThemedText style={{ fontFamily: 'Formula1-Display-Bold', width: 40, textAlign: 'center' }}>
                                 {item.points}
                             </ThemedText>)}
                         </View>
