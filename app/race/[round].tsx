@@ -179,15 +179,15 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                         >
                             <View style={{ flex: 1 }}>
                                 <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
-                                    <ThemedText style={{ fontSize: 20, lineHeight: 30, fontFamily: 'Formula1-Display-Regular' }}>{extraRaceData?.circuit.circuitLength?.slice(0, -2)?.replace(/^(\d)(\d)/, '$1.$2') || '--'}</ThemedText>
+                                    <ThemedText style={{ fontSize: 18, lineHeight: 30, fontFamily: 'Formula1-Display-Regular' }}>{extraRaceData?.circuit.circuitLength?.slice(0, -2)?.replace(/^(\d)(\d)/, '$1.$2') || '--'}</ThemedText>
                                     <ThemedText style={{ fontSize: 12, lineHeight: 28 }}> 公里</ThemedText>
                                 </View>
                                 <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
-                                    <ThemedText style={{ fontSize: 20, lineHeight: 30, fontFamily: 'Formula1-Display-Regular' }}>{extraRaceData?.circuit.corners || '--'}</ThemedText>
+                                    <ThemedText style={{ fontSize: 18, lineHeight: 30, fontFamily: 'Formula1-Display-Regular' }}>{extraRaceData?.circuit.corners || '--'}</ThemedText>
                                     <ThemedText style={{ fontSize: 12, lineHeight: 28 }}> 弯道</ThemedText>
                                 </View>
                                 <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
-                                    <ThemedText style={{ fontSize: 20, lineHeight: 30, fontFamily: 'Formula1-Display-Regular' }}>{extraRaceData?.laps || '--'}</ThemedText>
+                                    <ThemedText style={{ fontSize: 18, lineHeight: 30, fontFamily: 'Formula1-Display-Regular' }}>{extraRaceData?.laps || '--'}</ThemedText>
                                     <ThemedText style={{ fontSize: 12, lineHeight: 28 }}> 圈</ThemedText>
                                 </View>
                             </View>
