@@ -33,7 +33,7 @@ export default function RaceResult() {
                     setResult(response.MRData.RaceTable.Races[0].QualifyingResults);
                     break;
                 case 'race':
-                    response = await fetch(`https://api.jolpi.ca/ergast/f1/${year}/${round}/result/`).then(response => response.json());
+                    response = await fetch(`https://api.jolpi.ca/ergast/f1/${year}/${round}/results/`).then(response => response.json());
                     setResult(response.MRData.RaceTable.Races[0].Results);
                     break;
                 default:
