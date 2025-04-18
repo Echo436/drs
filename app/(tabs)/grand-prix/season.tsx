@@ -25,7 +25,7 @@ export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
     const timeZoneOffset = DateTime.local().offset / 60;
 
     const { top } = useSafeAreaInsets();
-    const { grandPrixList, currentRound } = useF1Data();
+    const { grandPrixList, currentRound, seasons } = useF1Data();
 
     const flags = {
         'Australia': '🇦🇺',
@@ -57,7 +57,7 @@ export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
 
     // 导航到大奖赛详情页面
     const navigateToGrandPrix = async (round: string, year: string, initialData: string, raceDate: DateTime<true> | DateTime<false>) => {
-        if (round == currentRound) {
+        if (round == currentRound && year == seasons[0].season) {
             onTabChange('first');
         } else {
             router.push({ pathname: `/race/[round]`, params: { year, round, initialData } });
