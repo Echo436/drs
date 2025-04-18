@@ -1,6 +1,6 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { Race } from "@/context/F1DataContext";
+import { Race, Result } from "@/context/F1DataContext";
 import { Stack, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { FlatList, View } from "react-native";
@@ -8,7 +8,7 @@ import { layoutStyles } from "@/components/ui/Styles";
 import { t, translateName } from "@/i18n/utils";
 import renderSeparator from "@/components/ui/RenderSeparator";
 
-export default function Result() {
+export default function RaceResult() {
     const { year, round, session, initialData } = useLocalSearchParams<{
         year: string;
         round: string;
@@ -16,30 +16,29 @@ export default function Result() {
         initialData?: string;
     }>();
 
-    const [resultData, setResult] = useState<Race | null>(null);
+    const [resultData, setResult] = useState<Result[] | null>(null);
     const [refreshing, setRefreshing] = useState(false);
 
     const fetchSessionData = async () => {
         setRefreshing(true);
         try {
-            let endpoint = '';
+            let response;
             switch (session) {
                 case 'sprintRace':
-                    endpoint = 'sprint';
+                    response = await fetch(`https://api.jolpi.ca/ergast/f1/${year}/${round}/sprint/`).then(response => response.json());
+                    setResult(response.MRData.RaceTable.Races[0].SprintResults);
                     break;
                 case 'qualy':
-                    endpoint = 'qualifying';
+                    response = await fetch(`https://api.jolpi.ca/ergast/f1/${year}/${round}/qualifying/`).then(response => response.json());
+                    setResult(response.MRData.RaceTable.Races[0].QualifyingResults);
                     break;
                 case 'race':
-                    endpoint = 'results';
+                    response = await fetch(`https://api.jolpi.ca/ergast/f1/${year}/${round}/result/`).then(response => response.json());
+                    setResult(response.MRData.RaceTable.Races[0].Results);
                     break;
                 default:
                     return;
             }
-            
-            const response = await fetch(`https://api.jolpi.ca/ergast/f1/${year}/${round}/${endpoint}/`);
-            const data = await response.json();
-            setResult(data.MRData.RaceTable.Races[0]);
         } catch (error) {
             console.error('Error fetching session data:', error);
         } finally {
@@ -52,7 +51,7 @@ export default function Result() {
     }, [year, round, session]);
 
     useEffect(() => {
-        if (initialData) {
+        if (initialData && initialData !== 'null' && initialData !== 'undefined') {
             setResult(JSON.parse(initialData));
             return;
         } else {
@@ -88,18 +87,7 @@ export default function Result() {
                 }}
             />
             <FlatList
-                data={(() => {
-                    switch (session) {
-                        case 'sprintRace':
-                            return resultData?.SprintResults;
-                        case 'qualy':
-                            return resultData?.QualifyingResults;
-                        case 'race':
-                            return resultData?.Results;
-                        default:
-                            return resultData?.Results;
-                    }
-                })()}
+                data={resultData}
                 renderItem={({ item }) => (
                     <View style={{ paddingHorizontal: 10, paddingVertical: 15, flexDirection: 'row', alignItems: 'center' }}>
                         <View style={{ width: 30, marginRight: 10 }}>

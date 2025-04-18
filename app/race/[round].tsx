@@ -1,7 +1,7 @@
 import { FlatList, StyleSheet, View, RefreshControl, TouchableOpacity, Image } from "react-native";
 import React, { useState, useEffect } from "react";
 import { ThemedText } from "@/components/ThemedText";
-import { Race } from "@/context/F1DataContext";
+import { Race, Result } from "@/context/F1DataContext";
 import { Link, router, Stack, useLocalSearchParams } from "expo-router";
 import { ScrollView } from "react-native-gesture-handler";
 import { layoutStyles } from "@/components/ui/Styles";
@@ -28,9 +28,9 @@ const getFontFamily = () => {
 export default function GrandPrixDetail({ isCurrentPage = false, currentRound = '0', currentRace }: { isCurrentPage?: boolean, currentRound?: string, currentRace?: Race }) {
     const { top } = useSafeAreaInsets();
     const [raceData, setRaceData] = useState<Race | null>(null);
-    const [qualyResultData, setQualyResult] = useState<Race | null>(null);
-    const [sprintResultData, setSprintResult] = useState<Race | null>(null);
-    const [raceResultData, setRaceResult] = useState<Race | null>(null);
+    const [qualyResultData, setQualyResult] = useState<Result[] | null>(null);
+    const [sprintResultData, setSprintResult] = useState<Result[] | null>(null);
+    const [raceResultData, setRaceResult] = useState<Result[] | null>(null);
     const [refreshing, setRefreshing] = useState(false);
     const { selectedSeason, seasons } = useF1Data();
 
@@ -61,17 +61,17 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
             fetch(`https://api.jolpi.ca/ergast/f1/${year}/${isCurrentPage ? currentRound : round}/sprint/`)
                 .then((response) => response.json())
                 .then((data) => {
-                    setSprintResult(data.MRData.RaceTable.Races[0]);
+                    setSprintResult(data.MRData.RaceTable.Races[0].SprintResults);
                 });
             fetch(`https://api.jolpi.ca/ergast/f1/${year}/${isCurrentPage ? currentRound : round}/qualifying/`)
                 .then((response) => response.json())
                 .then((data) => {
-                    setQualyResult(data.MRData.RaceTable.Races[0]);
+                    setQualyResult(data.MRData.RaceTable.Races[0].QualifyingResults);
                 });
             fetch(`https://api.jolpi.ca/ergast/f1/${year}/${isCurrentPage ? currentRound : round}/results/`)
                 .then((response) => response.json())
                 .then((data) => {
-                    setRaceResult(data.MRData.RaceTable.Races[0]);
+                    setRaceResult(data.MRData.RaceTable.Races[0].Results);
                 });
         } finally {
             setRefreshing(false);
