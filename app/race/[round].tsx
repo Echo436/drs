@@ -61,19 +61,18 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
         try {
             const requestYear = isCurrentPage ? seasons[0].season : year;
             const requestRound = isCurrentPage ? currentRound : round;
-            const [raceResponse, extraRaceResponse, sprintResponse, qualyResponse, raceResultResponse] = await Promise.all([
-                fetch(`https://api.jolpi.ca/ergast/f1/${requestYear}/${requestRound}/races`).then(response => response.json()),
-                fetch(`https://f1api.dev/api/${requestYear}/${requestRound}`).then(response => response.json()),
-                fetch(`https://api.jolpi.ca/ergast/f1/${requestYear}/${requestRound}/sprint/`).then(response => response.json()),
-                fetch(`https://api.jolpi.ca/ergast/f1/${requestYear}/${requestRound}/qualifying/`).then(response => response.json()),
+            await Promise.all([
+                fetch(`https://api.jolpi.ca/ergast/f1/${requestYear}/${requestRound}/races`).then(response => response.json())
+                    .then(data => setRaceData(data.MRData.RaceTable.Races[0])),
+                fetch(`https://f1api.dev/api/${requestYear}/${requestRound}`).then(response => response.json())
+                   .then(data => setExtraRaceData(data.race[0])),
+                fetch(`https://api.jolpi.ca/ergast/f1/${requestYear}/${requestRound}/sprint/`).then(response => response.json())
+                   .then(data => setSprintResult(data.MRData.RaceTable.Races[0].SprintResults)),
+                fetch(`https://api.jolpi.ca/ergast/f1/${requestYear}/${requestRound}/qualifying/`).then(response => response.json())
+                  .then(data => setQualyResult(data.MRData.RaceTable.Races[0].QualifyingResults)),
                 fetch(`https://api.jolpi.ca/ergast/f1/${requestYear}/${requestRound}/results/`).then(response => response.json())
+                  .then(data => setRaceResult(data.MRData.RaceTable.Races[0].Results)),
             ]);
-
-            setRaceData(raceResponse.MRData.RaceTable.Races[0]);
-            setExtraRaceData(extraRaceResponse.race[0]);
-            setSprintResult(sprintResponse.MRData.RaceTable.Races[0].SprintResults);
-            setQualyResult(qualyResponse.MRData.RaceTable.Races[0].QualifyingResults);
-            setRaceResult(raceResultResponse.MRData.RaceTable.Races[0].Results);
         } finally {
             setRefreshing(false);
         }
@@ -112,6 +111,10 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
             }
         },
     ].filter(item => item.session && item.session.date !== null);
+
+    const navigateToCircuitDetail = () => {
+        router.push({ pathname: '/race/circuit', params: { circuitId: raceInitData?.Circuit.circuitId || raceData?.Circuit.circuitId, initialData: JSON.stringify(extraRaceData?.circuit) } });
+    }
 
     return (
         <ThemedView
@@ -168,33 +171,40 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
 
                 <View style={styles.cardsContainer}>
                     <ThemedText style={styles.cardTitle}>{t(raceInitData?.Circuit.circuitName || raceData?.Circuit.circuitName || '', 'circuit-name')}</ThemedText>
-                    <View style={[styles.card, { borderColor: cardBorderColor, backgroundColor: cardBackgroundColor, flexDirection: "row", paddingVertical: 15, paddingLeft: 25, paddingRight: 15, alignItems: 'center' }]}>
-                        <View style={{flex: 1}}>
-                            <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
-                                <ThemedText style={{ fontSize: 20, lineHeight: 30, fontFamily: 'Formula1-Display-Regular' }}>{extraRaceData?.circuit.circuitLength?.slice(0, -2)?.replace(/^(\d)(\d)/, '$1.$2') || '--'}</ThemedText>
-                                <ThemedText style={{ fontSize: 12, lineHeight: 28 }}> 公里</ThemedText>
+                    {/* <Link> */}
+                    <View style={[styles.card, { borderColor: cardBorderColor, backgroundColor: cardBackgroundColor, paddingVertical: 15, paddingLeft: 25, paddingRight: 15, alignItems: 'center' }]}>
+                        <TouchableOpacity
+                            style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
+                            onPress={navigateToCircuitDetail}
+                        >
+                            <View style={{ flex: 1 }}>
+                                <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+                                    <ThemedText style={{ fontSize: 20, lineHeight: 30, fontFamily: 'Formula1-Display-Regular' }}>{extraRaceData?.circuit.circuitLength?.slice(0, -2)?.replace(/^(\d)(\d)/, '$1.$2') || '--'}</ThemedText>
+                                    <ThemedText style={{ fontSize: 12, lineHeight: 28 }}> 公里</ThemedText>
+                                </View>
+                                <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+                                    <ThemedText style={{ fontSize: 20, lineHeight: 30, fontFamily: 'Formula1-Display-Regular' }}>{extraRaceData?.circuit.corners || '--'}</ThemedText>
+                                    <ThemedText style={{ fontSize: 12, lineHeight: 28 }}> 弯道</ThemedText>
+                                </View>
+                                <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+                                    <ThemedText style={{ fontSize: 20, lineHeight: 30, fontFamily: 'Formula1-Display-Regular' }}>{extraRaceData?.laps || '--'}</ThemedText>
+                                    <ThemedText style={{ fontSize: 12, lineHeight: 28 }}> 圈</ThemedText>
+                                </View>
                             </View>
-                            <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
-                                <ThemedText style={{ fontSize: 20, lineHeight: 30, fontFamily: 'Formula1-Display-Regular' }}>{extraRaceData?.circuit.corners || '--'}</ThemedText>
-                                <ThemedText style={{ fontSize: 12, lineHeight: 28 }}> 弯道</ThemedText>
+                            <View>
+                                <Image
+                                    resizeMode='contain'
+                                    style={{
+                                        width: 150,
+                                        height: '80%',
+                                    }}
+                                    source={getCircuitImage(raceInitData?.Circuit.circuitId || raceData?.Circuit.circuitId)}
+                                />
                             </View>
-                            <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
-                                <ThemedText style={{ fontSize: 20, lineHeight: 30, fontFamily: 'Formula1-Display-Regular' }}>{extraRaceData?.laps || '--'}</ThemedText>
-                                <ThemedText style={{ fontSize: 12, lineHeight: 28 }}> 圈</ThemedText>
-                            </View>
-                        </View>
-                        <View>
-                            <Image
-                                resizeMode='contain'
-                                style={{
-                                    width: 150,
-                                    height: '80%',
-                                }}
-                                source={getCircuitImage(raceInitData?.Circuit.circuitId || raceData?.Circuit.circuitId)}
-                            />
-                        </View>
-                        <IconSymbol name='chevron.right' size={10} color={'gray'}></IconSymbol>
+                            <IconSymbol name='chevron.right' size={10} color={'gray'}></IconSymbol>
+                        </TouchableOpacity>
                     </View>
+                    {/* </Link> */}
                 </View>
 
                 <View style={styles.cardsContainer}>
@@ -236,7 +246,7 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                                                 {showInDayTopSeparator && (<View style={{ height: 1, backgroundColor: seperatorColor }}></View>)}
                                                 {/* 每天的日程（右侧列） */}
                                                 <Link href={{
-                                                    pathname: '/result/[round]', params: {
+                                                    pathname: '/race/result/[round]', params: {
                                                         year: year, round: isCurrentPage ? currentRound : round, session: item.key,
                                                         initialData: (() => {
                                                             switch (item.key) {
