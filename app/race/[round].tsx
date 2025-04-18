@@ -19,6 +19,7 @@ import Slash1 from '@/assets/icon/slash-1.svg'
 import Slash2 from '@/assets/icon/slash-2.svg'
 import Slash3 from '@/assets/icon/slash-3.svg'
 import { getTeamsColor } from "@/constants/Colors";
+import { getCircuitImage } from '@/constants/CircuitImages';
 
 const getFontFamily = () => {
     const locales = getLocales();
@@ -32,6 +33,7 @@ const getFontFamily = () => {
 export default function GrandPrixDetail({ isCurrentPage = false, currentRound = '0', currentRace }: { isCurrentPage?: boolean, currentRound?: string, currentRace?: Race }) {
     const { top } = useSafeAreaInsets();
     const [raceData, setRaceData] = useState<Race | null>(null);
+    const [extraRaceData, setExtraRaceData] = useState<Race | null>(null);
     const [qualyResultData, setQualyResult] = useState<Result[] | null>(null);
     const [sprintResultData, setSprintResult] = useState<Result[] | null>(null);
     const [raceResultData, setRaceResult] = useState<Result[] | null>(null);
@@ -57,26 +59,21 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
     const fetchData = async () => {
         setRefreshing(true);
         try {
-            const response = await fetch(`https://api.jolpi.ca/ergast/f1/${year}/${isCurrentPage ? currentRound : round}/races`)
-                .then(response => response.json());
-            const raceData = response.MRData.RaceTable.Races[0];
-            setRaceData(raceData);
+            const requestYear = isCurrentPage ? seasons[0].season : year;
+            const requestRound = isCurrentPage ? currentRound : round;
+            const [raceResponse, extraRaceResponse, sprintResponse, qualyResponse, raceResultResponse] = await Promise.all([
+                fetch(`https://api.jolpi.ca/ergast/f1/${requestYear}/${requestRound}/races`).then(response => response.json()),
+                fetch(`https://f1api.dev/api/${requestYear}/${requestRound}`).then(response => response.json()),
+                fetch(`https://api.jolpi.ca/ergast/f1/${requestYear}/${requestRound}/sprint/`).then(response => response.json()),
+                fetch(`https://api.jolpi.ca/ergast/f1/${requestYear}/${requestRound}/qualifying/`).then(response => response.json()),
+                fetch(`https://api.jolpi.ca/ergast/f1/${requestYear}/${requestRound}/results/`).then(response => response.json())
+            ]);
 
-            fetch(`https://api.jolpi.ca/ergast/f1/${year}/${isCurrentPage ? currentRound : round}/sprint/`)
-                .then((response) => response.json())
-                .then((data) => {
-                    setSprintResult(data.MRData.RaceTable.Races[0].SprintResults);
-                });
-            fetch(`https://api.jolpi.ca/ergast/f1/${year}/${isCurrentPage ? currentRound : round}/qualifying/`)
-                .then((response) => response.json())
-                .then((data) => {
-                    setQualyResult(data.MRData.RaceTable.Races[0].QualifyingResults);
-                });
-            fetch(`https://api.jolpi.ca/ergast/f1/${year}/${isCurrentPage ? currentRound : round}/results/`)
-                .then((response) => response.json())
-                .then((data) => {
-                    setRaceResult(data.MRData.RaceTable.Races[0].Results);
-                });
+            setRaceData(raceResponse.MRData.RaceTable.Races[0]);
+            setExtraRaceData(extraRaceResponse.race[0]);
+            setSprintResult(sprintResponse.MRData.RaceTable.Races[0].SprintResults);
+            setQualyResult(qualyResponse.MRData.RaceTable.Races[0].QualifyingResults);
+            setRaceResult(raceResultResponse.MRData.RaceTable.Races[0].Results);
         } finally {
             setRefreshing(false);
         }
@@ -97,8 +94,9 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
     const raceInitData = initialData ? JSON.parse(initialData) as Race : null;
     const textColor = useThemeColor({}, 'text');
     const backgroundColor = useThemeColor({}, 'background');
-    const numberColor = tinycolor(textColor).setAlpha(0.15).toRgbString();
+    const cardBackgroundColor = useThemeColor({ dark: 'rgb(15, 15, 15)' }, 'background');
     const cardBorderColor = useThemeColor({}, 'cardBorder');
+    const seperatorColor = useThemeColor({}, 'listSeparator');
 
     const scheduleData = [
         { key: 'fp1', name: t('FP1', 'session'), session: (raceData || raceInitData)?.FirstPractice },
@@ -146,8 +144,8 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                     />
                 }
             >
+                {/* header back button */}
                 {!isCurrentPage && (
-                    // header back button
                     <View style={{ paddingHorizontal: 5, opacity: 0.5 }}>
                         <TouchableOpacity onPress={() => router.back()}>
                             <IconSymbol name="chevron.left" size={22} color={textColor} />
@@ -155,7 +153,6 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                     </View>
                 )}
                 <View style={styles.profileContainer}>
-
                     <ThemedText style={styles.roundText}>
                         {year || raceData?.season || raceInitData?.season}
                         <ThemedText style={{ fontFamily: ' ' }}>
@@ -166,21 +163,44 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                     <ThemedText type="title" style={[styles.title, { fontFamily: getFontFamily() }]}>
                         {t(raceInitData?.raceName || raceData?.raceName || '', 'grand-prix-name')}
                     </ThemedText>
-                    <ThemedText type="itemtitle" style={[styles.circuitName, { fontFamily: getFontFamily() }]}>
-                        {t(raceInitData?.Circuit.circuitName || raceData?.Circuit.circuitName || '', 'circuit-name')}
-                    </ThemedText>
                     {/* <Link href={'/session/sessionLive'}>test</Link> */}
-
                 </View>
 
                 <View style={styles.cardsContainer}>
-                    <View style={styles.numberContainer}>
-                        <ThemedText style={[styles.numberText, { color: numberColor }]}>
-
-                        </ThemedText>
+                    <ThemedText style={styles.cardTitle}>{t(raceInitData?.Circuit.circuitName || raceData?.Circuit.circuitName || '', 'circuit-name')}</ThemedText>
+                    <View style={[styles.card, { borderColor: cardBorderColor, backgroundColor: cardBackgroundColor, flexDirection: "row", paddingVertical: 15, paddingLeft: 25, paddingRight: 15, alignItems: 'center' }]}>
+                        <View style={{flex: 1}}>
+                            <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+                                <ThemedText style={{ fontSize: 20, lineHeight: 30, fontFamily: 'Formula1-Display-Regular' }}>{extraRaceData?.circuit.circuitLength?.slice(0, -2)?.replace(/^(\d)(\d)/, '$1.$2') || '--'}</ThemedText>
+                                <ThemedText style={{ fontSize: 12, lineHeight: 28 }}> 公里</ThemedText>
+                            </View>
+                            <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+                                <ThemedText style={{ fontSize: 20, lineHeight: 30, fontFamily: 'Formula1-Display-Regular' }}>{extraRaceData?.circuit.corners || '--'}</ThemedText>
+                                <ThemedText style={{ fontSize: 12, lineHeight: 28 }}> 弯道</ThemedText>
+                            </View>
+                            <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+                                <ThemedText style={{ fontSize: 20, lineHeight: 30, fontFamily: 'Formula1-Display-Regular' }}>{extraRaceData?.laps || '--'}</ThemedText>
+                                <ThemedText style={{ fontSize: 12, lineHeight: 28 }}> 圈</ThemedText>
+                            </View>
+                        </View>
+                        <View>
+                            <Image
+                                resizeMode='contain'
+                                style={{
+                                    width: 150,
+                                    height: '80%',
+                                }}
+                                source={getCircuitImage(raceInitData?.Circuit.circuitId || raceData?.Circuit.circuitId)}
+                            />
+                        </View>
+                        <IconSymbol name='chevron.right' size={10} color={'gray'}></IconSymbol>
                     </View>
+                </View>
+
+                <View style={styles.cardsContainer}>
+                    <ThemedText style={styles.cardTitle}>{t('Race Weekend', 'session')}</ThemedText>
                     <View
-                        style={[styles.card, { borderColor: cardBorderColor }]}>
+                        style={[styles.card, { borderColor: cardBorderColor, backgroundColor: cardBackgroundColor }]}>
                         <FlatList
                             scrollEnabled={false}
                             data={scheduleData}
@@ -203,7 +223,7 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
 
                                 return (
                                     <View>
-                                        {showEveryDayTopSeparator && (<View style={{ height: 1, backgroundColor: 'gray' }}></View>)}
+                                        {showEveryDayTopSeparator && (<View style={{ height: 1, backgroundColor: seperatorColor }}></View>)}
                                         <View style={styles.scheduleItem}>
                                             {/* weekday and date */}
                                             <View style={styles.dateColumn}>
@@ -213,7 +233,7 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                                                 </View>)}
                                             </View>
                                             <View style={{ flex: 1 }}>
-                                                {showInDayTopSeparator && (<View style={{ height: 1, backgroundColor: 'gray' }}></View>)}
+                                                {showInDayTopSeparator && (<View style={{ height: 1, backgroundColor: seperatorColor }}></View>)}
                                                 {/* 每天的日程（右侧列） */}
                                                 <Link href={{
                                                     pathname: '/result/[round]', params: {
@@ -233,7 +253,7 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                                                     }
                                                 }} asChild>
                                                     <TouchableOpacity style={styles.sessionColumn}>
-                                                        <View style={{flex: 1}}>
+                                                        <View style={{ flex: 1 }}>
                                                             <ThemedText style={styles.sessionName}>{item.name}</ThemedText>
                                                             <ThemedText style={styles.sessionTime}>{timeDisplay}</ThemedText>
                                                         </View>
@@ -285,7 +305,6 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     profileContainer: {
-        height: 250,
         paddingVertical: 15,
         paddingHorizontal: 10,
         flexDirection: 'column',
@@ -315,28 +334,25 @@ const styles = StyleSheet.create({
 
     cardsContainer: {
         flex: 1,
-    },
-    numberContainer: {
-        position: 'absolute',
-        flex: 1,
-        top: -92,
-        left: 50,
-        width: 310,
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        alignItems: 'flex-start',
-    },
-    numberText: {
-        fontFamily: 'Formula1-Display-Bold',
-        fontSize: 150,
-        lineHeight: 150,
+        paddingTop: 20,
     },
     card: {
-        marginTop: 15,
-        backgroundColor: 'rgba(128, 128, 128, 0.20)',
-        borderWidth: 1,
+        backgroundColor: 'rgb(255, 255, 255)',
+        borderWidth: 0.5,
         borderRadius: 15,
-        overflow: 'hidden',
+        shadowColor: 'rgb(0, 0, 0)',
+        shadowOffset: {
+            width: 0,
+            height: 0.5,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 5,
+    },
+    cardTitle: {
+        paddingLeft: 15,
+        paddingBottom: 5,
+        fontSize: 18,
+        fontWeight: 'bold',
     },
 
     scheduleContainer: {
