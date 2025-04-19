@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, View, RefreshControl, TouchableOpacity, Image } from "react-native";
+import { FlatList, StyleSheet, View, RefreshControl, TouchableOpacity, Image, Animated } from "react-native";
 import React, { useState, useEffect } from "react";
 import { ThemedText } from "@/components/ThemedText";
 import { Race, Result } from "@/context/F1DataContext";
@@ -39,6 +39,11 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
     const [raceResultData, setRaceResult] = useState<Result[] | null>(null);
     const [refreshing, setRefreshing] = useState(false);
     const { selectedSeason, seasons } = useF1Data();
+    
+    // 为每种结果类型创建独立的动画值
+    const [sprintOpacity] = useState(new Animated.Value(0));
+    const [qualyOpacity] = useState(new Animated.Value(0));
+    const [raceOpacity] = useState(new Animated.Value(0));
 
     if (selectedSeason !== seasons[0].season && isCurrentPage) {
         return (
@@ -67,11 +72,41 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                 fetch(`https://f1api.dev/api/${requestYear}/${requestRound}`).then(response => response.json())
                     .then(data => setExtraRaceData(data.race[0])),
                 fetch(`https://api.jolpi.ca/ergast/f1/${requestYear}/${requestRound}/sprint/`).then(response => response.json())
-                    .then(data => setSprintResult(data.MRData.RaceTable.Races[0].SprintResults)),
+                    .then(data => {
+                        setSprintResult(data.MRData.RaceTable.Races[0].SprintResults);
+                        // 数据加载完成后触发动画
+                        if (data.MRData.RaceTable.Races[0].SprintResults) {
+                            Animated.timing(sprintOpacity, {
+                                toValue: 1,
+                                duration: 300,
+                                useNativeDriver: true,
+                            }).start();
+                        }
+                    }),
                 fetch(`https://api.jolpi.ca/ergast/f1/${requestYear}/${requestRound}/qualifying/`).then(response => response.json())
-                    .then(data => setQualyResult(data.MRData.RaceTable.Races[0].QualifyingResults)),
+                    .then(data => {
+                        setQualyResult(data.MRData.RaceTable.Races[0].QualifyingResults);
+                        // 数据加载完成后触发动画
+                        if (data.MRData.RaceTable.Races[0].QualifyingResults) {
+                            Animated.timing(qualyOpacity, {
+                                toValue: 1,
+                                duration: 300,
+                                useNativeDriver: true,
+                            }).start();
+                        }
+                    }),
                 fetch(`https://api.jolpi.ca/ergast/f1/${requestYear}/${requestRound}/results/`).then(response => response.json())
-                    .then(data => setRaceResult(data.MRData.RaceTable.Races[0].Results)),
+                    .then(data => {
+                        setRaceResult(data.MRData.RaceTable.Races[0].Results);
+                        // 数据加载完成后触发动画
+                        if (data.MRData.RaceTable.Races[0].Results) {
+                            Animated.timing(raceOpacity, {
+                                toValue: 1,
+                                duration: 300,
+                                useNativeDriver: true,
+                            }).start();
+                        }
+                    }),
             ]);
         } finally {
             setRefreshing(false);
@@ -291,18 +326,38 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                                                                         return null;
                                                                 }
                                                             })();
-                                                            return itemResultData && (<View style={styles.podiumContainer}>
-                                                                {[1, 2, 3].map((position) => (
-                                                                    <View key={position} style={styles.podiumItem}>
-                                                                        {position === 1 && <Slash1 style={styles.slashIcon} fill={getTeamsColor(itemResultData.find(r => r.position === position.toString())?.Constructor.constructorId || '')} width={28} />}
-                                                                        {position === 2 && <Slash2 style={styles.slashIcon} fill={getTeamsColor(itemResultData.find(r => r.position === position.toString())?.Constructor.constructorId || '')} width={28} />}
-                                                                        {position === 3 && <Slash3 style={styles.slashIcon} fill={getTeamsColor(itemResultData.find(r => r.position === position.toString())?.Constructor.constructorId || '')} width={28} />}
-                                                                        <ThemedText style={styles.driverCode}>
-                                                                            {itemResultData.find(r => r.position === position.toString())?.Driver.code}
-                                                                        </ThemedText>
-                                                                    </View>
-                                                                ))}
-                                                            </View>);
+                                                            
+                                                            if (itemResultData) {
+                                                                // 根据不同的结果类型选择对应的动画值
+                                                                const animatedOpacity = (() => {
+                                                                    switch (item.key) {
+                                                                        case 'sprintRace':
+                                                                            return sprintOpacity;
+                                                                        case 'qualy':
+                                                                            return qualyOpacity;
+                                                                        case 'race':
+                                                                            return raceOpacity;
+                                                                        default:
+                                                                            return new Animated.Value(1); // 默认情况
+                                                                    }
+                                                                })();
+                                                                
+                                                                return (
+                                                                <Animated.View style={[styles.podiumContainer, { opacity: animatedOpacity }]}>
+                                                                    {[1, 2, 3].map((position) => (
+                                                                        <View key={position} style={styles.podiumItem}>
+                                                                            {position === 1 && <Slash1 style={styles.slashIcon} fill={getTeamsColor(itemResultData.find(r => r.position === position.toString())?.Constructor.constructorId || '')} width={28} />}
+                                                                            {position === 2 && <Slash2 style={styles.slashIcon} fill={getTeamsColor(itemResultData.find(r => r.position === position.toString())?.Constructor.constructorId || '')} width={28} />}
+                                                                            {position === 3 && <Slash3 style={styles.slashIcon} fill={getTeamsColor(itemResultData.find(r => r.position === position.toString())?.Constructor.constructorId || '')} width={28} />}
+                                                                            <ThemedText style={styles.driverCode}>
+                                                                                {itemResultData.find(r => r.position === position.toString())?.Driver.code}
+                                                                            </ThemedText>
+                                                                        </View>
+                                                                    ))}
+                                                                </Animated.View>
+                                                                );
+                                                            }
+                                                            return null;
                                                         })()}
                                                     </TouchableOpacity>
                                                 </Link>
