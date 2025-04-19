@@ -123,7 +123,7 @@ export default function DriverDetail() {
                             </View>
                         )}
                     </View>
-                    <IconSymbol name='chevron.right' size={10} color={'gray'}></IconSymbol>
+                    <IconSymbol name='chevron.right' size={10} color={'gray'} style={{ marginRight: -8 }}></IconSymbol>
                 </TouchableOpacity>
             </Link>
         );
