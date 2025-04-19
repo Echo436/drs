@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, View, RefreshControl, TouchableOpacity, Image } from "react-native";
+import { FlatList, StyleSheet, View, RefreshControl, TouchableOpacity, Animated } from "react-native";
 import React, { useState, useEffect } from "react";
 import { ThemedText } from "@/components/ThemedText";
 import { DriverStanding, Race } from "@/context/F1DataContext";
@@ -19,6 +19,8 @@ export default function DriverDetail() {
     const { top } = useSafeAreaInsets();
     const [driverSeasonList, setDriverSeasonList] = useState<Race[]>([]);
     const [refreshing, setRefreshing] = useState(false);
+
+    const [seasonCardOpacity] = useState(new Animated.Value(0));
 
     const { driverId, year, initialData } = useLocalSearchParams<{
         driverId: string;
@@ -48,6 +50,16 @@ export default function DriverDetail() {
             });
 
             setDriverSeasonList(mergedList);
+            if (mergedList) {
+                Animated.timing(
+                    seasonCardOpacity,
+                    {
+                        toValue: 1,
+                        duration: 300,
+                        useNativeDriver: true,
+                    }
+                ).start();
+            }
             return mergedList;
         } finally {
             setRefreshing(false);
@@ -85,8 +97,8 @@ export default function DriverDetail() {
                     <ThemedText style={{ fontFamily: 'Formula1-Display-Regular', fontSize: 12 }}>
                         R{String(item?.round).padStart(2, '0')}
                     </ThemedText>
-                    <View style={{ flexDirection: 'row', marginTop: 1}}>
-                        <ThemedText style={{ flex: 6, fontSize: 16, lineHeight: 20}}>
+                    <View style={{ flexDirection: 'row', marginTop: 1 }}>
+                        <ThemedText style={{ flex: 6, fontSize: 16, lineHeight: 20 }}>
                             {t(item?.raceName, 'grand-prix-name')}
                         </ThemedText>
                         <ThemedText style={{ flex: 1, fontFamily: 'Formula1-Display-Regular', fontSize: 12 }}>
@@ -204,18 +216,20 @@ export default function DriverDetail() {
                             {driverInitData?.Driver.permanentNumber}
                         </ThemedText>
                     </View>
-                    <BlurView
-                        intensity={20}
-                        style={[styles.card, { borderColor: cardBorderColor }]}>
-                        <FlatList
-                            scrollEnabled={false}
-                            data={driverSeasonList}
-                            renderItem={raceItem}
-                            ItemSeparatorComponent={renderSeparator}
-                            contentContainerStyle={{ paddingVertical: 3 }}
-                            ListEmptyComponent={<View style={{ height: 500 }}></View>}
-                        />
-                    </BlurView>
+                    <Animated.View style={{opacity: seasonCardOpacity}}>
+                        <BlurView
+                            intensity={20}
+                            style={[styles.card, { borderColor: cardBorderColor }]}>
+                            <FlatList
+                                scrollEnabled={false}
+                                data={driverSeasonList}
+                                renderItem={raceItem}
+                                ItemSeparatorComponent={renderSeparator}
+                                contentContainerStyle={{ paddingVertical: 3 }}
+                                ListEmptyComponent={<View style={{ height: 500 }}></View>}
+                            />
+                        </BlurView>
+                    </Animated.View>
                 </View>
             </ScrollView>
         </LinearGradient>
