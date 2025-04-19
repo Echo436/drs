@@ -1,14 +1,22 @@
+import { StyleSheet } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { Race, Result } from "@/context/F1DataContext";
+import { Result } from "@/context/F1DataContext";
 import { Stack, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { FlatList, View } from "react-native";
 import { layoutStyles } from "@/components/ui/Styles";
 import { t, translateName } from "@/i18n/utils";
 import renderSeparator from "@/components/ui/RenderSeparator";
+import { useThemeColor } from "@/hooks/useThemeColor";
+import { getTeamsColor } from "@/constants/Colors";
 
 export default function RaceResult() {
+    const qualyTabColor = useThemeColor({
+        light: 'rgb(216, 216, 216)',
+        dark: 'rgb(61, 61, 61)'
+    }, 'background')
+
     const { year, round, session, initialData } = useLocalSearchParams<{
         year: string;
         round: string;
@@ -99,22 +107,22 @@ export default function RaceResult() {
                                     <ThemedText type="itemtitle">
                                         {translateName([item.Driver.givenName, item.Driver.familyName])}
                                     </ThemedText>
-                                    <ThemedText type="itemsubtitle">{item.Constructor.name}</ThemedText>
+                                    <ThemedText type="itemsubtitle" style={{color: getTeamsColor(item.Constructor.constructorId)}}>{t(item.Constructor.name, 'team')}</ThemedText>
                                 </View>
                             </View>
-                            <View style={{ flexDirection: 'row', alignItems: 'flex-start', marginTop: 5 }}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
                                 {session === 'qualy' ? (
                                     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                                         <View style={{ flexDirection: 'row', flex: 1, alignItems: 'center' }}>
-                                            {item.Q1 && <ThemedText style={{ padding: 1, marginRight: 2, fontSize: 10, lineHeight: 10, textAlignVertical: 'center', borderWidth: 0.5, borderRadius: 2 }}>Q1</ThemedText>}
+                                            {item.Q1 && <ThemedText style={[styles.qualyTab, { backgroundColor: qualyTabColor }]}>Q1</ThemedText>}
                                             {item.Q1 && <ThemedText style={{ fontSize: 14 }}>{item.Q1}</ThemedText>}
                                         </View>
                                         <View style={{ flexDirection: 'row', flex: 1, alignItems: 'center' }}>
-                                            {item.Q2 && <ThemedText style={{ padding: 1, marginRight: 2, fontSize: 10, lineHeight: 10, textAlignVertical: 'center', borderWidth: 0.5, borderRadius: 2 }}>Q2</ThemedText>}
+                                            {item.Q2 && <ThemedText style={[styles.qualyTab, { backgroundColor: qualyTabColor }]}>Q2</ThemedText>}
                                             {item.Q2 && <ThemedText style={{ fontSize: 14 }}>{item.Q2}</ThemedText>}
                                         </View>
                                         <View style={{ flexDirection: 'row', flex: 1, alignItems: 'center' }}>
-                                            {item.Q3 && <ThemedText style={{ padding: 1, marginRight: 2, fontSize: 10, lineHeight: 10, textAlignVertical: 'center', borderWidth: 0.5, borderRadius: 2 }}>Q3</ThemedText>}
+                                            {item.Q3 && <ThemedText style={[styles.qualyTab, { backgroundColor: qualyTabColor }]}>Q3</ThemedText>}
                                             {item.Q3 && <ThemedText style={{ fontSize: 14 }}>{item.Q3}</ThemedText>}
                                         </View>
                                     </View>
@@ -139,3 +147,16 @@ export default function RaceResult() {
         </ThemedView>
     )
 }
+
+const styles = StyleSheet.create({
+    qualyTab: {
+        paddingHorizontal: 3,
+        paddingVertical: 2,
+        marginRight: 4,
+        fontSize: 10,
+        lineHeight: 10,
+        textAlignVertical: 'center',
+        borderRadius: 2,
+        fontFamily: 'Formula1-Display-Bold'
+    }
+})

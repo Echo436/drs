@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, View, RefreshControl, TouchableOpacity, Image } from "react-native";
+import { FlatList, StyleSheet, View, RefreshControl, TouchableOpacity, Image, Animated } from "react-native";
 import React, { useState, useEffect } from "react";
 import { ThemedText } from "@/components/ThemedText";
 import { Race, Result } from "@/context/F1DataContext";
@@ -40,6 +40,15 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
     const [refreshing, setRefreshing] = useState(false);
     const { selectedSeason, seasons } = useF1Data();
 
+    // 为每种结果类型创建独立的动画值
+    const [sprintOpacity] = useState(new Animated.Value(0));
+    const [qualyOpacity] = useState(new Animated.Value(0));
+    const [raceOpacity] = useState(new Animated.Value(0));
+    const [weekendCardOpacity] = useState(new Animated.Value(0));
+
+    // 为赛道信息创建统一的动画值
+    const [circuitInfoOpacity] = useState(new Animated.Value(0));
+
     if (selectedSeason !== seasons[0].season && isCurrentPage) {
         return (
             <ThemedView style={layoutStyles.centerContainer}>
@@ -63,15 +72,65 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
             const requestRound = isCurrentPage ? currentRound : round;
             await Promise.all([
                 fetch(`https://api.jolpi.ca/ergast/f1/${requestYear}/${requestRound}/races`).then(response => response.json())
-                    .then(data => setRaceData(data.MRData.RaceTable.Races[0])),
+                    .then(data => {
+                        setRaceData(data.MRData.RaceTable.Races[0])
+                        if (data.MRData.RaceTable.Races[0]) {
+                            Animated.timing(weekendCardOpacity, {
+                                toValue: 1,
+                                duration: 500,
+                                useNativeDriver: true,
+                            }).start();
+                        }
+                    }),
                 fetch(`https://f1api.dev/api/${requestYear}/${requestRound}`).then(response => response.json())
-                   .then(data => setExtraRaceData(data.race[0])),
+                    .then(data => {
+                        setExtraRaceData(data.race[0]);
+                        // 数据加载完成后触发赛道信息的动画
+                        if (data.race[0]) {
+                            // 同时淡入所有数据项
+                            Animated.timing(circuitInfoOpacity, {
+                                toValue: 1,
+                                duration: 300,
+                                useNativeDriver: true,
+                            }).start();
+                        }
+                    }),
                 fetch(`https://api.jolpi.ca/ergast/f1/${requestYear}/${requestRound}/sprint/`).then(response => response.json())
-                   .then(data => setSprintResult(data.MRData.RaceTable.Races[0].SprintResults)),
+                    .then(data => {
+                        setSprintResult(data.MRData.RaceTable.Races[0].SprintResults);
+                        // 数据加载完成后触发动画
+                        if (data.MRData.RaceTable.Races[0].SprintResults) {
+                            Animated.timing(sprintOpacity, {
+                                toValue: 1,
+                                duration: 300,
+                                useNativeDriver: true,
+                            }).start();
+                        }
+                    }),
                 fetch(`https://api.jolpi.ca/ergast/f1/${requestYear}/${requestRound}/qualifying/`).then(response => response.json())
-                  .then(data => setQualyResult(data.MRData.RaceTable.Races[0].QualifyingResults)),
+                    .then(data => {
+                        setQualyResult(data.MRData.RaceTable.Races[0].QualifyingResults);
+                        // 数据加载完成后触发动画
+                        if (data.MRData.RaceTable.Races[0].QualifyingResults) {
+                            Animated.timing(qualyOpacity, {
+                                toValue: 1,
+                                duration: 300,
+                                useNativeDriver: true,
+                            }).start();
+                        }
+                    }),
                 fetch(`https://api.jolpi.ca/ergast/f1/${requestYear}/${requestRound}/results/`).then(response => response.json())
-                  .then(data => setRaceResult(data.MRData.RaceTable.Races[0].Results)),
+                    .then(data => {
+                        setRaceResult(data.MRData.RaceTable.Races[0].Results);
+                        // 数据加载完成后触发动画
+                        if (data.MRData.RaceTable.Races[0].Results) {
+                            Animated.timing(raceOpacity, {
+                                toValue: 1,
+                                duration: 300,
+                                useNativeDriver: true,
+                            }).start();
+                        }
+                    }),
             ]);
         } finally {
             setRefreshing(false);
@@ -113,7 +172,9 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
     ].filter(item => item.session && item.session.date !== null);
 
     const navigateToCircuitDetail = () => {
-        router.push({ pathname: '/race/circuit', params: { circuitId: raceInitData?.Circuit.circuitId || raceData?.Circuit.circuitId, initialData: JSON.stringify(extraRaceData?.circuit) } });
+        if (extraRaceData && (raceInitData?.Circuit.circuitId || raceData?.Circuit.circuitId)) {
+            router.push({ pathname: '/race/circuit', params: { circuitId: raceInitData?.Circuit.circuitId || raceData?.Circuit.circuitId, initialData: JSON.stringify(extraRaceData?.circuit) } });
+        }
     }
 
     return (
@@ -169,6 +230,7 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                     {/* <Link href={'/session/sessionLive'}>test</Link> */}
                 </View>
 
+                {/* 赛道信息卡片 */}
                 <View style={styles.cardsContainer}>
                     <ThemedText style={styles.cardTitle}>{t(raceInitData?.Circuit.circuitName || raceData?.Circuit.circuitName || '', 'circuit-name')}</ThemedText>
                     {/* <Link> */}
@@ -178,18 +240,28 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                             onPress={navigateToCircuitDetail}
                         >
                             <View style={{ flex: 1 }}>
-                                <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
-                                    <ThemedText style={{ fontSize: 18, lineHeight: 30, fontFamily: 'Formula1-Display-Regular' }}>{extraRaceData?.circuit.circuitLength?.slice(0, -2)?.replace(/^(\d)(\d)/, '$1.$2') || '--'}</ThemedText>
-                                    <ThemedText style={{ fontSize: 12, lineHeight: 28 }}> 公里</ThemedText>
-                                </View>
-                                <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
-                                    <ThemedText style={{ fontSize: 18, lineHeight: 30, fontFamily: 'Formula1-Display-Regular' }}>{extraRaceData?.circuit.corners || '--'}</ThemedText>
-                                    <ThemedText style={{ fontSize: 12, lineHeight: 28 }}> 弯道</ThemedText>
-                                </View>
-                                <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
-                                    <ThemedText style={{ fontSize: 18, lineHeight: 30, fontFamily: 'Formula1-Display-Regular' }}>{extraRaceData?.laps || '--'}</ThemedText>
-                                    <ThemedText style={{ fontSize: 12, lineHeight: 28 }}> 圈</ThemedText>
-                                </View>
+                                <Animated.View style={{ opacity: extraRaceData ? circuitInfoOpacity : 1 }}>
+                                    <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+                                        <ThemedText style={{ fontSize: 18, lineHeight: 30, fontFamily: 'Formula1-Display-Regular' }}>
+                                            {extraRaceData?.circuit.circuitLength ?
+                                                extraRaceData.circuit.circuitLength.slice(0, -2)?.replace(/^(\d)(\d)/, '$1.$2') :
+                                                '----'}
+                                        </ThemedText>
+                                        <ThemedText style={{ fontSize: 12, lineHeight: 28 }}> 公里</ThemedText>
+                                    </View>
+                                    <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+                                        <ThemedText style={{ fontSize: 18, lineHeight: 30, fontFamily: 'Formula1-Display-Regular' }}>
+                                            {extraRaceData?.circuit.corners || '---'}
+                                        </ThemedText>
+                                        <ThemedText style={{ fontSize: 12, lineHeight: 28 }}> 弯道</ThemedText>
+                                    </View>
+                                    <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+                                        <ThemedText style={{ fontSize: 18, lineHeight: 30, fontFamily: 'Formula1-Display-Regular' }}>
+                                            {extraRaceData?.laps || '---'}
+                                        </ThemedText>
+                                        <ThemedText style={{ fontSize: 12, lineHeight: 28 }}> 圈</ThemedText>
+                                    </View>
+                                </Animated.View>
                             </View>
                             <View>
                                 <Image
@@ -207,10 +279,11 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                     {/* </Link> */}
                 </View>
 
+                {/* 比赛周末(赛程)卡片 */}
                 <View style={styles.cardsContainer}>
                     <ThemedText style={styles.cardTitle}>{t('Race Weekend', 'session')}</ThemedText>
-                    <View
-                        style={[styles.card, { borderColor: cardBorderColor, backgroundColor: cardBackgroundColor }]}>
+                    <Animated.View
+                        style={[styles.card, { borderColor: cardBorderColor, backgroundColor: cardBackgroundColor, opacity: !raceInitData?.FirstPractice && raceData?.FirstPractice ? weekendCardOpacity : 1 }]}>
                         <FlatList
                             scrollEnabled={false}
                             data={scheduleData}
@@ -219,7 +292,7 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                                 let dateDisplay = '--';
                                 let timeDisplay = '--';
 
-                                if (item.session.date && item.session.time) {
+                                if (item.session && item.session.date && item.session.time) {
                                     const sessionDate = DateTime.fromISO(`${item.session.date}T${item.session.time}`);
                                     const languageCode = getLocales()[0].languageCode || 'en';
                                     weekDisplay = sessionDate.setLocale(languageCode).toLocaleString({ weekday: 'short' });
@@ -262,7 +335,16 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                                                         })()
                                                     }
                                                 }} asChild>
-                                                    <TouchableOpacity style={styles.sessionColumn}>
+                                                    <TouchableOpacity
+                                                        style={styles.sessionColumn}
+                                                        disabled={
+                                                            !(
+                                                                item.key === 'sprintRace' && sprintResultData !== null ||
+                                                                item.key === 'qualy' && qualyResultData !== null ||
+                                                                item.key === 'race' && raceResultData !== null
+                                                            )
+                                                        }
+                                                    >
                                                         <View style={{ flex: 1 }}>
                                                             <ThemedText style={styles.sessionName}>{item.name}</ThemedText>
                                                             <ThemedText style={styles.sessionTime}>{timeDisplay}</ThemedText>
@@ -280,18 +362,39 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                                                                         return null;
                                                                 }
                                                             })();
-                                                            return itemResultData && (<View style={styles.podiumContainer}>
-                                                                {[1, 2, 3].map((position) => (
-                                                                    <View key={position} style={styles.podiumItem}>
-                                                                        {position === 1 && <Slash1 style={styles.slashIcon} fill={getTeamsColor(itemResultData.find(r => r.position === position.toString())?.Constructor.constructorId || '')} width={28} />}
-                                                                        {position === 2 && <Slash2 style={styles.slashIcon} fill={getTeamsColor(itemResultData.find(r => r.position === position.toString())?.Constructor.constructorId || '')} width={28} />}
-                                                                        {position === 3 && <Slash3 style={styles.slashIcon} fill={getTeamsColor(itemResultData.find(r => r.position === position.toString())?.Constructor.constructorId || '')} width={28} />}
-                                                                        <ThemedText style={styles.driverCode}>
-                                                                            {itemResultData.find(r => r.position === position.toString())?.Driver.code}
-                                                                        </ThemedText>
-                                                                    </View>
-                                                                ))}
-                                                            </View>);
+
+                                                            if (itemResultData) {
+                                                                // 根据不同的结果类型选择对应的动画值
+                                                                const animatedOpacity = (() => {
+                                                                    switch (item.key) {
+                                                                        case 'sprintRace':
+                                                                            return sprintOpacity;
+                                                                        case 'qualy':
+                                                                            return qualyOpacity;
+                                                                        case 'race':
+                                                                            return raceOpacity;
+                                                                        default:
+                                                                            return new Animated.Value(1); // 默认情况
+                                                                    }
+                                                                })();
+
+                                                                return (
+                                                                    <Animated.View style={[styles.podiumContainer, { opacity: animatedOpacity }]}>
+                                                                        {[1, 2, 3].map((position) => (
+                                                                            <View key={position} style={styles.podiumItem}>
+                                                                                {position === 1 && <Slash1 style={styles.slashIcon} fill={getTeamsColor(itemResultData.find(r => r.position === position.toString())?.Constructor.constructorId || '')} width={28} />}
+                                                                                {position === 2 && <Slash2 style={styles.slashIcon} fill={getTeamsColor(itemResultData.find(r => r.position === position.toString())?.Constructor.constructorId || '')} width={28} />}
+                                                                                {position === 3 && <Slash3 style={styles.slashIcon} fill={getTeamsColor(itemResultData.find(r => r.position === position.toString())?.Constructor.constructorId || '')} width={28} />}
+                                                                                <ThemedText style={styles.driverCode}>
+                                                                                    {itemResultData.find(r => r.position === position.toString())?.Driver.code}
+                                                                                </ThemedText>
+                                                                            </View>
+                                                                        ))}
+                                                                        {itemResultData && <IconSymbol name='chevron.right' size={10} color={'gray'} style={{ alignSelf: 'center' }}></IconSymbol>}
+                                                                    </Animated.View>
+                                                                );
+                                                            }
+                                                            return null;
                                                         })()}
                                                     </TouchableOpacity>
                                                 </Link>
@@ -303,7 +406,7 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                             keyExtractor={item => item.key}
                             contentContainerStyle={styles.scheduleContainer}
                         />
-                    </View>
+                    </Animated.View>
                 </View>
             </ScrollView>
         </ThemedView>

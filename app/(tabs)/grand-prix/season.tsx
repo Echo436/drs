@@ -67,7 +67,7 @@ export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
     const renderItem = ({ item }: { item: Race }) => {
         // MM/dd or dd/MM
         let fp1DateDisplay = '--';
-        if (item.FirstPractice && item.FirstPractice.date) { fp1DateDisplay = DateTime.fromISO(`${item.FirstPractice.date}T${item.FirstPractice.time}`).setLocale(languageCode).toLocaleString({ day: "2-digit", month: "2-digit" }); }
+        if (item.FirstPractice && item.FirstPractice.date && item.FirstPractice.time) { fp1DateDisplay = DateTime.fromISO(`${item.FirstPractice.date}T${item.FirstPractice.time}`).setLocale(languageCode).toLocaleString({ day: "2-digit", month: "2-digit" }); }
         let raceDate: DateTime<true> | DateTime<false>;
         let raceDateDisplay = '--'
         if (item.date && item.time) {
