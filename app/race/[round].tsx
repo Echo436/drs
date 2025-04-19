@@ -44,7 +44,8 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
     const [sprintOpacity] = useState(new Animated.Value(0));
     const [qualyOpacity] = useState(new Animated.Value(0));
     const [raceOpacity] = useState(new Animated.Value(0));
-    
+    const [weekendCardOpacity] = useState(new Animated.Value(0));
+
     // 为赛道信息创建统一的动画值
     const [circuitInfoOpacity] = useState(new Animated.Value(0));
 
@@ -71,7 +72,16 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
             const requestRound = isCurrentPage ? currentRound : round;
             await Promise.all([
                 fetch(`https://api.jolpi.ca/ergast/f1/${requestYear}/${requestRound}/races`).then(response => response.json())
-                    .then(data => setRaceData(data.MRData.RaceTable.Races[0])),
+                    .then(data => {
+                        setRaceData(data.MRData.RaceTable.Races[0])
+                        if (data.MRData.RaceTable.Races[0]) {
+                            Animated.timing(weekendCardOpacity, {
+                                toValue: 1,
+                                duration: 500,
+                                useNativeDriver: true,
+                            }).start();
+                        }
+                    }),
                 fetch(`https://f1api.dev/api/${requestYear}/${requestRound}`).then(response => response.json())
                     .then(data => {
                         setExtraRaceData(data.race[0]);
@@ -233,8 +243,8 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                                 <Animated.View style={{ opacity: extraRaceData ? circuitInfoOpacity : 1 }}>
                                     <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
                                         <ThemedText style={{ fontSize: 18, lineHeight: 30, fontFamily: 'Formula1-Display-Regular' }}>
-                                            {extraRaceData?.circuit.circuitLength ? 
-                                                extraRaceData.circuit.circuitLength.slice(0, -2)?.replace(/^(\d)(\d)/, '$1.$2') : 
+                                            {extraRaceData?.circuit.circuitLength ?
+                                                extraRaceData.circuit.circuitLength.slice(0, -2)?.replace(/^(\d)(\d)/, '$1.$2') :
                                                 '----'}
                                         </ThemedText>
                                         <ThemedText style={{ fontSize: 12, lineHeight: 28 }}> 公里</ThemedText>
@@ -269,10 +279,11 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                     {/* </Link> */}
                 </View>
 
+                {/* 比赛周末(赛程)卡片 */}
                 <View style={styles.cardsContainer}>
                     <ThemedText style={styles.cardTitle}>{t('Race Weekend', 'session')}</ThemedText>
-                    <View
-                        style={[styles.card, { borderColor: cardBorderColor, backgroundColor: cardBackgroundColor }]}>
+                    <Animated.View
+                        style={[styles.card, { borderColor: cardBorderColor, backgroundColor: cardBackgroundColor, opacity: !raceInitData?.FirstPractice && raceData?.FirstPractice ? weekendCardOpacity : 1 }]}>
                         <FlatList
                             scrollEnabled={false}
                             data={scheduleData}
@@ -281,7 +292,7 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                                 let dateDisplay = '--';
                                 let timeDisplay = '--';
 
-                                if (item.session.date && item.session.time) {
+                                if (item.session && item.session.date && item.session.time) {
                                     const sessionDate = DateTime.fromISO(`${item.session.date}T${item.session.time}`);
                                     const languageCode = getLocales()[0].languageCode || 'en';
                                     weekDisplay = sessionDate.setLocale(languageCode).toLocaleString({ weekday: 'short' });
@@ -394,7 +405,7 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                             keyExtractor={item => item.key}
                             contentContainerStyle={styles.scheduleContainer}
                         />
-                    </View>
+                    </Animated.View>
                 </View>
             </ScrollView>
         </ThemedView>
