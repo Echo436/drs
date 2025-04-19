@@ -65,13 +65,13 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                 fetch(`https://api.jolpi.ca/ergast/f1/${requestYear}/${requestRound}/races`).then(response => response.json())
                     .then(data => setRaceData(data.MRData.RaceTable.Races[0])),
                 fetch(`https://f1api.dev/api/${requestYear}/${requestRound}`).then(response => response.json())
-                   .then(data => setExtraRaceData(data.race[0])),
+                    .then(data => setExtraRaceData(data.race[0])),
                 fetch(`https://api.jolpi.ca/ergast/f1/${requestYear}/${requestRound}/sprint/`).then(response => response.json())
-                   .then(data => setSprintResult(data.MRData.RaceTable.Races[0].SprintResults)),
+                    .then(data => setSprintResult(data.MRData.RaceTable.Races[0].SprintResults)),
                 fetch(`https://api.jolpi.ca/ergast/f1/${requestYear}/${requestRound}/qualifying/`).then(response => response.json())
-                  .then(data => setQualyResult(data.MRData.RaceTable.Races[0].QualifyingResults)),
+                    .then(data => setQualyResult(data.MRData.RaceTable.Races[0].QualifyingResults)),
                 fetch(`https://api.jolpi.ca/ergast/f1/${requestYear}/${requestRound}/results/`).then(response => response.json())
-                  .then(data => setRaceResult(data.MRData.RaceTable.Races[0].Results)),
+                    .then(data => setRaceResult(data.MRData.RaceTable.Races[0].Results)),
             ]);
         } finally {
             setRefreshing(false);
@@ -113,7 +113,9 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
     ].filter(item => item.session && item.session.date !== null);
 
     const navigateToCircuitDetail = () => {
-        router.push({ pathname: '/race/circuit', params: { circuitId: raceInitData?.Circuit.circuitId || raceData?.Circuit.circuitId, initialData: JSON.stringify(extraRaceData?.circuit) } });
+        if (extraRaceData && (raceInitData?.Circuit.circuitId || raceData?.Circuit.circuitId)) {
+            router.push({ pathname: '/race/circuit', params: { circuitId: raceInitData?.Circuit.circuitId || raceData?.Circuit.circuitId, initialData: JSON.stringify(extraRaceData?.circuit) } });
+        }
     }
 
     return (
@@ -262,7 +264,16 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                                                         })()
                                                     }
                                                 }} asChild>
-                                                    <TouchableOpacity style={styles.sessionColumn}>
+                                                    <TouchableOpacity
+                                                        style={styles.sessionColumn}
+                                                        disabled={
+                                                            !(
+                                                                item.key === 'sprintRace' && sprintResultData !== null ||
+                                                                item.key === 'qualy' && qualyResultData !== null ||
+                                                                item.key === 'race' && raceResultData !== null
+                                                            )
+                                                        }
+                                                    >
                                                         <View style={{ flex: 1 }}>
                                                             <ThemedText style={styles.sessionName}>{item.name}</ThemedText>
                                                             <ThemedText style={styles.sessionTime}>{timeDisplay}</ThemedText>
