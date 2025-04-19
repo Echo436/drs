@@ -390,6 +390,7 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                                                                                 </ThemedText>
                                                                             </View>
                                                                         ))}
+                                                                        {itemResultData && <IconSymbol name='chevron.right' size={10} color={'gray'} style={{ alignSelf: 'center' }}></IconSymbol>}
                                                                     </Animated.View>
                                                                 );
                                                             }
