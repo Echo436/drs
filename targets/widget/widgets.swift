@@ -11,17 +11,10 @@ struct Provider: AppIntentTimelineProvider {
     }
     
     func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<SimpleEntry> {
-        var entries: [SimpleEntry] = []
-
-        // Generate a timeline consisting of five entries an hour apart, starting from the current date.
-        let currentDate = Date()
-        for hourOffset in 0 ..< 5 {
-            let entryDate = Calendar.current.date(byAdding: .hour, value: hourOffset, to: currentDate)!
-            let entry = SimpleEntry(date: entryDate, configuration: configuration)
-            entries.append(entry)
-        }
-
-        return Timeline(entries: entries, policy: .atEnd)
+        let entry = SimpleEntry(date: Date(), configuration: configuration)
+        // 设置每6小时刷新一次小组件
+        let nextUpdate = Calendar.current.date(byAdding: .hour, value: 6, to: Date())!
+        return Timeline(entries: [entry], policy: .after(nextUpdate))
     }
 
 //    func relevances() async -> WidgetRelevances<ConfigurationAppIntent> {
@@ -37,13 +30,51 @@ struct SimpleEntry: TimelineEntry {
 struct widgetEntryView : View {
     var entry: Provider.Entry
 
+    func getCurrentRace() -> Race? {
+        let defaults = UserDefaults(suiteName: "group.com.keee.drs")
+        guard let jsonString = defaults?.string(forKey: "currentRace"),
+              !jsonString.isEmpty else {
+            return nil
+        }
+        
+        do {
+            let decoder = JSONDecoder()
+            let race = try decoder.decode(Race.self, from: Data(jsonString.utf8))
+            return race
+        } catch {
+            print("Error decoding Race data: \(error)")
+            return nil
+        }
+    }
+    
     var body: some View {
-        VStack {
-            Text("Time:")
-            Text(entry.date, style: .time)
-
-            Text("Favorite Emoji:")
-            Text(entry.configuration.favoriteEmoji)
+        if let race = getCurrentRace() {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(race.raceName ?? "未知比赛")
+                    .font(.headline)
+                    .fontWeight(.bold)
+                
+                if let circuit = race.Circuit {
+                    Text(circuit.circuitName ?? "")
+                        .font(.subheadline)
+                }
+                
+                if let date = race.date, let time = race.time {
+                    Text("\(date) \(time)")
+                        .font(.caption)
+                }
+                
+                if let round = race.round {
+                    Text("第\(round)站")
+                        .font(.caption2)
+                }
+            }
+            .padding()
+        } else {
+            VStack {
+                Text("DRS")
+                Text("暂无比赛数据")
+            }
         }
     }
 }
@@ -60,15 +91,8 @@ struct widget: Widget {
 }
 
 extension ConfigurationAppIntent {
-    fileprivate static var smiley: ConfigurationAppIntent {
+    fileprivate static var preview: ConfigurationAppIntent {
         let intent = ConfigurationAppIntent()
-        intent.favoriteEmoji = "😀"
-        return intent
-    }
-    
-    fileprivate static var starEyes: ConfigurationAppIntent {
-        let intent = ConfigurationAppIntent()
-        intent.favoriteEmoji = "🤩"
         return intent
     }
 }
@@ -76,6 +100,5 @@ extension ConfigurationAppIntent {
 #Preview(as: .systemSmall) {
     widget()
 } timeline: {
-    SimpleEntry(date: .now, configuration: .smiley)
-    SimpleEntry(date: .now, configuration: .starEyes)
+    SimpleEntry(date: .now, configuration: .preview)
 }

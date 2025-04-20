@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon';
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useAppDispatch } from '@/hooks/useReduxHooks';
+import { ExtensionStorage } from '@bacons/apple-targets';
 import * as SplashScreen from 'expo-splash-screen';
 
 export type Season = {
@@ -204,6 +204,8 @@ type F1DataContextType = {
 // 创建Context
 const F1DataContext = createContext<F1DataContextType | undefined>(undefined);
 
+const widgetStorage = new ExtensionStorage('group.com.keee.drs');
+
 // Provider组件
 export const F1DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [seasons, setSeasons] = useState<Season[]>([{ season: 'current' }]);
@@ -258,7 +260,7 @@ export const F1DataProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             setGrandPrixList(data);
             setTimeout(() => {
                 SplashScreen.hideAsync();
-              }, 100);
+            }, 100);
             for (const race of data) {
                 const date = DateTime.fromISO(`${race.date}T${race.time}`);
                 if (date.plus({ day: 2 }) > DateTime.now()) {
@@ -266,6 +268,12 @@ export const F1DataProvider: React.FC<{ children: ReactNode }> = ({ children }) 
                     break;
                 }
             }
+            const currentRace = grandPrixList.find((race) => {
+                if (race.round == currentRound) {
+                    return race;
+                }
+            })
+            widgetStorage.set('currentRace', JSON.stringify(currentRace));
         } catch (err) {
             console.error('Error fetching F1 race data:', err);
         } finally {
