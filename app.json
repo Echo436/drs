@@ -9,6 +9,12 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
+      "appleTeamId": "698F5Y6366",
+      "entitlements": {
+        "com.apple.security.application-groups": [
+          "group.com.keee.drs"
+        ]
+      },
       "icon": {
         "dark": "./assets/images/ios-dark.png",
         "light": "./assets/images/ios-light.png",
@@ -38,6 +44,9 @@
           "fonts": [
             "./assets/fonts/Formula1-Bold_web_0.ttf",
             "./assets/fonts/Formula1-Regular_web_0.ttf",
+            "./assets/fonts/Formula1-Wide_web_0.ttf",
+            "./assets/fonts/Formula1-Bold_web_0.ttf",
+            "./assets/fonts/Formula1-Regular_web_0.ttf",
             "./assets/fonts/Formula1-Wide_web_0.ttf"
           ]
         }
@@ -51,12 +60,13 @@
           "resizeMode": "contain",
           "backgroundColor": "#FFFFFF",
           "dark": {
-            "image":"./assets/images/splash-icon-dark.png",
+            "image": "./assets/images/splash-icon-dark.png",
             "backgroundColor": "#000000"
           }
         }
       ],
-      "expo-localization"
+      "expo-localization",
+      "@bacons/apple-targets"
     ],
     "experiments": {
       "typedRoutes": true
