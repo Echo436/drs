@@ -274,6 +274,8 @@ export const F1DataProvider: React.FC<{ children: ReactNode }> = ({ children }) 
                 }
             })
             widgetStorage.set('currentRace', JSON.stringify(currentRace));
+            console.log(JSON.stringify(currentRace));
+            widgetStorage.set('hello', 'hello-test');
             ExtensionStorage.reloadWidget();
         } catch (err) {
             console.error('Error fetching F1 race data:', err);

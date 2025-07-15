@@ -31,11 +31,13 @@ struct widgetEntryView : View {
     var entry: Provider.Entry
 
     func getCurrentRace() -> Race? {
-        let defaults = UserDefaults(suiteName: "group.com.keee.drs")
-        guard let jsonString = defaults?.string(forKey: "currentRace"),
-              !jsonString.isEmpty else {
-            return nil
-        }
+//        let defaults = UserDefaults(suiteName: "group.com.keee.drs")
+//        guard let jsonString = defaults?.string(forKey: "currentRace"),
+//              !jsonString.isEmpty else {
+//            return nil
+//        }
+      
+        let jsonString = "{\"season\":\"2025\",\"round\":\"6\",\"url\":\"https://en.wikipedia.org/wiki/2025_Miami_Grand_Prix\",\"raceName\":\"Miami Grand Prix\",\"Circuit\":{\"circuitId\":\"miami\",\"url\":\"https://en.wikipedia.org/wiki/Miami_International_Autodrome\",\"circuitName\":\"Miami International Autodrome\",\"Location\":{\"lat\":\"25.9581\",\"long\":\"-80.2389\",\"locality\":\"Miami\",\"country\":\"USA\"}},\"date\":\"2025-05-04\",\"time\":\"20:00:00Z\",\"FirstPractice\":{\"date\":\"2025-05-02\",\"time\":\"16:30:00Z\"},\"Qualifying\":{\"date\":\"2025-05-03\",\"time\":\"20:00:00Z\"},\"Sprint\":{\"date\":\"2025-05-03\",\"time\":\"16:00:00Z\"},\"SprintQualifying\":{\"date\":\"2025-05-02\",\"time\":\"20:30:00Z\"},\"Results\":[]}"
         
         do {
             let decoder = JSONDecoder()
@@ -46,8 +48,16 @@ struct widgetEntryView : View {
             return nil
         }
     }
+
+    func test() -> String {
+        let defaults = UserDefaults(suiteName: "group.com.keee.drs")
+        return defaults?.string(forKey: "hello") ?? "No data found"
+    }
     
     var body: some View {
+        VStack {
+//            Text(test())
+        }
         if let race = getCurrentRace() {
             VStack(alignment: .leading, spacing: 8) {
                 Text(race.raceName ?? "未知比赛")
@@ -69,7 +79,7 @@ struct widgetEntryView : View {
                         .font(.caption2)
                 }
             }
-            .padding()
+//            .padding()
         } else {
             VStack {
                 Text("DRS")

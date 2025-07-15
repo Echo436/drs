@@ -30,7 +30,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.keee.drs"
     },
     "web": {
       "bundler": "metro",
@@ -76,7 +77,24 @@
         "origin": false
       },
       "eas": {
-        "projectId": "ef34cdaa-978e-4086-8524-bd41002dfb97"
+        "projectId": "ef34cdaa-978e-4086-8524-bd41002dfb97",
+        "build": {
+          "experimental": {
+            "ios": {
+              "appExtensions": [
+                {
+                  "bundleIdentifier": "com.keee.drs.widget",
+                  "targetName": "widget",
+                  "entitlements": {
+                    "com.apple.security.application-groups": [
+                      "group.com.keee.drs"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
       }
     }
   }
