@@ -1110,6 +1110,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@bottom-tabs/react-navigation@npm:^0.9.2":
+  version: 0.9.2
+  resolution: "@bottom-tabs/react-navigation@npm:0.9.2"
+  dependencies:
+    color: "npm:^4.2.3"
+  peerDependencies:
+    "@react-navigation/native": ">=7"
+    react: "*"
+    react-native: "*"
+    react-native-bottom-tabs: "*"
+  checksum: 10c0/eb19960b52602e07e79ce712a50cafead0ebe472b1b00c2b720a94be636dcc30c343e20569c00d8739efa5999f7d71cbd68846d864f3cde7571b713fca50c0ba
+  languageName: node
+  linkType: hard
+
 "@egjs/hammerjs@npm:^2.0.17":
   version: 2.0.17
   resolution: "@egjs/hammerjs@npm:2.0.17"
@@ -2723,7 +2737,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ajv@npm:^8.0.0, ajv@npm:^8.9.0":
+"ajv@npm:^8.0.0, ajv@npm:^8.11.0, ajv@npm:^8.9.0":
   version: 8.17.1
   resolution: "ajv@npm:8.17.1"
   dependencies:
@@ -4052,6 +4066,7 @@ __metadata:
   resolution: "drs@workspace:."
   dependencies:
     "@babel/core": "npm:^7.25.2"
+    "@bottom-tabs/react-navigation": "npm:^0.9.2"
     "@expo/vector-icons": "npm:^14.0.2"
     "@react-native-async-storage/async-storage": "npm:2.1.2"
     "@react-native-picker/picker": "npm:2.11.1"
@@ -4066,6 +4081,7 @@ __metadata:
     "@types/tinycolor2": "npm:^1.4.6"
     expo: "npm:^53.0.19"
     expo-blur: "npm:~14.1.5"
+    expo-build-properties: "npm:~0.14.8"
     expo-constants: "npm:~17.1.7"
     expo-font: "npm:^13.0.4"
     expo-haptics: "npm:~14.1.4"
@@ -4086,6 +4102,7 @@ __metadata:
     react-dom: "npm:19.0.0"
     react-i18next: "npm:^15.4.1"
     react-native: "npm:0.79.5"
+    react-native-bottom-tabs: "npm:^0.9.2"
     react-native-element-dropdown: "npm:^2.12.4"
     react-native-gesture-handler: "npm:~2.24.0"
     react-native-pager-view: "npm:6.7.1"
@@ -4427,6 +4444,18 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: 10c0/4ffe9014219f23d53f66bc61ea5d00b74a012d120f94a810c71cbdd34901900282a40f7d0636877cd261bc7ff8a3db20da2e0be9393b1a950b8fc677e285bf65
+  languageName: node
+  linkType: hard
+
+"expo-build-properties@npm:~0.14.8":
+  version: 0.14.8
+  resolution: "expo-build-properties@npm:0.14.8"
+  dependencies:
+    ajv: "npm:^8.11.0"
+    semver: "npm:^7.6.0"
+  peerDependencies:
+    expo: "*"
+  checksum: 10c0/7c41bd282f0a35ce73da82d5a4bfcfe88ce3a1bf34737bcd06c9f2d4f7100bbf31653ff0171d92c18a13f5322f831b224f9e47bf5b05df8f15d9514d53d0c51b
   languageName: node
   linkType: hard
 
@@ -7880,6 +7909,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-native-bottom-tabs@npm:^0.9.2":
+  version: 0.9.2
+  resolution: "react-native-bottom-tabs@npm:0.9.2"
+  dependencies:
+    react-freeze: "npm:^1.0.0"
+    sf-symbols-typescript: "npm:^2.0.0"
+    use-latest-callback: "npm:^0.2.1"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 10c0/71da3beafe0c37c3fe9b02a03ddbcfd2a10c46e71c78f1b757ce3ff6fb6b872e8d5dd84909378d92da76fe870e0b9bce5618fd0a6c5af38eb662233514e8e695
+  languageName: node
+  linkType: hard
+
 "react-native-edge-to-edge@npm:1.6.0":
   version: 1.6.0
   resolution: "react-native-edge-to-edge@npm:1.6.0"
@@ -9561,7 +9604,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"use-latest-callback@npm:^0.2.4":
+"use-latest-callback@npm:^0.2.1, use-latest-callback@npm:^0.2.4":
   version: 0.2.4
   resolution: "use-latest-callback@npm:0.2.4"
   peerDependencies:
