@@ -1,18 +1,21 @@
 import { ThemedText } from "@/components/ThemedText";
-import { ConstructorStanding, Driver, useF1Data } from "@/context/F1DataContext";
-import React, { useEffect, useRef } from "react";
-import { View, StyleSheet } from "react-native";
+import { ConstructorStanding, useF1Data } from "@/context/F1DataContext";
+import React from "react";
+import { View, StyleSheet, RefreshControl } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import { t } from "@/i18n/utils";
 import renderSeparator from "@/components/ui/RenderSeparator";
 import { layoutStyles } from "@/components/ui/Styles";
-import { getTeamsColor } from "@/constants/Colors";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ConstructorList() {
     const { top } = useSafeAreaInsets();
-    const { constructorList, driverStandingList: driverStandingList } = useF1Data();
+    const { constructorList, driverStandingList: driverStandingList, constructorListLoading, fetchConstructorListData, selectedSeason } = useF1Data();
+
+    const onRefresh = React.useCallback(async () => {
+        fetchConstructorListData(selectedSeason);
+    }, []);
 
     const renderItem = ({ item }: { item: ConstructorStanding }) => {
         const driverList = driverStandingList
@@ -46,14 +49,21 @@ export default function ConstructorList() {
     // 渲染大奖赛列表
     return (
         <FlatList
+            contentInsetAdjustmentBehavior="automatic"
             data={constructorList}
             renderItem={renderItem}
             keyExtractor={(item) => item.Constructor.constructorId}
             ItemSeparatorComponent={renderSeparator}
             contentContainerStyle={layoutStyles.listContainer}
             showsVerticalScrollIndicator={false}
-            contentInset={{ top: top + 45, left: 0, bottom: 100, right: 0 }}
-            contentOffset={{ x: 0, y: -top - 45 }}
+            // contentInset={{ top: top + 45, left: 0, bottom: 100, right: 0 }}
+            // contentOffset={{ x: 0, y: -top - 45 }}
+            refreshControl={
+                <RefreshControl
+                    refreshing={constructorListLoading}
+                    onRefresh={onRefresh}
+                />
+            }
         />
     );
 }

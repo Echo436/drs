@@ -1,4 +1,4 @@
-import { Button, View } from "react-native";
+import { Button, View, ScrollView } from "react-native";
 import { layoutStyles } from "@/components/ui/Styles";
 import { ThemedText } from "@/components/ThemedText";
 
@@ -15,11 +15,6 @@ export default function Settings() {
   const dispatch = useAppDispatch();
   return (
     <ThemedView style={[layoutStyles.centerContainer, {justifyContent: 'center'}]}>
-      <Stack.Screen
-        options={{
-          headerShown: true,
-        }}
-      />
       <ThemedText>点击切换主题颜色</ThemedText>
       <Button title="法拉利" onPress={() => {
         dispatch(setPrimaryColor(getTeamsColor('ferrari')));

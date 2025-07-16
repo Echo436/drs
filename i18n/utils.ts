@@ -4,7 +4,9 @@ import * as Localization from 'expo-localization';
 
 // 获取当前设备语言
 export const getDeviceLanguage = (): string => {
-  return Localization.locale.split('-')[0] || 'zh';
+  const locales = Localization.getLocales();
+  const languageCode = locales && locales[0] && locales[0].languageCode;
+  return languageCode ? languageCode.split('-')[0] : 'zh';
 };
 
 // 切换语言
@@ -15,11 +17,6 @@ export const changeLanguage = (lng: string): Promise<any> => {
 // 获取当前语言
 export const getCurrentLanguage = (): string => {
   return i18next.language;
-};
-
-// 检查是否为RTL语言
-export const isRTL = (): boolean => {
-  return Localization.isRTL;
 };
 
 // 导出useTranslation hook以便在组件中使用

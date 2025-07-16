@@ -1,44 +1,42 @@
-import { Tabs } from 'expo-router';
+import { Tabs } from '@/components/bottom-tabs';
 import React from 'react';
-import { IconSymbol } from '@/components/ui/IconSymbol';
 
 import { t } from '@/i18n/utils';
-import MyTabBar from '@/components/TabBar'
 
 export default function TabLayout() {
   return (
     <Tabs
-      tabBar={(props) => <MyTabBar {...props} />}
-      initialRouteName="grand-prix"
-      screenOptions={{
-        headerShown: false,
-      }}
+      // initialRouteName="season"
+      // screenOptions={{
+      //   // headerShown: false,
+      // }}
     >
       <Tabs.Screen
-        name="grand-prix"
+        name="index"
         options={{
-          title: t('GrandPrix', 'tabs'),
-          tabBarIcon: ({ color }) => <IconSymbol size={26} name="flag.pattern.checkered" color={color} />,
+          title: t('Season', 'tabs'),
+          tabBarIcon: () => ({ sfSymbol: 'calendar' }),
         }}
       />
       <Tabs.Screen
-        name="standings"
+        name="drivers"
         options={{
-          title: t('Standings', 'tabs'),
-          tabBarIcon: ({ color }) => <IconSymbol size={26} name="trophy" color={color} />,
+          title: t('Drivers', 'tabs'),
+          tabBarIcon: () => ({ sfSymbol: 'person.2' }),
+        }}
+      />
+      <Tabs.Screen
+        name="constructors"
+        options={{
+          title: t('Teams', 'tabs'),
+          tabBarIcon: () => ({ sfSymbol: 'trophy' }),
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
           title: t('settings', 'tabs'),
-          tabBarIcon: ({ color }) => <IconSymbol size={26} name="gear" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="index"
-        options={{
-          href: null,
+          tabBarIcon: () => ({ sfSymbol: 'gear' }),
         }}
       />
     </Tabs>
