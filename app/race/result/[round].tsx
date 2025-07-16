@@ -91,10 +91,11 @@ export default function RaceResult() {
                         }
                     })(),
                     headerBackVisible: true,
-                    headerBackTitle: 'Back',
+                    headerBackButtonDisplayMode: "minimal",
                 }}
             />
             <FlatList
+                contentInsetAdjustmentBehavior="automatic"
                 data={resultData}
                 renderItem={({ item }) => (
                     <View style={{ paddingHorizontal: 10, paddingVertical: 15, flexDirection: 'row', alignItems: 'center' }}>

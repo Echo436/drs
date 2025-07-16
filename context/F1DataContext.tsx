@@ -194,11 +194,14 @@ type F1DataContextType = {
     driverStandingList: DriverStanding[];
     constructorList: ConstructorStanding[];
     grandPrixLoading: boolean;
-    driverLoading: boolean;
-    constructorLoading: boolean;
+    driverListLoading: boolean;
+    constructorListLoading: boolean;
     setDriverList: (driverList: DriverStanding[]) => void;
     setConstructorList: (constructorList: ConstructorStanding[]) => void;
     setGrandPrixList: (grandPrixList: Race[]) => void;
+    fetchGPListData: (year: string) => Promise<void>;
+    fetchDriverListData: (year: string) => Promise<void>;
+    fetchConstructorListData: (year: string) => Promise<void>;
 };
 
 // 创建Context
@@ -326,11 +329,14 @@ export const F1DataProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         driverStandingList: driverList,
         constructorList,
         grandPrixLoading,
-        driverLoading: driverListLoading,
-        constructorLoading: constructorListLoading,
+        driverListLoading,
+        constructorListLoading,
         setDriverList,
         setConstructorList,
-        setGrandPrixList
+        setGrandPrixList,
+        fetchGPListData,
+        fetchDriverListData,
+        fetchConstructorListData
     };
 
     return <F1DataContext.Provider value={contextValue}>{children}</F1DataContext.Provider>;

@@ -1,28 +1,34 @@
 import { Tabs } from '@/components/bottom-tabs';
 import React from 'react';
-import { IconSymbol } from '@/components/ui/IconSymbol';
 
 import { t } from '@/i18n/utils';
 
 export default function TabLayout() {
   return (
     <Tabs
-      initialRouteName="grand-prix"
-      screenOptions={{
-        // headerShown: false,
-      }}
+      // initialRouteName="season"
+      // screenOptions={{
+      //   // headerShown: false,
+      // }}
     >
       <Tabs.Screen
-        name="grand-prix"
+        name="index"
         options={{
-          title: t('GrandPrix', 'tabs'),
-          tabBarIcon: () => ({ sfSymbol: 'flag.checkered' }),
+          title: t('Season', 'tabs'),
+          tabBarIcon: () => ({ sfSymbol: 'calendar' }),
         }}
       />
       <Tabs.Screen
-        name="standings"
+        name="drivers"
         options={{
-          title: t('Standings', 'tabs'),
+          title: t('Drivers', 'tabs'),
+          tabBarIcon: () => ({ sfSymbol: 'person.2' }),
+        }}
+      />
+      <Tabs.Screen
+        name="constructors"
+        options={{
+          title: t('Teams', 'tabs'),
           tabBarIcon: () => ({ sfSymbol: 'trophy' }),
         }}
       />
@@ -33,12 +39,6 @@ export default function TabLayout() {
           tabBarIcon: () => ({ sfSymbol: 'gear' }),
         }}
       />
-      {/* <Tabs.Screen
-        name="index"
-        options={{
-          href: null,
-        }}
-      /> */}
     </Tabs>
   );
 }
