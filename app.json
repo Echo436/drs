@@ -39,6 +39,7 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      "react-native-bottom-tabs",
       [
         "expo-font",
         {
@@ -67,7 +68,16 @@
         }
       ],
       "expo-localization",
-      "@bacons/apple-targets"
+      "@bacons/apple-targets",
+      "expo-web-browser",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

@@ -1,7 +1,7 @@
 import { ThemedText } from "@/components/ThemedText";
 import { DriverStanding, useF1Data } from "@/context/F1DataContext";
 import React from "react";
-import { View, StyleSheet, TouchableOpacity, Linking } from "react-native";
+import { View, StyleSheet, TouchableOpacity, RefreshControl } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import { t, translateName } from '@/i18n/utils';
 import renderSeparator from "@/components/ui/RenderSeparator";
@@ -10,10 +10,16 @@ import { getTeamsColor } from "@/constants/Colors";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Link } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ThemedView } from "@/components/ThemedView";
 
 export default function ConstructorList() {
     const { top } = useSafeAreaInsets();
-    const { driverStandingList: driverList, selectedSeason } = useF1Data();
+    const { driverStandingList: driverList, selectedSeason, fetchDriverListData, driverListLoading } = useF1Data();
+
+    const onRefresh = React.useCallback(async () => {
+        fetchDriverListData(selectedSeason);
+    }, []);
+    
 
     const renderItem = ({ item }: { item: DriverStanding }) => {
         return (
@@ -39,16 +45,25 @@ export default function ConstructorList() {
 
     // 渲染大奖赛列表
     return (
+        <ThemedView>
         <FlatList
+            contentInsetAdjustmentBehavior="automatic"
             data={driverList}
             renderItem={renderItem}
             keyExtractor={(item) => item.Driver.driverId}
             ItemSeparatorComponent={renderSeparator}
             contentContainerStyle={layoutStyles.listContainer}
             showsVerticalScrollIndicator={false}
-            contentInset={{ top: top+45, left: 0, bottom: 100, right: 0 }}
-            contentOffset={{x: 0, y: -top-45}}
+            // contentInset={{ top: top+45, left: 0, bottom: 100, right: 0 }}
+            // contentOffset={{x: 0, y: -top-45}}
+            refreshControl={
+                <RefreshControl
+                    refreshing={driverListLoading}
+                    onRefresh={onRefresh}
+                />
+            }
         />
+        </ThemedView>
     );
 }
 
