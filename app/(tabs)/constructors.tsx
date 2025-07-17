@@ -15,7 +15,7 @@ export default function ConstructorList() {
 
     const onRefresh = React.useCallback(async () => {
         fetchConstructorListData(selectedSeason);
-    }, []);
+    }, [selectedSeason]);
 
     const renderItem = ({ item }: { item: ConstructorStanding }) => {
         const driverList = driverStandingList
@@ -56,8 +56,6 @@ export default function ConstructorList() {
             ItemSeparatorComponent={renderSeparator}
             contentContainerStyle={layoutStyles.listContainer}
             showsVerticalScrollIndicator={false}
-            // contentInset={{ top: top + 45, left: 0, bottom: 100, right: 0 }}
-            // contentOffset={{ x: 0, y: -top - 45 }}
             refreshControl={
                 <RefreshControl
                     refreshing={constructorListLoading}

@@ -1,6 +1,6 @@
 import { ThemedText } from "@/components/ThemedText";
 import { Race, useF1Data } from "@/context/F1DataContext";
-import React, { useState } from "react";
+import React from "react";
 import { View, StyleSheet, TouchableOpacity, SafeAreaView, RefreshControl } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import renderSeparator from "@/components/ui/RenderSeparator";
@@ -15,7 +15,6 @@ import Slash1 from '@/assets/icon/slash-1.svg'
 import Slash2 from '@/assets/icon/slash-2.svg'
 import Slash3 from '@/assets/icon/slash-3.svg'
 import { getTeamsColor } from "@/constants/Colors";
-import { ThemedView } from "@/components/ThemedView";
 
 interface GrandPrixListProps {
     onTabChange: (tabKey: string) => void;
@@ -29,8 +28,9 @@ export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
     const { grandPrixList, currentRound, seasons, grandPrixLoading, selectedSeason, fetchGPListData } = useF1Data();
 
     const onRefresh = React.useCallback(async () => {
-            fetchGPListData(selectedSeason);
-        }, []);
+        console.log(selectedSeason)
+        fetchGPListData(selectedSeason);
+    }, [selectedSeason]);
 
     const flags = {
         'Australia': '🇦🇺',
@@ -65,7 +65,7 @@ export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
         // if (round == currentRound && year == seasons[0].season) {
         //     onTabChange('first');
         // } else {
-            router.push({ pathname: `/race/[round]`, params: { year, round, initialData } });
+        router.push({ pathname: `/race/[round]`, params: { year, round, initialData } });
         // }
     };
 
@@ -83,7 +83,6 @@ export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
             <TouchableOpacity
                 style={styles.itemContainer}
                 onPress={() => navigateToGrandPrix(item.round, DateTime.fromISO(item.date).year.toString(), JSON.stringify(item), raceDate)}
-                activeOpacity={0.7}
             >
                 <View style={styles.roundContainer}>
                     <ThemedText style={styles.roundText}>{`R${String(item.round).padStart(2, '0')}`}</ThemedText>
@@ -117,34 +116,21 @@ export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
 
     // 渲染大奖赛列表
     return (
-        <ThemedView>
-            {/* <SafeAreaView> */}
-            <FlatList
-                contentInsetAdjustmentBehavior="automatic"
-                data={grandPrixList}
-                renderItem={renderItem}
-                keyExtractor={(item) => item.round}
-                ItemSeparatorComponent={renderSeparator}
-                contentContainerStyle={layoutStyles.listContainer}
-                showsVerticalScrollIndicator={false}
-                // contentInset={{ top: top + 45, left: 0, bottom: 100, right: 0 }}
-                // contentOffset={{ x: 0, y: -top - 45 }}
-                // ListEmptyComponent={() => {
-                //     return (
-                //         <View style={layoutStyles.centerContainer}>
-                //             <ThemedText style={{}}>{t('loading', 'common')}</ThemedText>
-                //         </View>
-                //     )
-                // }}
-                refreshControl={
-                    <RefreshControl
-                        refreshing={grandPrixLoading}
-                        onRefresh={onRefresh}
-                    />
-                }
-            />
-            {/* </SafeAreaView> */}
-        </ThemedView>
+        <FlatList
+            contentInsetAdjustmentBehavior="automatic"
+            data={grandPrixList}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.round}
+            ItemSeparatorComponent={renderSeparator}
+            contentContainerStyle={layoutStyles.listContainer}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+                <RefreshControl
+                    refreshing={grandPrixLoading}
+                    onRefresh={onRefresh}
+                />
+            }
+        />
     );
 }
 

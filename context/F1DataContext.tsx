@@ -264,20 +264,17 @@ export const F1DataProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             setTimeout(() => {
                 SplashScreen.hideAsync();
             }, 100);
+            let selectedRound = currentRound;
             for (const race of data) {
                 const date = DateTime.fromISO(`${race.date}T${race.time}`);
                 if (date.plus({ day: 2 }) > DateTime.now()) {
+                    selectedRound = race.round;
                     setCurrentRound(race.round);
                     break;
                 }
             }
-            const currentRace = grandPrixList.find((race) => {
-                if (race.round == currentRound) {
-                    return race;
-                }
-            })
+            const currentRace = data.find((race) => race.round === selectedRound)
             widgetStorage.set('currentRace', JSON.stringify(currentRace));
-            console.log(JSON.stringify(currentRace));
             widgetStorage.set('hello', 'hello-test');
             ExtensionStorage.reloadWidget();
         } catch (err) {

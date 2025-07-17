@@ -10,7 +10,6 @@ import { getTeamsColor } from "@/constants/Colors";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Link } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ThemedView } from "@/components/ThemedView";
 
 export default function ConstructorList() {
     const { top } = useSafeAreaInsets();
@@ -18,8 +17,8 @@ export default function ConstructorList() {
 
     const onRefresh = React.useCallback(async () => {
         fetchDriverListData(selectedSeason);
-    }, []);
-    
+    }, [selectedSeason]);
+
 
     const renderItem = ({ item }: { item: DriverStanding }) => {
         return (
@@ -45,7 +44,6 @@ export default function ConstructorList() {
 
     // 渲染大奖赛列表
     return (
-        <ThemedView>
         <FlatList
             contentInsetAdjustmentBehavior="automatic"
             data={driverList}
@@ -54,8 +52,6 @@ export default function ConstructorList() {
             ItemSeparatorComponent={renderSeparator}
             contentContainerStyle={layoutStyles.listContainer}
             showsVerticalScrollIndicator={false}
-            // contentInset={{ top: top+45, left: 0, bottom: 100, right: 0 }}
-            // contentOffset={{x: 0, y: -top-45}}
             refreshControl={
                 <RefreshControl
                     refreshing={driverListLoading}
@@ -63,7 +59,6 @@ export default function ConstructorList() {
                 />
             }
         />
-        </ThemedView>
     );
 }
 
