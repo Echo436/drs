@@ -1,7 +1,7 @@
 import { ThemedText } from "@/components/ThemedText";
 import { Race, useF1Data } from "@/context/F1DataContext";
 import React from "react";
-import { View, StyleSheet, TouchableOpacity, SafeAreaView, RefreshControl } from "react-native";
+import { View, StyleSheet, TouchableOpacity, RefreshControl, useColorScheme } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import renderSeparator from "@/components/ui/RenderSeparator";
 import { layoutStyles } from '@/components/ui/Styles';
@@ -16,11 +16,14 @@ import Slash2 from '@/assets/icon/slash-2.svg'
 import Slash3 from '@/assets/icon/slash-3.svg'
 import { getTeamsColor } from "@/constants/Colors";
 
+
 interface GrandPrixListProps {
     onTabChange: (tabKey: string) => void;
 }
 
 export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
+    const theme = useColorScheme();
+
     const languageCode = useLocales()[0].languageCode || 'en';
     const timeZoneOffset = DateTime.local().offset / 60;
 
@@ -65,7 +68,7 @@ export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
         // if (round == currentRound && year == seasons[0].season) {
         //     onTabChange('first');
         // } else {
-        router.push({ pathname: `/race/[round]`, params: { year, round, initialData } });
+        router.push({ pathname: '/season/race', params: { year, round, initialData } });
         // }
     };
 
@@ -92,7 +95,7 @@ export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
                     <View style={styles.positionAndDateContainer}>
                         <ThemedText type='itemsubtitle'>{t(item.Circuit.Location.locality, 'city') + '·'}</ThemedText>
                         <ThemedText type="itemsubtitle">{`${fp1DateDisplay} - ${raceDateDisplay}`}</ThemedText>
-                        <ThemedText style={{ paddingTop: 3, fontSize: 8, lineHeight: 8, fontWeight: 600, color: 'rgb(128, 128, 128)' }}>{` - UTC${timeZoneOffset >= 0 ? `+${timeZoneOffset}` : timeZoneOffset}`}</ThemedText>
+                        <ThemedText style={{ paddingTop: 3, paddingLeft: 4, fontSize: 8, lineHeight: 8, fontWeight: 600, color: 'rgb(128, 128, 128)' }}>{`UTC${timeZoneOffset >= 0 ? `+${timeZoneOffset}` : timeZoneOffset}`}</ThemedText>
                     </View>
                     {item.Results.length === 3 && (<View style={styles.podiumContainer}>
                         {[1, 2, 3].map((position) => (
@@ -130,6 +133,7 @@ export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
                     onRefresh={onRefresh}
                 />
             }
+            style={{ backgroundColor: theme === 'dark' ? 'black' : 'white' }}
         />
     );
 }

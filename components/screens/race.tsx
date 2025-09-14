@@ -1,14 +1,11 @@
-import { FlatList, StyleSheet, View, RefreshControl, TouchableOpacity, Image, Animated } from "react-native";
+import { FlatList, StyleSheet, View, RefreshControl, TouchableOpacity, Image, Animated, useColorScheme } from "react-native";
 import React, { useState, useEffect } from "react";
 import { ThemedText } from "@/components/ThemedText";
 import { Race, Result } from "@/context/F1DataContext";
 import { Link, router, Stack, useLocalSearchParams } from "expo-router";
 import { ScrollView } from "react-native-gesture-handler";
 import { layoutStyles } from "@/components/ui/Styles";
-import { LinearGradient } from 'expo-linear-gradient';
 import { useThemeColor } from "@/hooks/useThemeColor";
-import tinycolor from 'tinycolor2';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { useF1Data } from "@/context/F1DataContext";
 import { ThemedView } from "@/components/ThemedView";
@@ -31,7 +28,7 @@ const getFontFamily = () => {
 }
 
 export default function GrandPrixDetail({ isCurrentPage = false, currentRound = '0', currentRace }: { isCurrentPage?: boolean, currentRound?: string, currentRace?: Race }) {
-    const { top } = useSafeAreaInsets();
+    const theme = useColorScheme();
     const [raceData, setRaceData] = useState<Race | null>(null);
     const [extraRaceData, setExtraRaceData] = useState<Race | null>(null);
     const [qualyResultData, setQualyResult] = useState<Result[] | null>(null);
@@ -73,8 +70,8 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
             await Promise.all([
                 fetch(`https://api.jolpi.ca/ergast/f1/${requestYear}/${requestRound}/races`).then(response => response.json())
                     .then(data => {
-                        setRaceData(data.MRData.RaceTable.Races[0])
                         if (data.MRData.RaceTable.Races[0]) {
+                            setRaceData(data.MRData.RaceTable.Races[0])
                             Animated.timing(weekendCardOpacity, {
                                 toValue: 1,
                                 duration: 500,
@@ -84,9 +81,9 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                     }),
                 fetch(`https://f1api.dev/api/${requestYear}/${requestRound}`).then(response => response.json())
                     .then(data => {
-                        setExtraRaceData(data.race[0]);
                         // 数据加载完成后触发赛道信息的动画
                         if (data.race[0]) {
+                            setExtraRaceData(data.race[0]);
                             // 同时淡入所有数据项
                             Animated.timing(circuitInfoOpacity, {
                                 toValue: 1,
@@ -97,9 +94,9 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                     }),
                 fetch(`https://api.jolpi.ca/ergast/f1/${requestYear}/${requestRound}/sprint/`).then(response => response.json())
                     .then(data => {
-                        setSprintResult(data.MRData.RaceTable.Races[0].SprintResults);
                         // 数据加载完成后触发动画
-                        if (data.MRData.RaceTable.Races[0].SprintResults) {
+                        if (data.MRData.RaceTable.Races[0]?.SprintResults) {
+                            setSprintResult(data.MRData.RaceTable.Races[0].SprintResults);
                             Animated.timing(sprintOpacity, {
                                 toValue: 1,
                                 duration: 300,
@@ -109,9 +106,9 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                     }),
                 fetch(`https://api.jolpi.ca/ergast/f1/${requestYear}/${requestRound}/qualifying/`).then(response => response.json())
                     .then(data => {
-                        setQualyResult(data.MRData.RaceTable.Races[0].QualifyingResults);
                         // 数据加载完成后触发动画
-                        if (data.MRData.RaceTable.Races[0].QualifyingResults) {
+                        if (data.MRData.RaceTable.Races[0]?.QualifyingResults) {
+                            setQualyResult(data.MRData.RaceTable.Races[0].QualifyingResults);
                             Animated.timing(qualyOpacity, {
                                 toValue: 1,
                                 duration: 300,
@@ -121,9 +118,9 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                     }),
                 fetch(`https://api.jolpi.ca/ergast/f1/${requestYear}/${requestRound}/results/`).then(response => response.json())
                     .then(data => {
-                        setRaceResult(data.MRData.RaceTable.Races[0].Results);
                         // 数据加载完成后触发动画
-                        if (data.MRData.RaceTable.Races[0].Results) {
+                        if (data.MRData.RaceTable.Races[0]?.Results) {
+                            setRaceResult(data.MRData.RaceTable.Races[0].Results);
                             Animated.timing(raceOpacity, {
                                 toValue: 1,
                                 duration: 300,
@@ -173,34 +170,23 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
 
     const navigateToCircuitDetail = () => {
         if (extraRaceData && (raceInitData?.Circuit.circuitId || raceData?.Circuit.circuitId)) {
-            router.push({ pathname: '/race/circuit', params: { circuitId: raceInitData?.Circuit.circuitId || raceData?.Circuit.circuitId, initialData: JSON.stringify(extraRaceData?.circuit) } });
+            router.push({ pathname: '/season/circuit', params: { circuitId: raceInitData?.Circuit.circuitId || raceData?.Circuit.circuitId, initialData: JSON.stringify(extraRaceData?.circuit) } });
         }
     }
 
     return (
-        <ThemedView
-            style={[layoutStyles.centerContainer, styles.container]}>
+        <>
             {!isCurrentPage && (<Stack.Screen
                 options={{
                     headerShown: true,
                     headerTransparent: true,
-                    header(props) {
-                        return (
-                            <LinearGradient
-                                colors={[tinycolor(backgroundColor).toRgbString(), tinycolor(backgroundColor).setAlpha(0).toRgbString()]}
-                                locations={[0.6, 1]}
-                                style={{
-                                    height: top,
-                                    width: '100%'
-                                }}
-                            ></LinearGradient>
-                        )
-                    },
+                    headerTintColor: theme === "dark" ? "white" : "black",
+                    title: `${year || raceData?.season || raceInitData?.season}·R${round || raceData?.round || raceInitData?.round}`,
                 }}
             />)}
             <ScrollView
-                contentInset={{ top: isCurrentPage ? top + 45 : top, left: 0, bottom: 0, right: 0 }}
-                style={[layoutStyles.listContainer]}
+                contentInsetAdjustmentBehavior="automatic"
+                style={[layoutStyles.listContainer, { backgroundColor: theme === 'dark' ? 'black' : 'white' }]}
                 refreshControl={
                     <RefreshControl
                         refreshing={refreshing}
@@ -208,22 +194,14 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                     />
                 }
             >
-                {/* header back button */}
-                {!isCurrentPage && (
-                    <View style={{ paddingHorizontal: 5, opacity: 0.5 }}>
-                        <TouchableOpacity onPress={() => router.back()}>
-                            <IconSymbol name="chevron.left" size={22} color={textColor} />
-                        </TouchableOpacity>
-                    </View>
-                )}
                 <View style={styles.profileContainer}>
-                    <ThemedText style={styles.roundText}>
+                    {/* <ThemedText style={styles.roundText}>
                         {year || raceData?.season || raceInitData?.season}
                         <ThemedText style={{ fontFamily: ' ' }}>
                             ·
                         </ThemedText>
                         {`R${String(raceInitData?.round || raceData?.round).padStart(2, '0')}`}
-                    </ThemedText>
+                    </ThemedText> */}
                     <ThemedText type="title" style={[styles.title, { fontFamily: getFontFamily() }]}>
                         {t(raceInitData?.raceName || raceData?.raceName || '', 'grand-prix-name')}
                     </ThemedText>
@@ -319,7 +297,7 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                                                 {showInDayTopSeparator && (<View style={{ height: 1, backgroundColor: seperatorColor }}></View>)}
                                                 {/* 每天的日程（右侧列） */}
                                                 <Link href={{
-                                                    pathname: '/race/result/[round]', params: {
+                                                    pathname: '/season/result', params: {
                                                         year: year, round: isCurrentPage ? currentRound : round, session: item.key,
                                                         initialData: (() => {
                                                             switch (item.key) {
@@ -409,7 +387,7 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
                     </Animated.View>
                 </View>
             </ScrollView>
-        </ThemedView>
+        </>
     );
 }
 
@@ -452,7 +430,7 @@ const styles = StyleSheet.create({
     card: {
         backgroundColor: 'rgb(255, 255, 255)',
         borderWidth: 0.5,
-        borderRadius: 15,
+        borderRadius: 20,
         shadowColor: 'rgb(0, 0, 0)',
         shadowOffset: {
             width: 0,

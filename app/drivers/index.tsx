@@ -1,7 +1,7 @@
 import { ThemedText } from "@/components/ThemedText";
 import { DriverStanding, useF1Data } from "@/context/F1DataContext";
 import React from "react";
-import { View, StyleSheet, TouchableOpacity, RefreshControl } from "react-native";
+import { View, StyleSheet, TouchableOpacity, RefreshControl, useColorScheme } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import { t, translateName } from '@/i18n/utils';
 import renderSeparator from "@/components/ui/RenderSeparator";
@@ -9,10 +9,10 @@ import { layoutStyles } from "@/components/ui/Styles";
 import { getTeamsColor } from "@/constants/Colors";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Link } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ConstructorList() {
-    const { top } = useSafeAreaInsets();
+    const theme = useColorScheme();
+
     const { driverStandingList: driverList, selectedSeason, fetchDriverListData, driverListLoading } = useF1Data();
 
     const onRefresh = React.useCallback(async () => {
@@ -22,7 +22,7 @@ export default function ConstructorList() {
 
     const renderItem = ({ item }: { item: DriverStanding }) => {
         return (
-            <Link href={{ pathname: '/driver/[driverId]', params: { driverId: item.Driver.driverId, year: selectedSeason, initialData: JSON.stringify(item) } }} asChild>
+            <Link href={{ pathname: '/drivers/driver', params: { driverId: item.Driver.driverId, year: selectedSeason, initialData: JSON.stringify(item) } }} asChild>
                 <TouchableOpacity style={styles.itemContainer}>
                     <View style={styles.positionContainer}>
                         <ThemedText style={styles.posisionText}>{String(item.positionText).padStart(2, '0')}</ThemedText>
@@ -58,6 +58,7 @@ export default function ConstructorList() {
                     onRefresh={onRefresh}
                 />
             }
+            style={{ backgroundColor: theme === 'dark' ? 'black' : 'white' }}
         />
     );
 }

@@ -1,16 +1,16 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ConstructorStanding, useF1Data } from "@/context/F1DataContext";
 import React from "react";
-import { View, StyleSheet, RefreshControl } from "react-native";
+import { View, StyleSheet, RefreshControl, useColorScheme } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import { t } from "@/i18n/utils";
 import renderSeparator from "@/components/ui/RenderSeparator";
 import { layoutStyles } from "@/components/ui/Styles";
 import { IconSymbol } from "@/components/ui/IconSymbol";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ConstructorList() {
-    const { top } = useSafeAreaInsets();
+    const theme = useColorScheme();
+
     const { constructorList, driverStandingList: driverStandingList, constructorListLoading, fetchConstructorListData, selectedSeason } = useF1Data();
 
     const onRefresh = React.useCallback(async () => {
@@ -62,6 +62,7 @@ export default function ConstructorList() {
                     onRefresh={onRefresh}
                 />
             }
+            style={{ backgroundColor: theme === 'dark' ? 'black' : 'white' }}
         />
     );
 }
