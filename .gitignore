@@ -3,6 +3,11 @@
 # dependencies
 node_modules/
 
+# Yarn cache and state
+.yarn/cache/
+.yarn/install-state.gz
+.yarn/build-state.yml
+
 # Expo
 .expo/
 dist/
