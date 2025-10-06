@@ -24,7 +24,7 @@ export default function SeasonContextMenu() {
           {seasons.map((option, index) => renderOption(option, index))}
         </ContextMenu.Items>
         <ContextMenu.Trigger>
-            <Host style={{ width: 35, height: 35 }}>
+            <Host style={{ width: 36, height: 36 }}>
               <Text weight="bold">{selectedSeason.slice(2)}</Text>
             </Host>
         </ContextMenu.Trigger>
