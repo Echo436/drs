@@ -405,8 +405,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   profileContainer: {
-    paddingLeft: 4,
-    paddingTop: 4,
+    paddingLeft: 6,
+    paddingTop: 12,
     paddingBottom: 30,
   },
   roundText: {
