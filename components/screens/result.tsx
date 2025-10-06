@@ -144,7 +144,28 @@ export default function RaceResult() {
             </View>
           </View>
         )}
-        ItemSeparatorComponent={renderSeparator}
+        ItemSeparatorComponent={({ leadingItem }) => {
+          if ((session === 'race' || session === 'sprintRace') && resultData) {
+            const currentPosition = parseInt(leadingItem.position);
+            const currentPoints = parseFloat(leadingItem.points);
+            
+            // 第3、4名之间空一行
+            if (currentPosition === 3) {
+              return <View style={{ height: 20 }} />;
+            }
+            
+            // 最后一个有积分的车手后面空一行
+            if (currentPoints > 0 && resultData.length > currentPosition) {
+              const nextDriver = resultData[currentPosition];
+              const nextPoints = parseFloat(nextDriver.points);
+              if (nextPoints === 0) {
+                return <View style={{ height: 20 }} />;
+              }
+            }
+          }
+          
+          return renderSeparator();
+        }}
         keyExtractor={item => item.position}
         contentContainerStyle={layoutStyles.listContainer}
         style={{ backgroundColor: theme === 'dark' ? 'black' : 'white' }}
