@@ -149,8 +149,9 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
   const raceInitData = initialData ? JSON.parse(initialData) as Race : null;
   const textColor = useThemeColor({}, 'text');
   const backgroundColor = useThemeColor({}, 'background');
-  const cardBackgroundColor = useThemeColor({ dark: 'rgb(15, 15, 15)' }, 'background');
+  const cardBackgroundColor = useThemeColor({}, 'itemBackground');
   const cardBorderColor = useThemeColor({}, 'cardBorder');
+  const cardTitleColor = useThemeColor({}, 'gray');
   const seperatorColor = useThemeColor({}, 'listSeparator');
 
   const scheduleData = [
@@ -195,7 +196,7 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
       />)}
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
-        style={[layoutStyles.listContainer, { backgroundColor: theme === 'dark' ? 'black' : 'white' }]}
+        style={[layoutStyles.listContainer, { backgroundColor: backgroundColor }]}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -216,180 +217,183 @@ export default function GrandPrixDetail({ isCurrentPage = false, currentRound = 
           </ThemedText>
         </View>
 
-        {/* 赛道信息卡片 */}
         <View style={cardStyles.cardsContainer}>
-          <ThemedText style={cardStyles.cardTitle}>{t(raceInitData?.Circuit.circuitName || raceData?.Circuit.circuitName || '', 'circuit-name')}</ThemedText>
-          {/* <Link> */}
-          <View style={[cardStyles.card, { borderColor: cardBorderColor, backgroundColor: cardBackgroundColor, paddingVertical: 15, paddingLeft: 25, paddingRight: 15, alignItems: 'center' }]}>
-            <TouchableOpacity
-              style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
-              onPress={navigateToCircuitDetail}
-            >
-              <View style={{ flex: 1 }}>
-                <Animated.View style={{ opacity: extraRaceData ? circuitInfoOpacity : 1 }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
-                    <ThemedText style={{ fontSize: 18, lineHeight: 30, fontFamily: 'Formula1-Display-Regular' }}>
-                      {extraRaceData?.circuit.circuitLength ?
-                        extraRaceData.circuit.circuitLength.slice(0, -2)?.replace(/^(\d)(\d)/, '$1.$2') :
-                        '----'}
-                    </ThemedText>
-                    <ThemedText style={{ fontSize: 12, lineHeight: 28 }}> 公里</ThemedText>
-                  </View>
-                  <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
-                    <ThemedText style={{ fontSize: 18, lineHeight: 30, fontFamily: 'Formula1-Display-Regular' }}>
-                      {extraRaceData?.circuit.corners || '---'}
-                    </ThemedText>
-                    <ThemedText style={{ fontSize: 12, lineHeight: 28 }}> 弯道</ThemedText>
-                  </View>
-                  <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
-                    <ThemedText style={{ fontSize: 18, lineHeight: 30, fontFamily: 'Formula1-Display-Regular' }}>
-                      {extraRaceData?.laps || '---'}
-                    </ThemedText>
-                    <ThemedText style={{ fontSize: 12, lineHeight: 28 }}> 圈</ThemedText>
-                  </View>
-                </Animated.View>
-              </View>
-              <View>
-                <Image
-                  resizeMode='contain'
-                  style={{
-                    width: 150,
-                    height: '80%',
-                  }}
-                  source={getCircuitImage(raceInitData?.Circuit.circuitId || raceData?.Circuit.circuitId)}
-                />
-              </View>
-              <IconSymbol name='chevron.right' size={10} color={'gray'}></IconSymbol>
-            </TouchableOpacity>
+          {/* 赛道信息卡片 */}
+          <View>
+            <ThemedText style={[cardStyles.cardTitle, { color: cardTitleColor }]}>{t(raceInitData?.Circuit.circuitName || raceData?.Circuit.circuitName || '', 'circuit-name')}</ThemedText>
+            <View style={[cardStyles.card, { borderColor: cardBorderColor, backgroundColor: cardBackgroundColor, paddingVertical: 12, paddingLeft: 25, paddingRight: 15, alignItems: 'center' }]}>
+              <TouchableOpacity
+                style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
+                onPress={navigateToCircuitDetail}
+              >
+                <View style={{ flex: 1 }}>
+                  <Animated.View style={{ opacity: extraRaceData ? circuitInfoOpacity : 1 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+                      <ThemedText style={{ fontSize: 18, lineHeight: 30, fontFamily: 'Formula1-Display-Regular' }}>
+                        {extraRaceData?.circuit.circuitLength ?
+                          extraRaceData.circuit.circuitLength.slice(0, -2)?.replace(/^(\d)(\d)/, '$1.$2') :
+                          '----'}
+                      </ThemedText>
+                      <ThemedText style={{ fontSize: 12, lineHeight: 28 }}> 公里</ThemedText>
+                    </View>
+                    <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+                      <ThemedText style={{ fontSize: 18, lineHeight: 30, fontFamily: 'Formula1-Display-Regular' }}>
+                        {extraRaceData?.circuit.corners || '---'}
+                      </ThemedText>
+                      <ThemedText style={{ fontSize: 12, lineHeight: 28 }}> 弯道</ThemedText>
+                    </View>
+                    <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+                      <ThemedText style={{ fontSize: 18, lineHeight: 30, fontFamily: 'Formula1-Display-Regular' }}>
+                        {extraRaceData?.laps || '---'}
+                      </ThemedText>
+                      <ThemedText style={{ fontSize: 12, lineHeight: 28 }}> 圈</ThemedText>
+                    </View>
+                  </Animated.View>
+                </View>
+                <View>
+                  <Image
+                    resizeMode='contain'
+                    style={{
+                      width: 150,
+                      height: '80%',
+                    }}
+                    source={getCircuitImage(raceInitData?.Circuit.circuitId || raceData?.Circuit.circuitId)}
+                  />
+                </View>
+                <IconSymbol name='chevron.right' size={10} color={'gray'}></IconSymbol>
+              </TouchableOpacity>
+            </View>
           </View>
 
           {/* 比赛周末(赛程)卡片 */}
-          <ThemedText style={cardStyles.cardTitle}>{t('Race Weekend', 'session')}</ThemedText>
-          <Animated.View
-            style={[cardStyles.card, { borderColor: cardBorderColor, backgroundColor: cardBackgroundColor, opacity: !raceInitData?.FirstPractice && raceData?.FirstPractice ? weekendCardOpacity : 1 }]}>
-            <FlatList
-              scrollEnabled={false}
-              data={scheduleData}
-              renderItem={({ item, index }) => {
-                let weekDisplay = '--';
-                let dateDisplay = '--';
-                let timeDisplay = '--';
+          <View>
+            <ThemedText style={[cardStyles.cardTitle, { color: cardTitleColor }]}>{t('Race Weekend', 'session')}</ThemedText>
+            <Animated.View
+              style={[cardStyles.card, { borderColor: cardBorderColor, backgroundColor: cardBackgroundColor, opacity: !raceInitData?.FirstPractice && raceData?.FirstPractice ? weekendCardOpacity : 1 }]}>
+              <FlatList
+                scrollEnabled={false}
+                data={scheduleData}
+                renderItem={({ item, index }) => {
+                  let weekDisplay = '--';
+                  let dateDisplay = '--';
+                  let timeDisplay = '--';
 
-                if (item.session && item.session.date && item.session.time) {
-                  const sessionDate = DateTime.fromISO(`${item.session.date}T${item.session.time}`);
-                  const languageCode = getLocales()[0].languageCode || 'en';
-                  weekDisplay = sessionDate.setLocale(languageCode).toLocaleString({ weekday: 'short' });
-                  dateDisplay = sessionDate.setLocale(languageCode).toLocaleString({ day: '2-digit', month: '2-digit' });
-                  timeDisplay = sessionDate.setLocale(languageCode).toLocaleString({ hour: '2-digit', minute: '2-digit' });
-                }
+                  if (item.session && item.session.date && item.session.time) {
+                    const sessionDate = DateTime.fromISO(`${item.session.date}T${item.session.time}`);
+                    const languageCode = getLocales()[0].languageCode || 'en';
+                    weekDisplay = sessionDate.setLocale(languageCode).toLocaleString({ weekday: 'short' });
+                    dateDisplay = sessionDate.setLocale(languageCode).toLocaleString({ day: '2-digit', month: '2-digit' });
+                    timeDisplay = sessionDate.setLocale(languageCode).toLocaleString({ hour: '2-digit', minute: '2-digit' });
+                  }
 
-                const showDate = index === 0 || scheduleData[index - 1].session.date !== item.session?.date;
-                const showInDayTopSeparator = !showDate;
-                const showEveryDayTopSeparator = showDate && index !== 0;
+                  const showDate = index === 0 || scheduleData[index - 1].session.date !== item.session?.date;
+                  const showInDayTopSeparator = !showDate;
+                  const showEveryDayTopSeparator = showDate && index !== 0;
 
-                return (
-                  <View>
-                    {showEveryDayTopSeparator && (<View style={{ height: 1, backgroundColor: seperatorColor }}></View>)}
-                    <View style={styles.scheduleItem}>
-                      {/* weekday and date */}
-                      <View style={styles.dateColumn}>
-                        {showDate && (<View>
-                          <ThemedText style={styles.weekday}>{weekDisplay}</ThemedText>
-                          <ThemedText style={styles.date}>{dateDisplay}</ThemedText>
-                        </View>)}
-                      </View>
-                      <View style={{ flex: 1 }}>
-                        {showInDayTopSeparator && (<View style={{ height: 1, backgroundColor: seperatorColor }}></View>)}
-                        {/* 每天的日程（右侧列） */}
-                        <Link href={{
-                          pathname: '/season/result', params: {
-                            year: year, round: isCurrentPage ? currentRound : round, session: item.key,
-                            initialData: (() => {
-                              switch (item.key) {
-                                case 'sprintRace':
-                                  return JSON.stringify(sprintResultData);
-                                case 'qualy':
-                                  return JSON.stringify(qualyResultData);
-                                case 'race':
-                                  return JSON.stringify(raceResultData);
-                                default:
-                                  return null;
-                              }
-                            })()
-                          }
-                        }} asChild>
-                          <TouchableOpacity
-                            style={styles.sessionColumn}
-                            disabled={
-                              !(
-                                item.key === 'sprintRace' && sprintResultData !== null ||
-                                item.key === 'qualy' && qualyResultData !== null ||
-                                item.key === 'race' && raceResultData !== null
-                              )
-                            }
-                          >
-                            <View style={{ flex: 1 }}>
-                              <ThemedText style={styles.sessionName}>{item.name}</ThemedText>
-                              <ThemedText style={styles.sessionTime}>{timeDisplay}</ThemedText>
-                            </View>
-                            {(() => {
-                              const itemResultData = (() => {
+                  return (
+                    <View>
+                      {showEveryDayTopSeparator && (<View style={{ height: 1, backgroundColor: seperatorColor }}></View>)}
+                      <View style={styles.scheduleItem}>
+                        {/* weekday and date */}
+                        <View style={styles.dateColumn}>
+                          {showDate && (<View>
+                            <ThemedText style={styles.weekday}>{weekDisplay}</ThemedText>
+                            <ThemedText style={styles.date}>{dateDisplay}</ThemedText>
+                          </View>)}
+                        </View>
+                        <View style={{ flex: 1 }}>
+                          {showInDayTopSeparator && (<View style={{ height: 1, backgroundColor: seperatorColor }}></View>)}
+                          {/* 每天的日程（右侧列） */}
+                          <Link href={{
+                            pathname: '/season/result', params: {
+                              year: year, round: isCurrentPage ? currentRound : round, session: item.key,
+                              initialData: (() => {
                                 switch (item.key) {
                                   case 'sprintRace':
-                                    return sprintResultData;
+                                    return JSON.stringify(sprintResultData);
                                   case 'qualy':
-                                    return qualyResultData;
+                                    return JSON.stringify(qualyResultData);
                                   case 'race':
-                                    return raceResultData;
+                                    return JSON.stringify(raceResultData);
                                   default:
                                     return null;
                                 }
-                              })();
-
-                              if (itemResultData) {
-                                // 根据不同的结果类型选择对应的动画值
-                                const animatedOpacity = (() => {
+                              })()
+                            }
+                          }} asChild>
+                            <TouchableOpacity
+                              style={styles.sessionColumn}
+                              disabled={
+                                !(
+                                  item.key === 'sprintRace' && sprintResultData !== null ||
+                                  item.key === 'qualy' && qualyResultData !== null ||
+                                  item.key === 'race' && raceResultData !== null
+                                )
+                              }
+                            >
+                              <View style={{ flex: 1 }}>
+                                <ThemedText style={styles.sessionName}>{item.name}</ThemedText>
+                                <ThemedText style={styles.sessionTime}>{timeDisplay}</ThemedText>
+                              </View>
+                              {(() => {
+                                const itemResultData = (() => {
                                   switch (item.key) {
                                     case 'sprintRace':
-                                      return sprintOpacity;
+                                      return sprintResultData;
                                     case 'qualy':
-                                      return qualyOpacity;
+                                      return qualyResultData;
                                     case 'race':
-                                      return raceOpacity;
+                                      return raceResultData;
                                     default:
-                                      return new Animated.Value(1); // 默认情况
+                                      return null;
                                   }
                                 })();
 
-                                return (
-                                  <Animated.View style={[styles.podiumContainer, { opacity: animatedOpacity }]}>
-                                    {[1, 2, 3].map((position) => (
-                                      <View key={position} style={styles.podiumItem}>
-                                        {position === 1 && <Slash1 style={styles.slashIcon} fill={getTeamsColor(itemResultData.find(r => r.position === position.toString())?.Constructor.constructorId || '')} width={28} />}
-                                        {position === 2 && <Slash2 style={styles.slashIcon} fill={getTeamsColor(itemResultData.find(r => r.position === position.toString())?.Constructor.constructorId || '')} width={28} />}
-                                        {position === 3 && <Slash3 style={styles.slashIcon} fill={getTeamsColor(itemResultData.find(r => r.position === position.toString())?.Constructor.constructorId || '')} width={28} />}
-                                        <ThemedText style={styles.driverCode}>
-                                          {itemResultData.find(r => r.position === position.toString())?.Driver.code}
-                                        </ThemedText>
-                                      </View>
-                                    ))}
-                                    {itemResultData && <IconSymbol name='chevron.right' size={10} color={'gray'} style={{ alignSelf: 'center' }}></IconSymbol>}
-                                  </Animated.View>
-                                );
-                              }
-                              return null;
-                            })()}
-                          </TouchableOpacity>
-                        </Link>
+                                if (itemResultData) {
+                                  // 根据不同的结果类型选择对应的动画值
+                                  const animatedOpacity = (() => {
+                                    switch (item.key) {
+                                      case 'sprintRace':
+                                        return sprintOpacity;
+                                      case 'qualy':
+                                        return qualyOpacity;
+                                      case 'race':
+                                        return raceOpacity;
+                                      default:
+                                        return new Animated.Value(1); // 默认情况
+                                    }
+                                  })();
+
+                                  return (
+                                    <Animated.View style={[styles.podiumContainer, { opacity: animatedOpacity }]}>
+                                      {[1, 2, 3].map((position) => (
+                                        <View key={position} style={styles.podiumItem}>
+                                          {position === 1 && <Slash1 style={styles.slashIcon} fill={getTeamsColor(itemResultData.find(r => r.position === position.toString())?.Constructor.constructorId || '')} width={28} />}
+                                          {position === 2 && <Slash2 style={styles.slashIcon} fill={getTeamsColor(itemResultData.find(r => r.position === position.toString())?.Constructor.constructorId || '')} width={28} />}
+                                          {position === 3 && <Slash3 style={styles.slashIcon} fill={getTeamsColor(itemResultData.find(r => r.position === position.toString())?.Constructor.constructorId || '')} width={28} />}
+                                          <ThemedText style={styles.driverCode}>
+                                            {itemResultData.find(r => r.position === position.toString())?.Driver.code}
+                                          </ThemedText>
+                                        </View>
+                                      ))}
+                                      {itemResultData && <IconSymbol name='chevron.right' size={10} color={'gray'} style={{ alignSelf: 'center' }}></IconSymbol>}
+                                    </Animated.View>
+                                  );
+                                }
+                                return null;
+                              })()}
+                            </TouchableOpacity>
+                          </Link>
+                        </View>
                       </View>
                     </View>
-                  </View>
-                );
-              }}
-              keyExtractor={item => item.key}
-              contentContainerStyle={styles.scheduleContainer}
-            />
-          </Animated.View>
+                  );
+                }}
+                keyExtractor={item => item.key}
+                contentContainerStyle={styles.scheduleContainer}
+              />
+            </Animated.View>
+          </View>
         </View>
       </ScrollView>
     </>
@@ -403,7 +407,7 @@ const styles = StyleSheet.create({
   profileContainer: {
     paddingLeft: 4,
     paddingTop: 4,
-    paddingBottom: 24,
+    paddingBottom: 30,
   },
   roundText: {
     fontFamily: 'Formula1-Display-Regular',

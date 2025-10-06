@@ -15,20 +15,20 @@ export const cardStyles = StyleSheet.create({
     cardsContainer: {
         flex: 1,
         paddingHorizontal: 6,
+        gap: 30,
     },
     card: {
-        backgroundColor: 'rgb(255, 255, 255)',
-        borderWidth: 0.5,
+        // borderWidth: 0.5,
         borderRadius: 20,
-        shadowColor: 'rgb(0, 0, 0)',
-        shadowOffset: {
-            width: 0,
-            height: 0.5,
-        },
-        shadowOpacity: 0.1,
-        shadowRadius: 5,
+        // shadowColor: 'rgb(0, 0, 0)',
+        // shadowOffset: {
+        //     width: 0,
+        //     height: 0.5,
+        // },
+        // shadowOpacity: 0.05,
+        // shadowRadius: 4,
 
-        marginBottom: 15,
+        // marginBottom: 25,
     },
     cardTitle: {
         marginLeft: 15,

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Image, Dimensions, useColorScheme, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
 import { Circuit, Driver, Team } from "@/context/F1DataContext";
-import { Link, Stack, useLocalSearchParams } from "expo-router";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import { layoutStyles, cardStyles } from "@/components/ui/Styles";
 import { getCircuitDetailImage } from "@/constants/CircuitImages";
 import { ThemedText } from "@/components/ThemedText";
@@ -54,9 +54,19 @@ export default function CircuitDetail() {
     }
   }, [initialData])
 
-  const cardBackgroundColor = useThemeColor({ dark: 'rgb(15, 15, 15)' }, 'background');
+  const backgroundColor = useThemeColor({}, 'background');
+  const cardBackgroundColor = useThemeColor({}, 'itemBackground');
   const cardBorderColor = useThemeColor({}, 'cardBorder');
   const seperatorColor = useThemeColor({}, 'listSeparator');
+
+  const openMapModal = () => {
+    if (locationData && locationData.lat && locationData.long) {
+      router.push({
+        pathname: '/season/mapModal',
+        params: { latitude: locationData.lat, longitude: locationData.long }
+      })
+    }
+  }
 
   return (
     <>
@@ -71,9 +81,9 @@ export default function CircuitDetail() {
       />
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
-        style={[layoutStyles.listContainer, { backgroundColor: theme === 'dark' ? 'black' : 'white' }]}
+        style={[layoutStyles.listContainer, { backgroundColor: backgroundColor }]}
       >
-        <View>
+        <View style={styles.imageContainer}>
           <Image
             style={{ width: Dimensions.get('window').width - 30, height: 250 }}
             resizeMode="contain"
@@ -81,26 +91,24 @@ export default function CircuitDetail() {
           />
         </View>
 
-        {/* 地理位置卡片 */}
         <View style={cardStyles.cardsContainer}>
-          <View style={[cardStyles.card, styles.cardPadding, { borderColor: cardBorderColor, backgroundColor: cardBackgroundColor }]}>
-            <Link href={{ pathname: '/season/mapModal', params: { latitude: locationData?.lat || '0', longitude: locationData?.long || '0' } }} asChild>
-              <TouchableOpacity style={cardStyles.infoSection}>
-                <View style={{ flex: 1 }}>
-                  <View style={styles.locationContainer}>
-                    <ThemedText style={styles.locationCountry}>
-                      {locationData?.country || '----'}
-                    </ThemedText>
-                    <ThemedText style={styles.locationText}>
-                      {locationData?.locality || '----'}
-                    </ThemedText>
-                  </View>
-                </View>
-                <IconSymbol name='chevron.right' size={10} color={'gray'} style={{ alignSelf: 'center' }}></IconSymbol>
-              </TouchableOpacity>
-            </Link>
-          </View>
 
+          {/* 地理位置卡片 */}
+          <View style={[cardStyles.card, styles.cardPadding, { borderColor: cardBorderColor, backgroundColor: cardBackgroundColor }]}>
+            <TouchableOpacity style={cardStyles.infoSection} onPress={openMapModal}>
+              <View style={{ flex: 1 }}>
+                <View style={styles.locationContainer}>
+                  <ThemedText style={styles.locationCountry}>
+                    {locationData?.country || '----'}
+                  </ThemedText>
+                  <ThemedText style={styles.locationText}>
+                    {locationData?.locality || '----'}
+                  </ThemedText>
+                </View>
+              </View>
+              <IconSymbol name='chevron.right' size={10} color={'gray'} style={{ alignSelf: 'center' }}></IconSymbol>
+            </TouchableOpacity>
+          </View>
 
           {/* 赛道信息卡片 */}
           <View style={[cardStyles.card, styles.cardPadding, { borderColor: cardBorderColor, backgroundColor: cardBackgroundColor }]}>
@@ -138,13 +146,17 @@ export default function CircuitDetail() {
 }
 
 const styles = StyleSheet.create({
+  imageContainer: {
+    marginTop: 14,
+    marginBottom: 20,
+  },
   cardPadding: {
     paddingVertical: 5,
     paddingHorizontal: 15,
   },
   sectionLabel: {
     fontSize: 16,
-    fontWeight: 'bold',
+    // fontWeight: 'bold',
     flex: 1,
   },
   sectionValue: {

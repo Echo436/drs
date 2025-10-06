@@ -34,8 +34,10 @@ export function getTeamsColor(teamId: string): string {
 
 export const Colors = {
   light: {
-    text: '#11181C',
-    background: '#FFFFFF',
+    text: '#000000',
+    gray: '#85858a',
+    background: '#f2f2f8',
+    itemBackground: '#ffffff',
     tint: tintColorLight,
     icon: '#687076',
     tabIconDefault: '#9b9b9b',
@@ -46,8 +48,10 @@ export const Colors = {
     cardBorder: 'rgba(139, 139, 139, 0.25)',
   },
   dark: {
-    text: '#ECEDEE',
+    text: '#ffffffff',
+    gray: '#8d8d93',
     background: '#000000',
+    itemBackground: '#1c1c1e',
     tint: tintColorDark,
     icon: '#9BA1A6',
     tabIconDefault: '#5f5f5f',
