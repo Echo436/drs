@@ -76,7 +76,8 @@
             "useFrameworks": "static"
           }
         }
-      ]
+      ],
+      "expo-maps"
     ],
     "experiments": {
       "typedRoutes": true

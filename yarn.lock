@@ -4775,6 +4775,7 @@ __metadata:
     expo-linear-gradient: "npm:~15.0.7"
     expo-linking: "npm:~8.0.8"
     expo-localization: "npm:~17.0.7"
+    expo-maps: "npm:~0.12.8"
     expo-router: "npm:~6.0.3"
     expo-splash-screen: "npm:~31.0.10"
     expo-status-bar: "npm:~3.0.8"
@@ -5242,6 +5243,17 @@ __metadata:
     expo: "*"
     react: "*"
   checksum: 10c0/d078cf3837d7b2c2c0f76d3b052acbf05761bc92c294ee388411d9cb08b669a673e8edb0f0a1000fc084ef44b9ecf7611714df4bf57b1cce623e916481f1350e
+  languageName: node
+  linkType: hard
+
+"expo-maps@npm:~0.12.8":
+  version: 0.12.8
+  resolution: "expo-maps@npm:0.12.8"
+  peerDependencies:
+    expo: "*"
+    react: "*"
+    react-native: "*"
+  checksum: 10c0/f2bbdb4ee1a30f29ea390e195f2117f8ac1de88646fa9bbf6584f622482881a068bf39126d6d3535f4facbca4888f4f7b33305748837f4fdb10833170c02e5ba
   languageName: node
   linkType: hard
 
