@@ -433,7 +433,7 @@ const styles = StyleSheet.create({
   },
 
   scheduleContainer: {
-    paddingVertical: 10,
+    paddingVertical: 6,
     paddingHorizontal: 15,
   },
   scheduleItem: {
@@ -460,8 +460,7 @@ const styles = StyleSheet.create({
   sessionColumn: {
     flexDirection: 'row',
     paddingLeft: 5,
-    paddingTop: 10,
-    paddingBottom: 9,
+    paddingVertical: 10,
   },
   sessionName: {
     fontSize: 16,
