@@ -21,6 +21,7 @@ export default function ConstructorList() {
 
 
     const renderItem = ({ item }: { item: DriverStanding }) => {
+        const teamColor = getTeamsColor(item.Constructors[item.Constructors.length - 1].constructorId);
         return (
             <Link href={{ pathname: '/drivers/driver', params: { driverId: item.Driver.driverId, year: selectedSeason, initialData: JSON.stringify(item) } }} asChild>
                 <TouchableOpacity style={styles.itemContainer}>
@@ -29,7 +30,7 @@ export default function ConstructorList() {
                     </View>
                     <View style={styles.driverInfoContainer}>
                         <ThemedText type="itemtitle">{translateName([item?.Driver?.givenName, item?.Driver?.familyName])}</ThemedText>
-                        <ThemedText type="itemsubtitle" style={{ color: getTeamsColor(item.Constructors[item.Constructors.length - 1].constructorId) }}>{t(item.Constructors[item.Constructors.length - 1].name, 'team')}</ThemedText>
+                        <ThemedText type="itemsubtitle" style={{ color: teamColor }}>{t(item.Constructors[item.Constructors.length - 1].name, 'team')}</ThemedText>
                     </View>
                     <View style={styles.pointsContainer}>
                         <ThemedText style={styles.pointText}>{item.points}</ThemedText>

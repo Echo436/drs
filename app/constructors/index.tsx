@@ -7,6 +7,7 @@ import { t } from "@/i18n/utils";
 import renderSeparator from "@/components/ui/RenderSeparator";
 import { layoutStyles } from "@/components/ui/Styles";
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import { getTeamsColor } from "@/constants/Colors";
 
 export default function ConstructorList() {
     const theme = useColorScheme();
@@ -20,13 +21,14 @@ export default function ConstructorList() {
     const renderItem = ({ item }: { item: ConstructorStanding }) => {
         const driverList = driverStandingList
             .filter(driver => driver.Constructors[driver.Constructors.length - 1].constructorId === item.Constructor.constructorId);
+        const teamColor = getTeamsColor(item.Constructor.constructorId);
         return (
             <View style={styles.itemContainer}>
                 <View style={styles.positionContainer}>
                     <ThemedText style={styles.posisionText}>{String(item.position || '--').padStart(2, '0')}</ThemedText>
                 </View>
                 <View style={styles.teamInfoContainer}>
-                    <ThemedText type="itemtitle">{t(item.Constructor.name, 'team')}</ThemedText>
+                    <ThemedText type="itemtitle" style={{ color: teamColor }}>{t(item.Constructor.name, 'team')}</ThemedText>
                     <View style={styles.driversContainer}>
                         {driverList
                             .map(driver => (
