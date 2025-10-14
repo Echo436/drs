@@ -226,7 +226,7 @@ export const F1DataProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         fetch('https://api.jolpi.ca/ergast/f1/seasons/?limit=100')
             .then(response => response.json())
             .then(data => {
-                const seasonsData = data.MRData.SeasonTable.Seasons.map(season => ({
+                const seasonsData = data.MRData.SeasonTable.Seasons.map((season: { season: string }) => ({
                     season: season.season
                 })).reverse();
                 setSeasons(seasonsData);
