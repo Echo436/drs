@@ -1,17 +1,17 @@
-import { useFonts } from 'expo-font';
-import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { useFonts } from 'expo-font'
+import * as SplashScreen from 'expo-splash-screen'
+import { useEffect } from 'react'
+import 'react-native-reanimated'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
-import { F1DataProvider } from '@/context/F1DataContext';
-import { I18nProvider } from '@/i18n/I18nProvider';
+import { F1DataProvider } from '@/context/F1DataContext'
+import { I18nProvider } from '@/i18n/I18nProvider'
 
-import { Icon, Label, NativeTabs } from 'expo-router/unstable-native-tabs';
-import { t } from '@/i18n/utils';
+import { Icon, Label, NativeTabs } from 'expo-router/unstable-native-tabs'
+import { t } from '@/i18n/utils'
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
+SplashScreen.preventAutoHideAsync()
 SplashScreen.setOptions({
   fade: true,
 })
@@ -23,25 +23,25 @@ export default function RootLayout() {
     'Formula1-Bold': require('../assets/fonts/Formula1-Bold_web_0.ttf'),
     'Formula1-Regular': require('../assets/fonts/Formula1-Regular_web_0.ttf'),
     'Formula1-Wide': require('../assets/fonts/Formula1-Wide_web_0.ttf'),
-  });
+  })
 
   useEffect(() => {
     if (loaded) {
       setTimeout(() => {
-        SplashScreen.hideAsync();
-      }, 5000);
+        SplashScreen.hideAsync()
+      }, 5000)
     }
-  }, [loaded]);
+  }, [loaded])
 
   if (!loaded) {
-    return null;
+    return null
   }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-        <F1DataProvider>
-          <I18nProvider>
-            <NativeTabs>
+      <F1DataProvider>
+        <I18nProvider>
+          <NativeTabs>
             <NativeTabs.Trigger name="season">
               <Label>{t('Season', 'tabs')}</Label>
               <Icon sf="calendar" />
@@ -59,8 +59,8 @@ export default function RootLayout() {
               <Label>{t('settings', 'tabs')}</Label>
             </NativeTabs.Trigger> */}
           </NativeTabs>
-          </I18nProvider>
-        </F1DataProvider>
+        </I18nProvider>
+      </F1DataProvider>
     </GestureHandlerRootView>
-  );
+  )
 }

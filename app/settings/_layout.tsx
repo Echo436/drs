@@ -1,9 +1,9 @@
-import { t } from "@/i18n/utils";
-import { Stack } from "expo-router";
-import { useColorScheme } from "react-native";
+import { t } from '@/i18n/utils'
+import { Stack } from 'expo-router'
+import { useColorScheme } from 'react-native'
 
 export default function HomeLayout() {
-  const theme = useColorScheme();
+  const theme = useColorScheme()
 
   return (
     <Stack>
@@ -12,7 +12,7 @@ export default function HomeLayout() {
         options={{
           headerLargeTitle: true,
           headerTransparent: true,
-          headerTintColor: theme === "dark" ? "white" : "black",
+          headerTintColor: theme === 'dark' ? 'white' : 'black',
           title: t('settings', 'tabs'),
         }}
       />
@@ -21,10 +21,10 @@ export default function HomeLayout() {
         options={{
           headerLargeTitle: true,
           headerTransparent: true,
-          headerTintColor: theme === "dark" ? "white" : "black",
-          title: "Test Page",
+          headerTintColor: theme === 'dark' ? 'white' : 'black',
+          title: 'Test Page',
         }}
       />
     </Stack>
-  );
+  )
 }

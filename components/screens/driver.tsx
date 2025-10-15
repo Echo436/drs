@@ -1,111 +1,152 @@
-import { FlatList, StyleSheet, View, RefreshControl, TouchableOpacity, Animated } from "react-native";
-import React, { useState, useEffect } from "react";
-import { ThemedText } from "@/components/ThemedText";
-import { DriverStanding, Race } from "@/context/F1DataContext";
-import { Link, Stack, useLocalSearchParams } from "expo-router";
-import { ScrollView } from "react-native-gesture-handler";
-import { layoutStyles } from "@/components/ui/Styles";
-import { BlurView } from "expo-blur";
-import { LinearGradient } from 'expo-linear-gradient';
-import { getTeamsColor } from "@/constants/Colors";
-import { useThemeColor } from "@/hooks/useThemeColor";
-import tinycolor from 'tinycolor2';
-import renderSeparator from "@/components/ui/RenderSeparator";
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { IconSymbol } from "@/components/ui/IconSymbol";
-import { t } from '@/i18n/utils';
+import {
+  FlatList,
+  StyleSheet,
+  View,
+  RefreshControl,
+  TouchableOpacity,
+  Animated,
+} from 'react-native'
+import React, { useState, useEffect } from 'react'
+import { ThemedText } from '@/components/ThemedText'
+import { DriverStanding, Race } from '@/context/F1DataContext'
+import { Link, Stack, useLocalSearchParams } from 'expo-router'
+import { ScrollView } from 'react-native-gesture-handler'
+import { layoutStyles } from '@/components/ui/Styles'
+import { BlurView } from 'expo-blur'
+import { LinearGradient } from 'expo-linear-gradient'
+import { getTeamsColor } from '@/constants/Colors'
+import { useThemeColor } from '@/hooks/useThemeColor'
+import tinycolor from 'tinycolor2'
+import renderSeparator from '@/components/ui/RenderSeparator'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { IconSymbol } from '@/components/ui/IconSymbol'
+import { t } from '@/i18n/utils'
 
 export default function DriverDetail() {
-  const { top } = useSafeAreaInsets();
-  const [driverSeasonList, setDriverSeasonList] = useState<Race[]>([]);
-  const [refreshing, setRefreshing] = useState(false);
+  const { top } = useSafeAreaInsets()
+  const [driverSeasonList, setDriverSeasonList] = useState<Race[]>([])
+  const [refreshing, setRefreshing] = useState(false)
 
-  const [seasonCardOpacity] = useState(new Animated.Value(0));
+  const [seasonCardOpacity] = useState(new Animated.Value(0))
 
   const { driverId, year, initialData } = useLocalSearchParams<{
-    driverId: string;
-    year: string;
-    initialData: string;
-  }>();
+    driverId: string
+    year: string
+    initialData: string
+  }>()
 
   const fetchDriverSeasonData = async () => {
     try {
       const [raceResponse, sprintResponse] = await Promise.all([
-        fetch(`https://api.jolpi.ca/ergast/f1/${year}/drivers/${driverId}/results`),
-        fetch(`https://api.jolpi.ca/ergast/f1/${year}/drivers/${driverId}/sprint`)
-      ]);
-      const raceData = await raceResponse.json();
-      const sprintData = await sprintResponse.json();
+        fetch(
+          `https://api.jolpi.ca/ergast/f1/${year}/drivers/${driverId}/results`,
+        ),
+        fetch(
+          `https://api.jolpi.ca/ergast/f1/${year}/drivers/${driverId}/sprint`,
+        ),
+      ])
+      const raceData = await raceResponse.json()
+      const sprintData = await sprintResponse.json()
 
-      const raceList: Race[] = raceData.MRData.RaceTable.Races;
-      const sprintList: Race[] = sprintData.MRData.RaceTable.Races;
+      const raceList: Race[] = raceData.MRData.RaceTable.Races
+      const sprintList: Race[] = sprintData.MRData.RaceTable.Races
 
       // 合并短程赛数据到对应的比赛数据中
-      const mergedList = raceList.map(race => {
-        const sprint = sprintList.find(s => s.round === race.round);
+      const mergedList = raceList.map((race) => {
+        const sprint = sprintList.find((s) => s.round === race.round)
         if (sprint) {
-          return { ...race, SprintResults: sprint.SprintResults };
+          return { ...race, SprintResults: sprint.SprintResults }
         }
-        return race;
-      });
+        return race
+      })
 
-      setDriverSeasonList(mergedList);
+      setDriverSeasonList(mergedList)
       if (mergedList) {
-        Animated.timing(
-          seasonCardOpacity,
-          {
-            toValue: 1,
-            duration: 300,
-            useNativeDriver: true,
-          }
-        ).start();
+        Animated.timing(seasonCardOpacity, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }).start()
       }
-      return mergedList;
+      return mergedList
     } finally {
-      setRefreshing(false);
+      setRefreshing(false)
     }
-  };
+  }
 
   const onRefresh = React.useCallback(() => {
-    setRefreshing(true);
+    setRefreshing(true)
     if (driverId) {
-      fetchDriverSeasonData();
+      fetchDriverSeasonData()
     }
-  }, [driverId]);
+  }, [driverId])
 
   useEffect(() => {
     if (driverId) {
-      fetchDriverSeasonData();
+      fetchDriverSeasonData()
     }
-  }, [driverId]);
+  }, [driverId])
 
-  const driverInitData = initialData ? JSON.parse(initialData) as DriverStanding : null;
-  const teamColor = getTeamsColor(driverInitData?.Constructors[0].constructorId as string);
-  const textColor = useThemeColor({}, 'text');
-  const backgroundColor = useThemeColor({}, 'background');
-  const numberColor = tinycolor(textColor).setAlpha(0.15).toRgbString();
-  const displayTeamColor = tinycolor(teamColor).setAlpha(0.7).toRgbString();
-  const cardBorderColor = useThemeColor({}, 'cardBorder');
+  const driverInitData = initialData
+    ? (JSON.parse(initialData) as DriverStanding)
+    : null
+  const teamColor = getTeamsColor(
+    driverInitData?.Constructors[0].constructorId as string,
+  )
+  const textColor = useThemeColor({}, 'text')
+  const backgroundColor = useThemeColor({}, 'background')
+  const numberColor = tinycolor(textColor).setAlpha(0.15).toRgbString()
+  const displayTeamColor = tinycolor(teamColor).setAlpha(0.7).toRgbString()
+  const cardBorderColor = useThemeColor({}, 'cardBorder')
 
   const raceItem = ({ item }: { item: Race }) => {
     return (
       <Link
-        href={{ pathname: '/race/[round]', params: { round: item.round, year: year, initialData: JSON.stringify(item) } }}
+        href={{
+          pathname: '/race/[round]',
+          params: {
+            round: item.round,
+            year: year,
+            initialData: JSON.stringify(item),
+          },
+        }}
         asChild
       >
-        <TouchableOpacity style={{ paddingVertical: 12, paddingHorizontal: 20, flexDirection: 'row', alignItems: 'center' }}>
+        <TouchableOpacity
+          style={{
+            paddingVertical: 12,
+            paddingHorizontal: 20,
+            flexDirection: 'row',
+            alignItems: 'center',
+          }}
+        >
           <View style={{ flex: 1, paddingRight: 5 }}>
-            <ThemedText style={{ fontFamily: 'Formula1-Display-Regular', fontSize: 12 }}>
+            <ThemedText
+              style={{ fontFamily: 'Formula1-Display-Regular', fontSize: 12 }}
+            >
               R{String(item?.round).padStart(2, '0')}
             </ThemedText>
             <View style={{ flexDirection: 'row', marginTop: 1 }}>
               <ThemedText style={{ flex: 6, fontSize: 16, lineHeight: 20 }}>
                 {t(item?.raceName, 'grand-prix-name')}
               </ThemedText>
-              <ThemedText style={{ flex: 1, fontFamily: 'Formula1-Display-Regular', fontSize: 12 }}>
+              <ThemedText
+                style={{
+                  flex: 1,
+                  fontFamily: 'Formula1-Display-Regular',
+                  fontSize: 12,
+                }}
+              >
                 P{item.Results[0].position}
               </ThemedText>
-              <ThemedText style={{ flex: 1, fontFamily: 'Formula1-Display-Regular', fontSize: 12, textAlign: 'center' }}>
+              <ThemedText
+                style={{
+                  flex: 1,
+                  fontFamily: 'Formula1-Display-Regular',
+                  fontSize: 12,
+                  textAlign: 'center',
+                }}
+              >
                 {item.Results[0].points}
               </ThemedText>
             </View>
@@ -114,41 +155,57 @@ export default function DriverDetail() {
                 <ThemedText style={{ flex: 6, fontSize: 14, lineHeight: 20 }}>
                   {t('Sprint', 'session')}
                 </ThemedText>
-                <ThemedText style={{ flex: 1, fontFamily: 'Formula1-Display-Regular', fontSize: 12 }}>
+                <ThemedText
+                  style={{
+                    flex: 1,
+                    fontFamily: 'Formula1-Display-Regular',
+                    fontSize: 12,
+                  }}
+                >
                   P{item.SprintResults[0].position}
                 </ThemedText>
-                <ThemedText style={{ flex: 1, fontFamily: 'Formula1-Display-Regular', fontSize: 12, textAlign: 'center' }}>
+                <ThemedText
+                  style={{
+                    flex: 1,
+                    fontFamily: 'Formula1-Display-Regular',
+                    fontSize: 12,
+                    textAlign: 'center',
+                  }}
+                >
                   {item.SprintResults[0].points}
                 </ThemedText>
               </View>
             )}
           </View>
-          <IconSymbol name='chevron.right' size={10} color={'gray'} style={{ marginRight: -8 }}></IconSymbol>
+          <IconSymbol
+            name="chevron.right"
+            size={10}
+            color={'gray'}
+            style={{ marginRight: -8 }}
+          ></IconSymbol>
         </TouchableOpacity>
       </Link>
-    );
-  };
+    )
+  }
 
   return (
     <LinearGradient
       colors={[displayTeamColor, backgroundColor]}
       locations={[0, 1]}
-      style={[layoutStyles.centerContainer, styles.container]}>
+      style={[layoutStyles.centerContainer, styles.container]}
+    >
       <Stack.Screen
         options={{
           headerShown: true,
           headerTransparent: true,
-          title: ''
+          title: '',
         }}
       />
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         style={[layoutStyles.listContainer]}
         refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-          />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
         <View style={styles.profileContainer}>
@@ -163,17 +220,13 @@ export default function DriverDetail() {
               <ThemedText style={styles.positionText}>
                 {driverInitData?.positionText || '-'}
               </ThemedText>
-              <ThemedText style={styles.POSText}>
-                {t('POS', 'tabs')}
-              </ThemedText>
+              <ThemedText style={styles.POSText}>{t('POS', 'tabs')}</ThemedText>
             </View>
             <View style={styles.positionContainer}>
               <ThemedText style={styles.positionText}>
                 {driverInitData?.points || '0'}
               </ThemedText>
-              <ThemedText style={styles.POSText}>
-                {t('PTS', 'tabs')}
-              </ThemedText>
+              <ThemedText style={styles.POSText}>{t('PTS', 'tabs')}</ThemedText>
             </View>
             <View style={styles.positionContainer}>
               <ThemedText style={styles.positionText}>
@@ -185,13 +238,21 @@ export default function DriverDetail() {
             </View>
           </View>
           <View style={styles.rightColumn}>
-            <View style={{ flexDirection: 'column', justifyContent: 'flex-end', paddingTop: 12 }}>
-              <ThemedText style={{
-                textAlign: 'right',
-                fontSize: 14,
-                lineHeight: 18,
-                fontFamily: 'Formula1-Display-Bold',
-              }}>
+            <View
+              style={{
+                flexDirection: 'column',
+                justifyContent: 'flex-end',
+                paddingTop: 12,
+              }}
+            >
+              <ThemedText
+                style={{
+                  textAlign: 'right',
+                  fontSize: 14,
+                  lineHeight: 18,
+                  fontFamily: 'Formula1-Display-Bold',
+                }}
+              >
                 {year}
               </ThemedText>
             </View>
@@ -206,7 +267,8 @@ export default function DriverDetail() {
           <Animated.View style={{ opacity: seasonCardOpacity }}>
             <BlurView
               intensity={20}
-              style={[styles.card, { borderColor: cardBorderColor }]}>
+              style={[styles.card, { borderColor: cardBorderColor }]}
+            >
               <FlatList
                 scrollEnabled={false}
                 data={driverSeasonList}
@@ -220,7 +282,7 @@ export default function DriverDetail() {
         </View>
       </ScrollView>
     </LinearGradient>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -264,7 +326,7 @@ const styles = StyleSheet.create({
   POSText: {
     fontFamily: 'Formula1-Display-Regular',
     fontSize: 12,
-    lineHeight: 21
+    lineHeight: 21,
   },
 
   cardsContainer: {
@@ -293,4 +355,4 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     overflow: 'hidden',
   },
-});
+})

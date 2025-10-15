@@ -23,14 +23,10 @@ i18n/
 
 ```tsx
 // 在 app/_layout.tsx 中
-import { I18nProvider } from '@/i18n/I18nProvider';
+import { I18nProvider } from '@/i18n/I18nProvider'
 
 export default function RootLayout() {
-  return (
-    <I18nProvider>
-      {/* 应用内容 */}
-    </I18nProvider>
-  );
+  return <I18nProvider>{/* 应用内容 */}</I18nProvider>
 }
 ```
 
@@ -39,26 +35,22 @@ export default function RootLayout() {
 使用 `useTranslation` hook 在组件中获取翻译：
 
 ```tsx
-import { useTranslation } from '@/i18n/utils';
+import { useTranslation } from '@/i18n/utils'
 
 function MyComponent() {
-  const { t } = useTranslation();
-  
-  return (
-    <Text>{t('common.loading')}</Text>
-  );
+  const { t } = useTranslation()
+
+  return <Text>{t('common.loading')}</Text>
 }
 ```
 
 或者直接使用 `t` 函数：
 
 ```tsx
-import { t } from '@/i18n/utils';
+import { t } from '@/i18n/utils'
 
 function MyComponent() {
-  return (
-    <Text>{t('common.loading')}</Text>
-  );
+  return <Text>{t('common.loading')}</Text>
 }
 ```
 
@@ -67,17 +59,17 @@ function MyComponent() {
 使用 `useLanguage` hook 切换语言：
 
 ```tsx
-import { useLanguage } from '@/i18n/I18nProvider';
+import { useLanguage } from '@/i18n/I18nProvider'
 
 function LanguageSwitcher() {
-  const { language, setLanguage } = useLanguage();
-  
+  const { language, setLanguage } = useLanguage()
+
   return (
-    <Button 
+    <Button
       title={language === 'zh' ? '切换到英文' : 'Switch to Chinese'}
       onPress={() => setLanguage(language === 'zh' ? 'en' : 'zh')}
     />
-  );
+  )
 }
 ```
 
@@ -88,6 +80,7 @@ function LanguageSwitcher() {
 例如，向 `zh.json` 和 `en.json` 添加新的翻译：
 
 在 `zh.json` 中：
+
 ```json
 {
   "newSection": {
@@ -97,6 +90,7 @@ function LanguageSwitcher() {
 ```
 
 在 `en.json` 中：
+
 ```json
 {
   "newSection": {

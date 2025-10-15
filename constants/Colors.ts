@@ -3,9 +3,8 @@
  * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
  */
 
-
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
+const tintColorLight = '#0a7ea4'
+const tintColorDark = '#fff'
 
 export const TeamColors = {
   mercedes: '#22D6B8',
@@ -18,18 +17,18 @@ export const TeamColors = {
   haas: '#9FA3A5',
   williams: '#64C4FF',
   rb: '#6692FF',
-};
+}
 
 /**
- * 
- * @param teamId 
+ *
+ * @param teamId
  * @returns 对应 Color
  */
 export function getTeamsColor(teamId: string): string {
   if (teamId in TeamColors) {
-    return TeamColors[teamId as keyof typeof TeamColors];
+    return TeamColors[teamId as keyof typeof TeamColors]
   }
-  return '';
+  return ''
 }
 
 export const Colors = {
@@ -61,4 +60,4 @@ export const Colors = {
     listSeparator: 'rgba(67, 67, 67, 0.5)',
     cardBorder: 'rgba(24, 24, 24, 0.34)',
   },
-};
+}

@@ -11,9 +11,7 @@
     "ios": {
       "appleTeamId": "698F5Y6366",
       "entitlements": {
-        "com.apple.security.application-groups": [
-          "group.com.keee.drs"
-        ]
+        "com.apple.security.application-groups": ["group.com.keee.drs"]
       },
       "icon": {
         "dark": "./assets/images/ios-dark.png",

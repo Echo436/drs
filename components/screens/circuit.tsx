@@ -1,69 +1,81 @@
-import React, { useEffect, useState } from "react";
-import { View, Image, Dimensions, useColorScheme, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
-import { Circuit, Driver, Team } from "@/context/F1DataContext";
-import { router, Stack, useLocalSearchParams } from "expo-router";
-import { layoutStyles, cardStyles } from "@/components/ui/Styles";
-import { getCircuitDetailImage } from "@/constants/CircuitImages";
-import { ThemedText } from "@/components/ThemedText";
-import { t, translateName } from "@/i18n/utils";
-import { useThemeColor } from "@/hooks/useThemeColor";
-import { IconSymbol } from "@/components/ui/IconSymbol";
+import React, { useEffect, useState } from 'react'
+import {
+  View,
+  Image,
+  Dimensions,
+  useColorScheme,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native'
+import { Circuit, Driver, Team } from '@/context/F1DataContext'
+import { router, Stack, useLocalSearchParams } from 'expo-router'
+import { layoutStyles, cardStyles } from '@/components/ui/Styles'
+import { getCircuitDetailImage } from '@/constants/CircuitImages'
+import { ThemedText } from '@/components/ThemedText'
+import { t, translateName } from '@/i18n/utils'
+import { useThemeColor } from '@/hooks/useThemeColor'
+import { IconSymbol } from '@/components/ui/IconSymbol'
 
 export default function CircuitDetail() {
-  const theme = useColorScheme();
+  const theme = useColorScheme()
   const { circuitId, initialData, year, round } = useLocalSearchParams<{
-    circuitId: string,
-    initialData: string,
-    year: string,
+    circuitId: string
+    initialData: string
+    year: string
     round: string
   }>()
 
-  const circuitData = initialData ? JSON.parse(initialData) as Circuit : {} as Circuit;
-  const [locationData, setLocationData] = useState<Circuit["Location"] | null>(null);
+  const circuitData = initialData
+    ? (JSON.parse(initialData) as Circuit)
+    : ({} as Circuit)
+  const [locationData, setLocationData] = useState<Circuit['Location'] | null>(
+    null,
+  )
   const [driverData, setDriverData] = useState<Driver | null>(null)
   const [teamData, setTeamData] = useState<Team | null>(null)
 
   const fetchDriverAndTeam = () => {
     fetch(`https://f1api.dev/api/drivers/${circuitData?.fastestLapDriverId}`)
-      .then(response => response.json())
-      .then(data => {
-        setDriverData(data.driver[0]);
+      .then((response) => response.json())
+      .then((data) => {
+        setDriverData(data.driver[0])
       })
     fetch(`https://f1api.dev/api/teams/${circuitData?.fastestLapTeamId}`)
-      .then(response => response.json())
-      .then(data => {
-        setTeamData(data.team[0]);
+      .then((response) => response.json())
+      .then((data) => {
+        setTeamData(data.team[0])
       })
   }
 
   const fetchExtraCircuitData = () => {
     fetch(`https://api.jolpi.ca/ergast/f1/${year}/${round}/circuits/`)
-      .then(response => response.json())
-      .then(json => {
-        const data = json.MRData.CircuitTable.Circuits[0];
-        setLocationData(data.Location);
-      });
+      .then((response) => response.json())
+      .then((json) => {
+        const data = json.MRData.CircuitTable.Circuits[0]
+        setLocationData(data.Location)
+      })
   }
 
   useEffect(() => {
     if (initialData && initialData !== 'null' && initialData !== 'undefined') {
-      fetchDriverAndTeam();
-      fetchExtraCircuitData();
+      fetchDriverAndTeam()
+      fetchExtraCircuitData()
     } else {
-      return;
+      return
     }
   }, [initialData])
 
-  const backgroundColor = useThemeColor({}, 'background');
-  const cardBackgroundColor = useThemeColor({}, 'itemBackground');
-  const cardBorderColor = useThemeColor({}, 'cardBorder');
-  const seperatorColor = useThemeColor({}, 'listSeparator');
+  const backgroundColor = useThemeColor({}, 'background')
+  const cardBackgroundColor = useThemeColor({}, 'itemBackground')
+  const cardBorderColor = useThemeColor({}, 'cardBorder')
+  const seperatorColor = useThemeColor({}, 'listSeparator')
 
   const openMapModal = () => {
     if (locationData && locationData.lat && locationData.long) {
       router.push({
         pathname: '/season/mapModal',
-        params: { latitude: locationData.lat, longitude: locationData.long }
+        params: { latitude: locationData.lat, longitude: locationData.long },
       })
     }
   }
@@ -74,14 +86,17 @@ export default function CircuitDetail() {
         options={{
           headerLargeTitle: true,
           headerTransparent: true,
-          headerTintColor: theme === "dark" ? "white" : "black",
+          headerTintColor: theme === 'dark' ? 'white' : 'black',
           title: t(circuitData?.circuitName || '', 'circuit-name'),
-          headerBackButtonDisplayMode: "minimal",
+          headerBackButtonDisplayMode: 'minimal',
         }}
       />
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
-        style={[layoutStyles.listContainer, { backgroundColor: backgroundColor }]}
+        style={[
+          layoutStyles.listContainer,
+          { backgroundColor: backgroundColor },
+        ]}
       >
         <View style={styles.imageContainer}>
           <Image
@@ -92,10 +107,21 @@ export default function CircuitDetail() {
         </View>
 
         <View style={cardStyles.cardsContainer}>
-
           {/* 地理位置卡片 */}
-          <View style={[cardStyles.card, styles.cardPadding, { borderColor: cardBorderColor, backgroundColor: cardBackgroundColor }]}>
-            <TouchableOpacity style={cardStyles.infoSection} onPress={openMapModal}>
+          <View
+            style={[
+              cardStyles.card,
+              styles.cardPadding,
+              {
+                borderColor: cardBorderColor,
+                backgroundColor: cardBackgroundColor,
+              },
+            ]}
+          >
+            <TouchableOpacity
+              style={cardStyles.infoSection}
+              onPress={openMapModal}
+            >
               <View style={{ flex: 1 }}>
                 <View style={styles.locationContainer}>
                   <ThemedText style={styles.locationCountry}>
@@ -106,12 +132,26 @@ export default function CircuitDetail() {
                   </ThemedText>
                 </View>
               </View>
-              <IconSymbol name='chevron.right' size={10} color={'gray'} style={{ alignSelf: 'center' }}></IconSymbol>
+              <IconSymbol
+                name="chevron.right"
+                size={10}
+                color={'gray'}
+                style={{ alignSelf: 'center' }}
+              ></IconSymbol>
             </TouchableOpacity>
           </View>
 
           {/* 赛道信息卡片 */}
-          <View style={[cardStyles.card, styles.cardPadding, { borderColor: cardBorderColor, backgroundColor: cardBackgroundColor }]}>
+          <View
+            style={[
+              cardStyles.card,
+              styles.cardPadding,
+              {
+                borderColor: cardBorderColor,
+                backgroundColor: cardBackgroundColor,
+              },
+            ]}
+          >
             {/* 第一场比赛 */}
             <View style={cardStyles.infoSection}>
               <ThemedText style={styles.sectionLabel}>第一场比赛</ThemedText>
@@ -120,7 +160,12 @@ export default function CircuitDetail() {
               </ThemedText>
             </View>
 
-            <View style={[cardStyles.separator, { backgroundColor: seperatorColor }]} />
+            <View
+              style={[
+                cardStyles.separator,
+                { backgroundColor: seperatorColor },
+              ]}
+            />
 
             {/* 赛道记录 */}
             <View style={cardStyles.infoSection}>
@@ -130,9 +175,15 @@ export default function CircuitDetail() {
                   {circuitData?.lapRecord || '----'}
                 </ThemedText>
                 <ThemedText style={styles.recordDetails}>
-                  {translateName([driverData?.name || '', driverData?.surname || '']) || '----'}
+                  {translateName([
+                    driverData?.name || '',
+                    driverData?.surname || '',
+                  ]) || '----'}
                   {' · '}
-                  {t(teamData?.teamName || circuitData?.fastestLapTeamId || '', 'team') || '----'}
+                  {t(
+                    teamData?.teamName || circuitData?.fastestLapTeamId || '',
+                    'team',
+                  ) || '----'}
                   {' · '}
                   {circuitData?.fastestLapYear || '----'}
                 </ThemedText>
@@ -140,7 +191,7 @@ export default function CircuitDetail() {
             </View>
           </View>
         </View>
-      </ScrollView >
+      </ScrollView>
     </>
   )
 }
@@ -189,4 +240,4 @@ const styles = StyleSheet.create({
     opacity: 0.8,
     lineHeight: 20,
   },
-});
+})
