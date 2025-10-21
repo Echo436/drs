@@ -20,6 +20,7 @@ import tinycolor from 'tinycolor2'
 import renderSeparator from '@/components/ui/RenderSeparator'
 import { IconSymbol } from '@/components/ui/IconSymbol'
 import { t } from '@/i18n/utils'
+import { Button, Host, Text } from '@expo/ui/swift-ui'
 
 export default function DriverDetail() {
   const [driverSeasonList, setDriverSeasonList] = useState<Race[]>([])
@@ -140,6 +141,13 @@ export default function DriverDetail() {
                 }}
               >
                 P{item.Results[0].position}
+                {item?.Results[0].position === '1'
+                  ? '🥇'
+                  : item?.Results[0].position === '2'
+                    ? '🥈'
+                    : item?.Results[0].position === '3'
+                      ? '🥉'
+                      : ''}
               </ThemedText>
               <ThemedText
                 style={{
@@ -152,6 +160,7 @@ export default function DriverDetail() {
                 {item.Results[0].points}
               </ThemedText>
             </View>
+            {/* 冲刺赛行 */}
             {item.SprintResults && (
               <View style={{ flexDirection: 'row' }}>
                 <ThemedText style={{ flex: 6, fontSize: 14, lineHeight: 20 }}>
@@ -165,6 +174,13 @@ export default function DriverDetail() {
                   }}
                 >
                   P{item.SprintResults[0].position}
+                  {item?.SprintResults[0].position === '1'
+                    ? '🥇'
+                    : item?.SprintResults[0].position === '2'
+                      ? '🥈'
+                      : item?.SprintResults[0].position === '3'
+                        ? '🥉'
+                        : ''}
                 </ThemedText>
                 <ThemedText
                   style={{
@@ -201,7 +217,7 @@ export default function DriverDetail() {
           headerShown: true,
           headerTransparent: true,
           title: driverInitData?.Driver.code,
-          headerTitleStyle: { color: '#00000000' }
+          headerTitleStyle: { color: '#00000000' },
         }}
       />
       <ScrollView
@@ -213,12 +229,14 @@ export default function DriverDetail() {
       >
         <View style={styles.profileContainer}>
           <View style={styles.leftColumn}>
-            <ThemedText type="title" style={styles.firstNameText}>
-              {driverInitData?.Driver.givenName}
-            </ThemedText>
-            <ThemedText type="subtitle" style={styles.lastNameText}>
-              {driverInitData?.Driver.familyName}
-            </ThemedText>
+            <View style={{ marginBottom: 10 }}>
+              <ThemedText type="title" style={styles.firstNameText}>
+                {driverInitData?.Driver.givenName}
+              </ThemedText>
+              <ThemedText type="subtitle" style={styles.lastNameText}>
+                {driverInitData?.Driver.familyName}
+              </ThemedText>
+            </View>
             <View style={styles.positionContainer}>
               <ThemedText style={styles.positionText}>
                 {driverInitData?.positionText || '-'}
@@ -246,12 +264,13 @@ export default function DriverDetail() {
                 flexDirection: 'column',
                 justifyContent: 'flex-end',
                 paddingTop: 12,
+                paddingRight: 8,
               }}
             >
               <ThemedText
                 style={{
                   textAlign: 'right',
-                  fontSize: 14,
+                  fontSize: 16,
                   lineHeight: 18,
                   fontFamily: 'Formula1-Display-Bold',
                 }}
@@ -259,6 +278,20 @@ export default function DriverDetail() {
                 {year}
               </ThemedText>
             </View>
+            <Host matchContents style={{ width: 200, marginTop: 8 }}>
+              <Button
+                variant="glassProminent"
+                color={teamColor}
+                onPress={() => {}}
+              >
+                <Text
+                  color={tinycolor(teamColor).isLight() ? 'black' : 'white'}
+                  weight="medium"
+                >
+                  {t(driverInitData?.Constructors[0].name || '', 'team')}
+                </Text>
+              </Button>
+            </Host>
           </View>
         </View>
         <View style={styles.cardsContainer}>
@@ -282,6 +315,14 @@ export default function DriverDetail() {
               />
             </BlurView>
           </Animated.View>
+        </View>
+        <View style={{ padding: 20 }}>
+          <ThemedText style={{ textAlign: 'center' }}>
+            {driverInitData?.Driver.nationality}
+          </ThemedText>
+          <ThemedText style={{ textAlign: 'center' }}>
+            {driverInitData?.Driver.dateOfBirth}
+          </ThemedText>
         </View>
       </ScrollView>
     </LinearGradient>
