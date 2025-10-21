@@ -9,7 +9,7 @@ import {
 import React, { useState, useEffect } from 'react'
 import { ThemedText } from '@/components/ThemedText'
 import { DriverStanding, Race } from '@/context/F1DataContext'
-import { Link, Stack, useLocalSearchParams } from 'expo-router'
+import { Link, router, Stack, useLocalSearchParams } from 'expo-router'
 import { ScrollView } from 'react-native-gesture-handler'
 import { layoutStyles } from '@/components/ui/Styles'
 import { BlurView } from 'expo-blur'
@@ -18,12 +18,10 @@ import { getTeamsColor } from '@/constants/Colors'
 import { useThemeColor } from '@/hooks/useThemeColor'
 import tinycolor from 'tinycolor2'
 import renderSeparator from '@/components/ui/RenderSeparator'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { IconSymbol } from '@/components/ui/IconSymbol'
 import { t } from '@/i18n/utils'
 
 export default function DriverDetail() {
-  const { top } = useSafeAreaInsets()
   const [driverSeasonList, setDriverSeasonList] = useState<Race[]>([])
   const [refreshing, setRefreshing] = useState(false)
 
@@ -36,56 +34,61 @@ export default function DriverDetail() {
   }>()
 
   const fetchDriverSeasonData = async () => {
-    try {
-      const [raceResponse, sprintResponse] = await Promise.all([
-        fetch(
-          `https://api.jolpi.ca/ergast/f1/${year}/drivers/${driverId}/results`,
-        ),
-        fetch(
-          `https://api.jolpi.ca/ergast/f1/${year}/drivers/${driverId}/sprint`,
-        ),
-      ])
-      const raceData = await raceResponse.json()
-      const sprintData = await sprintResponse.json()
+    const [raceResponse, sprintResponse] = await Promise.all([
+      fetch(
+        `https://api.jolpi.ca/ergast/f1/${year}/drivers/${driverId}/results`,
+      ),
+      fetch(
+        `https://api.jolpi.ca/ergast/f1/${year}/drivers/${driverId}/sprint`,
+      ),
+    ])
+    const raceData = await raceResponse.json()
+    const sprintData = await sprintResponse.json()
 
-      const raceList: Race[] = raceData.MRData.RaceTable.Races
-      const sprintList: Race[] = sprintData.MRData.RaceTable.Races
+    const raceList: Race[] = raceData.MRData.RaceTable.Races
+    const sprintList: Race[] = sprintData.MRData.RaceTable.Races
 
-      // 合并短程赛数据到对应的比赛数据中
-      const mergedList = raceList.map((race) => {
-        const sprint = sprintList.find((s) => s.round === race.round)
-        if (sprint) {
-          return { ...race, SprintResults: sprint.SprintResults }
-        }
-        return race
-      })
-
-      setDriverSeasonList(mergedList)
-      if (mergedList) {
-        Animated.timing(seasonCardOpacity, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }).start()
+    // 合并短程赛数据到对应的比赛数据中
+    const mergedList = raceList.map((race) => {
+      const sprint = sprintList.find((s) => s.round === race.round)
+      if (sprint) {
+        return { ...race, SprintResults: sprint.SprintResults }
       }
-      return mergedList
+      return race
+    })
+
+    setDriverSeasonList(mergedList)
+    if (mergedList) {
+      Animated.timing(seasonCardOpacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start()
+    }
+    return mergedList
+  }
+
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true)
+    try {
+      await fetchDriverSeasonData()
     } finally {
       setRefreshing(false)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const navigateToGrandPrix = (initialData: Race) => {
+    router.navigate({
+      pathname: './race',
+      params: { initialData: JSON.stringify(initialData) },
+    })
   }
 
-  const onRefresh = React.useCallback(() => {
-    setRefreshing(true)
-    if (driverId) {
-      fetchDriverSeasonData()
-    }
-  }, [driverId])
-
   useEffect(() => {
-    if (driverId) {
-      fetchDriverSeasonData()
-    }
-  }, [driverId])
+    fetchDriverSeasonData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const driverInitData = initialData
     ? (JSON.parse(initialData) as DriverStanding)
@@ -103,14 +106,12 @@ export default function DriverDetail() {
     return (
       <Link
         href={{
-          pathname: '/race/[round]',
+          pathname: '/season/race',
           params: {
-            round: item.round,
-            year: year,
             initialData: JSON.stringify(item),
           },
         }}
-        asChild
+        // asChild
       >
         <TouchableOpacity
           style={{
@@ -119,6 +120,7 @@ export default function DriverDetail() {
             flexDirection: 'row',
             alignItems: 'center',
           }}
+          onPress={() => navigateToGrandPrix(item)}
         >
           <View style={{ flex: 1, paddingRight: 5 }}>
             <ThemedText
@@ -198,7 +200,8 @@ export default function DriverDetail() {
         options={{
           headerShown: true,
           headerTransparent: true,
-          title: '',
+          title: driverInitData?.Driver.code,
+          headerTitleStyle: { color: '#00000000' }
         }}
       />
       <ScrollView

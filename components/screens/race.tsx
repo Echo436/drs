@@ -201,7 +201,7 @@ export default function GrandPrixDetail() {
   const navigateToCircuitDetail = () => {
     if (extraRaceData && raceData.Circuit.circuitId) {
       router.push({
-        pathname: '/season/circuit',
+        pathname: './circuit',
         params: {
           // this circuitId for "f1api.dev"
           circuitId: raceData.Circuit.circuitId,
@@ -432,7 +432,7 @@ export default function GrandPrixDetail() {
                           {/* 每天的日程（右侧列） */}
                           <Link
                             href={{
-                              pathname: '/season/result',
+                              pathname: './result',
                               params: {
                                 year: year,
                                 round: round,
