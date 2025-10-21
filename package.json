@@ -24,7 +24,7 @@
     "@react-navigation/native": "^7.0.14",
     "@react-navigation/native-stack": "^7.2.0",
     "@reduxjs/toolkit": "^2.6.1",
-    "expo": "^54.0.0",
+    "expo": "^54.0.15",
     "expo-blur": "~15.0.7",
     "expo-build-properties": "~1.0.8",
     "expo-constants": "~18.0.8",
