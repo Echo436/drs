@@ -10,7 +10,7 @@ import {
 } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import { ThemedText } from '@/components/ThemedText'
-import { Race, Result, useF1Data } from '@/context/F1DataContext'
+import { Race, Result } from '@/context/F1DataContext'
 import { Link, router, Stack, useLocalSearchParams } from 'expo-router'
 import { ScrollView } from 'react-native-gesture-handler'
 import { layoutStyles, cardStyles } from '@/components/ui/Styles'
@@ -34,138 +34,123 @@ const getFontFamily = () => {
   }
 }
 
-export default function GrandPrixDetail({
-  isCurrentPage = false,
-  currentRound = '0',
-  currentRace,
-}: {
-  isCurrentPage?: boolean
-  currentRound?: string
-  currentRace?: Race
-}) {
+export default function GrandPrixDetail() {
   const theme = useColorScheme()
-  const [raceData, setRaceData] = useState<Race | null>(null)
   const [extraRaceData, setExtraRaceData] = useState<Race | null>(null)
   const [qualyResultData, setQualyResult] = useState<Result[] | null>(null)
   const [sprintResultData, setSprintResult] = useState<Result[] | null>(null)
   const [raceResultData, setRaceResult] = useState<Result[] | null>(null)
   const [refreshing, setRefreshing] = useState(false)
-  const { seasons } = useF1Data()
 
   // 为每种结果类型创建独立的动画值
   const [sprintOpacity] = useState(new Animated.Value(0))
   const [qualyOpacity] = useState(new Animated.Value(0))
   const [raceOpacity] = useState(new Animated.Value(0))
-  const [weekendCardOpacity] = useState(new Animated.Value(0))
 
   // 为赛道信息创建统一的动画值
   const [circuitInfoOpacity] = useState(new Animated.Value(0))
 
-  const { round, year, initialData } = useLocalSearchParams<{
-    round: string
-    year: string
+  const { initialData } = useLocalSearchParams<{
     initialData: string
   }>()
+  const [raceData, setRaceData] = useState<Race>(JSON.parse(initialData))
+  const round = raceData.round
+  const year = raceData.season
 
-  const fetchData = async () => {
-    setRefreshing(true)
-    try {
-      const requestYear = isCurrentPage ? seasons[0].season : year
-      const requestRound = isCurrentPage ? currentRound : round
-      await Promise.all([
-        fetch(
-          `https://api.jolpi.ca/ergast/f1/${requestYear}/${requestRound}/races`,
-        )
-          .then((response) => response.json())
-          .then((data) => {
-            if (data.MRData.RaceTable.Races[0]) {
-              setRaceData(data.MRData.RaceTable.Races[0])
-              Animated.timing(weekendCardOpacity, {
-                toValue: 1,
-                duration: 500,
-                useNativeDriver: true,
-              }).start()
-            }
-          }),
-        fetch(`https://f1api.dev/api/${requestYear}/${requestRound}`)
-          .then((response) => response.json())
-          .then((data) => {
-            // 数据加载完成后触发赛道信息的动画
-            if (data.race[0]) {
-              setExtraRaceData(data.race[0])
-              // 同时淡入所有数据项
-              Animated.timing(circuitInfoOpacity, {
-                toValue: 1,
-                duration: 300,
-                useNativeDriver: true,
-              }).start()
-            }
-          }),
-        fetch(
-          `https://api.jolpi.ca/ergast/f1/${requestYear}/${requestRound}/sprint/`,
-        )
-          .then((response) => response.json())
-          .then((data) => {
-            // 数据加载完成后触发动画
-            if (data.MRData.RaceTable.Races[0]?.SprintResults) {
-              setSprintResult(data.MRData.RaceTable.Races[0].SprintResults)
-              Animated.timing(sprintOpacity, {
-                toValue: 1,
-                duration: 300,
-                useNativeDriver: true,
-              }).start()
-            }
-          }),
-        fetch(
-          `https://api.jolpi.ca/ergast/f1/${requestYear}/${requestRound}/qualifying/`,
-        )
-          .then((response) => response.json())
-          .then((data) => {
-            // 数据加载完成后触发动画
-            if (data.MRData.RaceTable.Races[0]?.QualifyingResults) {
-              setQualyResult(data.MRData.RaceTable.Races[0].QualifyingResults)
-              Animated.timing(qualyOpacity, {
-                toValue: 1,
-                duration: 300,
-                useNativeDriver: true,
-              }).start()
-            }
-          }),
-        fetch(
-          `https://api.jolpi.ca/ergast/f1/${requestYear}/${requestRound}/results/`,
-        )
-          .then((response) => response.json())
-          .then((data) => {
-            // 数据加载完成后触发动画
-            if (data.MRData.RaceTable.Races[0]?.Results) {
-              setRaceResult(data.MRData.RaceTable.Races[0].Results)
-              Animated.timing(raceOpacity, {
-                toValue: 1,
-                duration: 300,
-                useNativeDriver: true,
-              }).start()
-            }
-          }),
-      ])
-    } finally {
-      setRefreshing(false)
-    }
+  const fetchAllData = async () => {
+    await Promise.all([
+      fetchRacesData(year, round),
+      fetchExtraRaceData(year, round),
+      fetchSprintResultData(year, round),
+      fetchQualyResultData(year, round),
+      fetchRaceResultData(year, round),
+    ])
+  }
+
+  const fetchRacesData = (year: string, round: string) => {
+    return fetch(`https://api.jolpi.ca/ergast/f1/${year}/${round}/races`)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.MRData.RaceTable.Races[0]) {
+          setRaceData(data.MRData.RaceTable.Races[0])
+        }
+      })
+  }
+  const fetchExtraRaceData = (year: string, round: string) => {
+    return fetch(`https://f1api.dev/api/${year}/${round}`)
+      .then((response) => response.json())
+      .then((data) => {
+        // 数据加载完成后触发赛道信息的动画
+        if (data.race[0]) {
+          setExtraRaceData(data.race[0])
+          // 同时淡入所有数据项
+          Animated.timing(circuitInfoOpacity, {
+            toValue: 1,
+            duration: 300,
+            useNativeDriver: true,
+          }).start()
+        }
+      })
+  }
+  const fetchSprintResultData = (year: string, round: string) => {
+    fetch(`https://api.jolpi.ca/ergast/f1/${year}/${round}/sprint/`)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.MRData.RaceTable.Races[0]?.SprintResults) {
+          setSprintResult(data.MRData.RaceTable.Races[0].SprintResults)
+          Animated.timing(sprintOpacity, {
+            toValue: 1,
+            duration: 300,
+            useNativeDriver: true,
+          }).start()
+        }
+      })
+  }
+  const fetchQualyResultData = (year: string, round: string) => {
+    fetch(`https://api.jolpi.ca/ergast/f1/${year}/${round}/qualifying/`)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.MRData.RaceTable.Races[0]?.QualifyingResults) {
+          setQualyResult(data.MRData.RaceTable.Races[0].QualifyingResults)
+          Animated.timing(qualyOpacity, {
+            toValue: 1,
+            duration: 300,
+            useNativeDriver: true,
+          }).start()
+        }
+      })
+  }
+
+  const fetchRaceResultData = (year: string, round: string) => {
+    fetch(`https://api.jolpi.ca/ergast/f1/${year}/${round}/results/`)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.MRData.RaceTable.Races[0]?.Results) {
+          setRaceResult(data.MRData.RaceTable.Races[0].Results)
+          Animated.timing(raceOpacity, {
+            toValue: 1,
+            duration: 300,
+            useNativeDriver: true,
+          }).start()
+        }
+      })
   }
 
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true)
-    fetchData()
+    try {
+      await fetchAllData()
+    } finally {
+      setRefreshing(false)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
-    if (isCurrentPage) {
-      setRaceData(currentRace || null)
-    }
-    fetchData()
+    fetchAllData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const raceInitData = initialData ? (JSON.parse(initialData) as Race) : null
-  const textColor = useThemeColor({}, 'text')
   const backgroundColor = useThemeColor({}, 'background')
   const cardBackgroundColor = useThemeColor({}, 'itemBackground')
   const cardBorderColor = useThemeColor({}, 'cardBorder')
@@ -176,54 +161,50 @@ export default function GrandPrixDetail({
     {
       key: 'fp1',
       name: t('FP1', 'session'),
-      session: (raceData || raceInitData)?.FirstPractice,
+      session: raceData.FirstPractice,
     },
     {
       key: 'fp2',
       name: t('FP2', 'session'),
-      session: (raceData || raceInitData)?.SecondPractice,
+      session: raceData.SecondPractice,
     },
     {
       key: 'fp3',
       name: t('FP3', 'session'),
-      session: (raceData || raceInitData)?.ThirdPractice,
+      session: raceData.ThirdPractice,
     },
     {
       key: 'sprintQualy',
       name: t('Sprint Qualifying', 'session'),
-      session: (raceData || raceInitData)?.SprintQualifying,
+      session: raceData.SprintQualifying,
     },
     {
       key: 'sprintRace',
       name: t('Sprint Race', 'session'),
-      session: (raceData || raceInitData)?.Sprint,
+      session: raceData.Sprint,
     },
     {
       key: 'qualy',
       name: t('Qualifying', 'session'),
-      session: (raceData || raceInitData)?.Qualifying,
+      session: raceData.Qualifying,
     },
     {
       key: 'race',
       name: t('Race', 'session'),
       session: {
-        date: (raceData || raceInitData)?.date,
-        time: (raceData || raceInitData)?.time,
+        date: raceData.date,
+        time: raceData.time,
       },
     },
   ].filter((item) => item.session && item.session.date !== null)
 
   const navigateToCircuitDetail = () => {
-    if (
-      extraRaceData &&
-      (raceInitData?.Circuit.circuitId || raceData?.Circuit.circuitId)
-    ) {
+    if (extraRaceData && raceData.Circuit.circuitId) {
       router.push({
         pathname: '/season/circuit',
         params: {
           // this circuitId for "f1api.dev"
-          circuitId:
-            raceInitData?.Circuit.circuitId || raceData?.Circuit.circuitId,
+          circuitId: raceData.Circuit.circuitId,
           initialData: JSON.stringify(extraRaceData?.circuit),
           year: year,
           round: round,
@@ -234,16 +215,15 @@ export default function GrandPrixDetail({
 
   return (
     <>
-      {!isCurrentPage && (
-        <Stack.Screen
-          options={{
-            headerShown: true,
-            headerTransparent: true,
-            headerTintColor: theme === 'dark' ? 'white' : 'black',
-            title: `${year || raceData?.season || raceInitData?.season}·R${round || raceData?.round || raceInitData?.round}`,
-          }}
-        />
-      )}
+      <Stack.Screen
+        options={{
+          headerShown: true,
+          headerTransparent: true,
+          headerTintColor: theme === 'dark' ? 'white' : 'black',
+          title: `${year}·R${round}`,
+        }}
+      />
+
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         style={[
@@ -255,21 +235,11 @@ export default function GrandPrixDetail({
         }
       >
         <View style={styles.profileContainer}>
-          {/* <ThemedText style={styles.roundText}>
-                        {year || raceData?.season || raceInitData?.season}
-                        <ThemedText style={{ fontFamily: ' ' }}>
-                            ·
-                        </ThemedText>
-                        {`R${String(raceInitData?.round || raceData?.round).padStart(2, '0')}`}
-                    </ThemedText> */}
           <ThemedText
             type="title"
             style={[styles.title, { fontFamily: getFontFamily() }]}
           >
-            {t(
-              raceInitData?.raceName || raceData?.raceName || '',
-              'grand-prix-name',
-            )}
+            {t(raceData.raceName || '', 'grand-prix-name')}
           </ThemedText>
         </View>
 
@@ -279,12 +249,7 @@ export default function GrandPrixDetail({
             <ThemedText
               style={[cardStyles.cardTitle, { color: cardTitleColor }]}
             >
-              {t(
-                raceInitData?.Circuit.circuitName ||
-                  raceData?.Circuit.circuitName ||
-                  '',
-                'circuit-name',
-              )}
+              {t(raceData.Circuit.circuitName || '', 'circuit-name')}
             </ThemedText>
             <View
               style={[
@@ -376,10 +341,7 @@ export default function GrandPrixDetail({
                       width: 150,
                       height: '80%',
                     }}
-                    source={getCircuitImage(
-                      raceInitData?.Circuit.circuitId ||
-                        raceData?.Circuit.circuitId,
-                    )}
+                    source={getCircuitImage(raceData.Circuit.circuitId)}
                   />
                 </View>
                 <IconSymbol
@@ -404,10 +366,6 @@ export default function GrandPrixDetail({
                 {
                   borderColor: cardBorderColor,
                   backgroundColor: cardBackgroundColor,
-                  opacity:
-                    !raceInitData?.FirstPractice && raceData?.FirstPractice
-                      ? weekendCardOpacity
-                      : 1,
                 },
               ]}
             >
@@ -477,7 +435,7 @@ export default function GrandPrixDetail({
                               pathname: '/season/result',
                               params: {
                                 year: year,
-                                round: isCurrentPage ? currentRound : round,
+                                round: round,
                                 session: item.key,
                                 initialData: (() => {
                                   switch (item.key) {

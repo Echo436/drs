@@ -12,7 +12,6 @@ import { FlatList } from 'react-native-gesture-handler'
 import renderSeparator from '@/components/ui/RenderSeparator'
 import { layoutStyles } from '@/components/ui/Styles'
 import { router } from 'expo-router'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { DateTime } from 'luxon'
 import { useLocales } from 'expo-localization'
 import { t } from '@/i18n/utils'
@@ -32,20 +31,16 @@ export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
   const languageCode = useLocales()[0].languageCode || 'en'
   const timeZoneOffset = DateTime.local().offset / 60
 
-  const { top } = useSafeAreaInsets()
   const {
     grandPrixList,
-    currentRound,
-    seasons,
     grandPrixLoading,
     selectedSeason,
     fetchGPListData,
   } = useF1Data()
 
   const onRefresh = React.useCallback(async () => {
-    console.log(selectedSeason)
     fetchGPListData(selectedSeason)
-  }, [selectedSeason])
+  }, [fetchGPListData, selectedSeason])
 
   const flags = {
     Australia: '🇦🇺',
@@ -76,18 +71,10 @@ export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
   }
 
   // 导航到大奖赛详情页面
-  const navigateToGrandPrix = async (
-    round: string,
-    year: string,
-    initialData: string,
-    raceDate: DateTime<true> | DateTime<false>,
-  ) => {
-    // if (round == currentRound && year == seasons[0].season) {
-    //     onTabChange('first');
-    // } else {
+  const navigateToGrandPrix = async (initialData: string) => {
     router.push({
       pathname: '/season/race',
-      params: { year, round, initialData },
+      params: { initialData },
     })
     // }
   }
@@ -117,14 +104,7 @@ export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
     return (
       <TouchableOpacity
         style={styles.itemContainer}
-        onPress={() =>
-          navigateToGrandPrix(
-            item.round,
-            DateTime.fromISO(item.date).year.toString(),
-            JSON.stringify(item),
-            raceDate,
-          )
-        }
+        onPress={() => navigateToGrandPrix(JSON.stringify(item))}
       >
         <View style={styles.roundContainer}>
           <ThemedText
