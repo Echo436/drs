@@ -20,6 +20,7 @@ import Slash1 from '@/assets/icon/slash-1.svg'
 import Slash2 from '@/assets/icon/slash-2.svg'
 import Slash3 from '@/assets/icon/slash-3.svg'
 import { getTeamsColor } from '@/constants/Colors'
+import { flags } from '@/constants/Flags'
 
 interface GrandPrixListProps {
   onTabChange: (tabKey: string) => void
@@ -31,44 +32,12 @@ export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
   const languageCode = useLocales()[0].languageCode || 'en'
   const timeZoneOffset = DateTime.local().offset / 60
 
-  const {
-    grandPrixList,
-    grandPrixLoading,
-    selectedSeason,
-    fetchGPListData,
-  } = useF1Data()
+  const { grandPrixList, grandPrixLoading, selectedSeason, fetchGPListData } =
+    useF1Data()
 
   const onRefresh = React.useCallback(async () => {
     fetchGPListData(selectedSeason)
   }, [fetchGPListData, selectedSeason])
-
-  const flags = {
-    Australia: '🇦🇺',
-    China: '🇨🇳',
-    Japan: '🇯🇵',
-    Bahrain: '🇧🇭',
-    'United States': '🇺🇸',
-    USA: '🇺🇸',
-    Canada: '🇨🇦',
-    Mexico: '🇲🇽',
-    Austria: '🇦🇹',
-    Hungary: '🇭🇺',
-    Belgium: '🇧🇪',
-    Italy: '🇮🇹',
-    Singapore: '🇸🇬',
-    'United Kingdom': '🇬🇧',
-    'Great Britain': '🇬🇧',
-    UK: '🇬🇧',
-    Azerbaijan: '🇦🇿',
-    'Saudi Arabia': '🇸🇦',
-    Monaco: '🇲🇨',
-    Spain: '🇪🇸',
-    Netherlands: '🇳🇱',
-    Brazil: '🇧🇷',
-    Qatar: '🇶🇦',
-    'United Arab Emirates': '🇦🇪',
-    UAE: '🇦🇪',
-  }
 
   // 导航到大奖赛详情页面
   const navigateToGrandPrix = async (initialData: string) => {
