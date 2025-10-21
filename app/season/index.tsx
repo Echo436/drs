@@ -94,7 +94,7 @@ export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
 
   const renderItem = ({ item }: { item: Race }) => {
     // MM/dd or dd/MM
-    let fp1DateDisplay = '--'
+    let fp1DateDisplay = ''
     if (
       item.FirstPractice &&
       item.FirstPractice.date &&
@@ -137,7 +137,7 @@ export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
             <ThemedText type="itemsubtitle">
               {t(item.Circuit.Location.locality, 'city') + '·'}
             </ThemedText>
-            <ThemedText type="itemsubtitle">{`${fp1DateDisplay} - ${raceDateDisplay}`}</ThemedText>
+            <ThemedText type="itemsubtitle">{`${fp1DateDisplay}${fp1DateDisplay ? ' - ' : ''}${raceDateDisplay}`}</ThemedText>
             <ThemedText
               style={{
                 paddingTop: 3,
