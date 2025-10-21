@@ -3,14 +3,24 @@ import * as React from 'react'
 import { useF1Data } from '@/context/F1DataContext'
 
 export default function SeasonContextMenu() {
-  const { setSelectedSeason, fetchGPListData, seasons, selectedSeason } =
-    useF1Data()
+  const {
+    clearGrandPrixList,
+    clearDriverList,
+    clearConstructorList,
+    setSelectedSeason,
+    fetchGPListData,
+    seasons,
+    selectedSeason,
+  } = useF1Data()
 
   const renderOption = (option: { season: string }, index: number) => (
     <Button
       key={index}
       onPress={() => {
         setSelectedSeason(option.season)
+        clearGrandPrixList()
+        clearDriverList()
+        clearConstructorList()
         fetchGPListData(option.season)
       }}
     >

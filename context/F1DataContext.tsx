@@ -199,7 +199,6 @@ type DataType =
 type F1DataContextType = {
   seasons: Season[]
   selectedSeason: string
-  setSelectedSeason: (season: string) => void
   grandPrixList: Race[]
   currentRound: string
   driverStandingList: DriverStanding[]
@@ -207,6 +206,10 @@ type F1DataContextType = {
   grandPrixLoading: boolean
   driverListLoading: boolean
   constructorListLoading: boolean
+  setSelectedSeason: (season: string) => void
+  clearGrandPrixList: () => void
+  clearDriverList: () => void
+  clearConstructorList: () => void
   setDriverList: (driverList: DriverStanding[]) => void
   setConstructorList: (constructorList: ConstructorStanding[]) => void
   setGrandPrixList: (grandPrixList: Race[]) => void
@@ -236,6 +239,16 @@ export const F1DataProvider: React.FC<{ children: ReactNode }> = ({
   const [driverListLoading, setDriverListLoading] = useState(true)
   const [constructorListLoading, setConstructorListLoading] = useState(true)
   const [isSeasonListFetched, setIsSeasonListFetched] = useState(false)
+
+  const clearGrandPrixList = () => {
+    setGrandPrixList([])
+  }
+  const clearDriverList = () => {
+    setDriverList([])
+  }
+  const clearConstructorList = () => {
+    setConstructorList([])
+  }
 
   const fetchSeasonListData = () => {
     fetch('https://api.jolpi.ca/ergast/f1/seasons/?limit=100')
@@ -289,7 +302,7 @@ export const F1DataProvider: React.FC<{ children: ReactNode }> = ({
       setTimeout(() => {
         SplashScreen.hideAsync()
       }, 100)
-      let selectedRound = currentRound
+      let selectedRound = ''
       for (const race of data) {
         const date = DateTime.fromISO(`${race.date}T${race.time}`)
         if (date.plus({ day: 2 }) > DateTime.now()) {
@@ -346,7 +359,7 @@ export const F1DataProvider: React.FC<{ children: ReactNode }> = ({
       fetchSeasonListData()
       setIsSeasonListFetched(true)
     }
-  }, [])
+  }, [isSeasonListFetched])
 
   useEffect(() => {
     const fetchAllData = async () => {
@@ -362,7 +375,6 @@ export const F1DataProvider: React.FC<{ children: ReactNode }> = ({
   const contextValue: F1DataContextType = {
     seasons,
     selectedSeason,
-    setSelectedSeason,
     grandPrixList,
     currentRound,
     driverStandingList: driverList,
@@ -370,6 +382,10 @@ export const F1DataProvider: React.FC<{ children: ReactNode }> = ({
     grandPrixLoading,
     driverListLoading,
     constructorListLoading,
+    setSelectedSeason,
+    clearGrandPrixList,
+    clearDriverList,
+    clearConstructorList,
     setDriverList,
     setConstructorList,
     setGrandPrixList,
