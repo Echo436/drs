@@ -45,7 +45,6 @@ export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
       pathname: '/season/race',
       params: { initialData },
     })
-    // }
   }
 
   const renderItem = ({ item }: { item: Race }) => {
