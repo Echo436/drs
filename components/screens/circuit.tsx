@@ -74,7 +74,7 @@ export default function CircuitDetail() {
   const openMapModal = () => {
     if (locationData && locationData.lat && locationData.long) {
       router.push({
-        pathname: '/season/mapModal',
+        pathname: './mapModal',
         params: { latitude: locationData.lat, longitude: locationData.long },
       })
     }
