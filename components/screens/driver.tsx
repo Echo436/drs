@@ -217,7 +217,12 @@ export default function DriverDetail() {
           headerShown: true,
           headerTransparent: true,
           title: driverInitData?.Driver.code,
-          headerTitleStyle: { color: '#00000000' },
+          headerLargeTitle: true,
+          // 隐藏的largeTitle
+          headerLargeTitleStyle: {
+            color: '#00000000',
+          }
+          // headerTitleStyle: { color: '#00000000' },
         }}
       />
       <ScrollView
@@ -263,7 +268,7 @@ export default function DriverDetail() {
               style={{
                 flexDirection: 'column',
                 justifyContent: 'flex-end',
-                paddingTop: 12,
+                paddingTop: 14,
                 paddingRight: 8,
               }}
             >
@@ -271,14 +276,14 @@ export default function DriverDetail() {
                 style={{
                   textAlign: 'right',
                   fontSize: 16,
-                  lineHeight: 18,
+                  lineHeight: 16,
                   fontFamily: 'Formula1-Display-Bold',
                 }}
               >
                 {year}
               </ThemedText>
             </View>
-            <Host matchContents style={{ width: 200, marginTop: 8 }}>
+            <Host matchContents style={{ width: 200, marginTop: 6 }}>
               <Button
                 variant="glassProminent"
                 color={teamColor}
@@ -321,7 +326,7 @@ export default function DriverDetail() {
             {driverInitData?.Driver.nationality}
           </ThemedText>
           <ThemedText style={{ textAlign: 'center' }}>
-            {driverInitData?.Driver.dateOfBirth}
+            🎂{driverInitData?.Driver.dateOfBirth}
           </ThemedText>
         </View>
       </ScrollView>
@@ -338,6 +343,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: 10,
     flexDirection: 'row',
+    marginTop: -55
   },
   leftColumn: {
     flex: 3,
@@ -375,7 +381,7 @@ const styles = StyleSheet.create({
 
   cardsContainer: {
     flex: 1,
-    // borderWidth: 1,
+    paddingHorizontal: 6,
   },
   numberContainer: {
     position: 'absolute',
