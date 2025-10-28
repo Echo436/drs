@@ -20,7 +20,7 @@ export default function ConstructorList() {
   const theme = useColorScheme()
 
   const {
-    driverStandingList: driverList,
+    driverStandingList,
     selectedSeason,
     fetchDriverListData,
     driverListLoading,
@@ -28,7 +28,7 @@ export default function ConstructorList() {
 
   const onRefresh = React.useCallback(async () => {
     fetchDriverListData(selectedSeason)
-  }, [selectedSeason])
+  }, [fetchDriverListData, selectedSeason])
 
   const renderItem = ({ item }: { item: DriverStanding }) => {
     const teamColor = getTeamsColor(
@@ -82,7 +82,7 @@ export default function ConstructorList() {
   return (
     <FlatList
       contentInsetAdjustmentBehavior="automatic"
-      data={driverList}
+      data={driverStandingList}
       renderItem={renderItem}
       keyExtractor={(item) => item.Driver.driverId}
       ItemSeparatorComponent={renderSeparator}

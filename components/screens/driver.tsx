@@ -129,7 +129,7 @@ export default function DriverDetail() {
             >
               R{String(item?.round).padStart(2, '0')}
             </ThemedText>
-            <View style={{ flexDirection: 'row', marginTop: 1 }}>
+            <View style={{ flexDirection: 'row' }}>
               <ThemedText style={{ flex: 6, fontSize: 16, lineHeight: 20 }}>
                 {t(item?.raceName, 'grand-prix-name')}
               </ThemedText>
@@ -221,7 +221,7 @@ export default function DriverDetail() {
           // 隐藏的largeTitle
           headerLargeTitleStyle: {
             color: '#00000000',
-          }
+          },
           // headerTitleStyle: { color: '#00000000' },
         }}
       />
@@ -343,7 +343,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: 10,
     flexDirection: 'row',
-    marginTop: -55
+    marginTop: -55,
   },
   leftColumn: {
     flex: 3,
