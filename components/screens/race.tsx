@@ -54,16 +54,16 @@ export default function GrandPrixDetail() {
     initialData: string
   }>()
   const [raceData, setRaceData] = useState<Race>(JSON.parse(initialData))
-  const round = raceData.round
-  const year = raceData.season
 
   const fetchAllData = async () => {
+    const currentRaceData = JSON.parse(initialData)
+
     await Promise.all([
-      fetchRacesData(year, round),
-      fetchExtraRaceData(year, round),
-      fetchSprintResultData(year, round),
-      fetchQualyResultData(year, round),
-      fetchRaceResultData(year, round),
+      fetchRacesData(currentRaceData.season, currentRaceData.round),
+      fetchExtraRaceData(currentRaceData.season, currentRaceData.round),
+      fetchSprintResultData(currentRaceData.season, currentRaceData.round),
+      fetchQualyResultData(currentRaceData.season, currentRaceData.round),
+      fetchRaceResultData(currentRaceData.season, currentRaceData.round),
     ])
   }
 
@@ -120,7 +120,6 @@ export default function GrandPrixDetail() {
         }
       })
   }
-
   const fetchRaceResultData = (year: string, round: string) => {
     fetch(`https://api.jolpi.ca/ergast/f1/${year}/${round}/results/`)
       .then((response) => response.json())
@@ -147,9 +146,14 @@ export default function GrandPrixDetail() {
   }, [])
 
   useEffect(() => {
+    setExtraRaceData(null)
+    setQualyResult(null)
+    setSprintResult(null)
+    setRaceResult(null)
+    setRaceData(JSON.parse(initialData))
     fetchAllData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [initialData])
 
   const backgroundColor = useThemeColor({}, 'background')
   const cardBackgroundColor = useThemeColor({}, 'itemBackground')
@@ -206,8 +210,8 @@ export default function GrandPrixDetail() {
           // this circuitId for "f1api.dev"
           circuitId: raceData.Circuit.circuitId,
           initialData: JSON.stringify(extraRaceData?.circuit),
-          year: year,
-          round: round,
+          year: raceData.season,
+          round: raceData.round,
         },
       })
     }
@@ -220,7 +224,7 @@ export default function GrandPrixDetail() {
           headerShown: true,
           headerTransparent: true,
           headerTintColor: theme === 'dark' ? 'white' : 'black',
-          title: `${year}·R${round}`,
+          title: `${raceData.season}·R${raceData.round}`,
         }}
       />
 
@@ -434,8 +438,8 @@ export default function GrandPrixDetail() {
                             href={{
                               pathname: './result',
                               params: {
-                                year: year,
-                                round: round,
+                                year: raceData.season,
+                                round: raceData.round,
                                 session: item.key,
                                 initialData: (() => {
                                   switch (item.key) {

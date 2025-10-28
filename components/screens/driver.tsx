@@ -8,7 +8,7 @@ import {
 } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import { ThemedText } from '@/components/ThemedText'
-import { DriverStanding, Race } from '@/context/F1DataContext'
+import { DriverStanding, Race, useF1Data } from '@/context/F1DataContext'
 import { Link, router, Stack, useLocalSearchParams } from 'expo-router'
 import { ScrollView } from 'react-native-gesture-handler'
 import { layoutStyles } from '@/components/ui/Styles'
@@ -81,8 +81,22 @@ export default function DriverDetail() {
 
   const navigateToGrandPrix = (initialData: Race) => {
     router.navigate({
-      pathname: './race',
+      pathname: '/season/race',
       params: { initialData: JSON.stringify(initialData) },
+    })
+  }
+
+  const { constructorList } = useF1Data()
+  const navigateToTeam = (constructorId: string) => {
+    const constructor = constructorList.find(
+      (c) => c.Constructor.constructorId === constructorId,
+    )
+    router.navigate({
+      pathname: '/constructors/team',
+      params: {
+        year: year,
+        initialData: JSON.stringify(constructor),
+      },
     })
   }
 
@@ -287,13 +301,24 @@ export default function DriverDetail() {
               <Button
                 variant="glassProminent"
                 color={teamColor}
-                onPress={() => {}}
+                onPress={() =>
+                  navigateToTeam(
+                    driverInitData?.Constructors[
+                      driverInitData?.Constructors.length - 1
+                    ].constructorId as string,
+                  )
+                }
               >
                 <Text
                   color={tinycolor(teamColor).isLight() ? 'black' : 'white'}
                   weight="medium"
                 >
-                  {t(driverInitData?.Constructors[0].name || '', 'team')}
+                  {t(
+                    driverInitData?.Constructors[
+                      driverInitData?.Constructors.length - 1
+                    ].name || '',
+                    'team',
+                  )}
                 </Text>
               </Button>
             </Host>
@@ -339,7 +364,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   profileContainer: {
-    height: 250,
     paddingVertical: 15,
     paddingHorizontal: 10,
     flexDirection: 'row',
