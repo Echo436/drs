@@ -62,7 +62,7 @@ export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
         .toLocaleString({ day: '2-digit', month: '2-digit' })
     }
     let raceDate: DateTime<true> | DateTime<false>
-    let raceDateDisplay = '--'
+    let raceDateDisplay = ''
     if (item.date && item.time) {
       raceDate = DateTime.fromISO(`${item.date}T${item.time}`)
       raceDateDisplay = raceDate
@@ -83,19 +83,21 @@ export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
           <ThemedText type="itemtitle">{`${t(item.raceName, 'grand-prix-name')} ${flags[item.Circuit.Location.country as keyof typeof flags] || ''}`}</ThemedText>
           <View style={styles.positionAndDateContainer}>
             <ThemedText type="itemsubtitle">
-              {t(item.Circuit.Location.locality, 'city') + '·'}
+              {t(item.Circuit.Location.locality, 'city')}
             </ThemedText>
-            <ThemedText type="itemsubtitle">{`${fp1DateDisplay}${fp1DateDisplay ? ' - ' : ''}${raceDateDisplay}`}</ThemedText>
-            <ThemedText
-              style={{
-                paddingTop: 3,
-                paddingLeft: 4,
-                fontSize: 8,
-                lineHeight: 8,
-                fontWeight: 600,
-                color: 'rgb(128, 128, 128)',
-              }}
-            >{`UTC${timeZoneOffset >= 0 ? `+${timeZoneOffset}` : timeZoneOffset}`}</ThemedText>
+            <ThemedText type="itemsubtitle">{`${fp1DateDisplay || raceDateDisplay ? '·' : ''}${fp1DateDisplay}${fp1DateDisplay ? ' - ' : ''}${raceDateDisplay}`}</ThemedText>
+            {(fp1DateDisplay || raceDateDisplay) && (
+              <ThemedText
+                style={{
+                  paddingTop: 3,
+                  paddingLeft: 4,
+                  fontSize: 8,
+                  lineHeight: 8,
+                  fontWeight: 600,
+                  color: 'rgb(128, 128, 128)',
+                }}
+              >{`UTC${timeZoneOffset >= 0 ? `+${timeZoneOffset}` : timeZoneOffset}`}</ThemedText>
+            )}
           </View>
           {item.Results.length === 3 && (
             <View style={styles.podiumContainer}>
