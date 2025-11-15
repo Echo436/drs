@@ -86,14 +86,14 @@ export default function ConstructorDetail() {
 
   // Colors
   const backgroundColor = useThemeColor({}, 'background')
-  const textColor = useThemeColor({}, 'text')
   const cardBorderColor = useThemeColor({}, 'cardBorder')
 
   const teamColor = useMemo(() => {
-    if (teamId) return getTeamsColor(teamId as string)
+    const teamColor = getTeamsColor(teamId as string)
+    if (teamId && teamColor) return teamColor
     // fallback tint-ish color derived from text color
-    return tinycolor(textColor).lighten(15).toRgbString()
-  }, [teamId, textColor])
+    return tinycolor(backgroundColor).toRgbString()
+  }, [teamId, backgroundColor])
 
   const displayTeamColor = useMemo(
     () => tinycolor(teamColor).setAlpha(0.7).toRgbString(),

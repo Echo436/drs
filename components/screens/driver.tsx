@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   Animated,
 } from 'react-native'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { ThemedText } from '@/components/ThemedText'
 import { DriverStanding, Race, useF1Data } from '@/context/F1DataContext'
 import { Link, router, Stack, useLocalSearchParams } from 'expo-router'
@@ -108,14 +108,23 @@ export default function DriverDetail() {
   const driverInitData = initialData
     ? (JSON.parse(initialData) as DriverStanding)
     : null
-  const teamColor = getTeamsColor(
-    driverInitData?.Constructors[driverInitData?.Constructors.length - 1]
-      .constructorId as string,
-  )
-  const textColor = useThemeColor({}, 'text')
+
   const backgroundColor = useThemeColor({}, 'background')
+  const teamId = driverInitData?.Constructors[
+    driverInitData?.Constructors.length - 1
+  ].constructorId as string
+  const teamColor = useMemo(() => {
+    const teamColor = getTeamsColor(teamId as string)
+    if (teamId && teamColor) return teamColor
+    // fallback tint-ish color derived from text color
+    return tinycolor(backgroundColor).toRgbString()
+  }, [teamId, backgroundColor])
+  const textColor = useThemeColor({}, 'text')
   const numberColor = tinycolor(textColor).setAlpha(0.15).toRgbString()
-  const displayTeamColor = tinycolor(teamColor).setAlpha(0.7).toRgbString()
+  const displayTeamColor = useMemo(
+    () => tinycolor(teamColor).setAlpha(0.7).toRgbString(),
+    [teamColor],
+  )
   const cardBorderColor = useThemeColor({}, 'cardBorder')
 
   const raceItem = ({ item }: { item: Race }) => {
