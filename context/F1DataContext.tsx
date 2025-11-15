@@ -302,6 +302,12 @@ export const F1DataProvider: React.FC<{ children: ReactNode }> = ({
       setTimeout(() => {
         SplashScreen.hideAsync()
       }, 100)
+
+      if(year !== 'current') {
+        setGrandPrixLoading(false)
+        return
+      }
+
       let selectedRound = ''
       for (const race of data) {
         const date = DateTime.fromISO(`${race.date}T${race.time}`)
