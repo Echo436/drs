@@ -202,6 +202,19 @@ export default function GrandPrixDetail() {
     },
   ].filter((item) => item.session && item.session.date !== null)
 
+  const circuitLengthKm = (() => {
+    const raw = extraRaceData?.circuit.circuitLength
+    if (!raw) return '----'
+    const digits = raw.replace(/[^\d]/g, '')
+    if (!digits) return '----'
+    const meters = parseInt(digits, 10)
+    if (!Number.isFinite(meters)) return '----'
+    return meters / 1000
+  })()
+
+  const cornersDisplay = extraRaceData?.circuit.corners || '---'
+  const lapsDisplay = extraRaceData?.laps || '---'
+
   const navigateToCircuitDetail = () => {
     if (extraRaceData && raceData.Circuit.circuitId) {
       router.push({
@@ -291,11 +304,7 @@ export default function GrandPrixDetail() {
                           fontFamily: 'Formula1-Display-Regular',
                         }}
                       >
-                        {extraRaceData?.circuit.circuitLength
-                          ? extraRaceData.circuit.circuitLength
-                              .slice(0, -2)
-                              ?.replace(/^(\d)(\d)/, '$1.$2')
-                          : '----'}
+                        {circuitLengthKm}
                       </ThemedText>
                       <ThemedText style={{ fontSize: 12, lineHeight: 28 }}>
                         {' '}
@@ -312,7 +321,7 @@ export default function GrandPrixDetail() {
                           fontFamily: 'Formula1-Display-Regular',
                         }}
                       >
-                        {extraRaceData?.circuit.corners || '---'}
+                        {cornersDisplay}
                       </ThemedText>
                       <ThemedText style={{ fontSize: 12, lineHeight: 28 }}>
                         {' '}
@@ -329,7 +338,7 @@ export default function GrandPrixDetail() {
                           fontFamily: 'Formula1-Display-Regular',
                         }}
                       >
-                        {extraRaceData?.laps || '---'}
+                        {lapsDisplay}
                       </ThemedText>
                       <ThemedText style={{ fontSize: 12, lineHeight: 28 }}>
                         {' '}
