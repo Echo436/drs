@@ -109,7 +109,8 @@ export default function DriverDetail() {
     ? (JSON.parse(initialData) as DriverStanding)
     : null
   const teamColor = getTeamsColor(
-    driverInitData?.Constructors[0].constructorId as string,
+    driverInitData?.Constructors[driverInitData?.Constructors.length - 1]
+      .constructorId as string,
   )
   const textColor = useThemeColor({}, 'text')
   const backgroundColor = useThemeColor({}, 'background')
