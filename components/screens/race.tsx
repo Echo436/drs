@@ -571,13 +571,17 @@ export default function GrandPrixDetail() {
                                             />
                                           )}
                                           <ThemedText style={styles.driverCode}>
-                                            {
+                                            {/* {
                                               itemResultData.find(
                                                 (r) =>
                                                   r.position ===
                                                   position.toString(),
                                               )?.Driver.code
-                                            }
+                                            } */}
+                                            {(() => {
+                                              const result = itemResultData.find((r) => r.position === position.toString())
+                                              return result?.Driver.code ?? result?.Driver.familyName
+                                            })()}
                                           </ThemedText>
                                         </View>
                                       ))}

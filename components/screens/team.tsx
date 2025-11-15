@@ -120,7 +120,7 @@ export default function ConstructorDetail() {
         {(item.Results || []).map((result) => (
           <View style={{ flexDirection: 'row' }} key={result.position}>
             <ThemedText style={[styles.posSmall, { flex: 6 }]}>
-              {result.Driver.code}
+              {result.Driver.code || result.Driver.familyName}
             </ThemedText>
             <ThemedText style={[styles.posSmall, { flex: 1 }]}>
               P{result.position}
@@ -213,7 +213,7 @@ export default function ConstructorDetail() {
 
             <View style={styles.positionContainer}>
               <ThemedText style={styles.positionText}>
-                {teamData.position}
+                {teamData.position || '--'}
               </ThemedText>
               <ThemedText style={styles.POSText}>{t('POS', 'tabs')}</ThemedText>
             </View>

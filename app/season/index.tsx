@@ -133,13 +133,14 @@ export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
                       )}
                     />
                   )}
-                  <ThemedText style={styles.driverCode}>
-                    {
-                      item.Results.find(
-                        (r) => r.position === position.toString(),
-                      )?.Driver.code
-                    }
-                  </ThemedText>
+                  {(() => {
+                    const result = item.Results.find((r) => r.position === position.toString())
+                    return (
+                      <ThemedText style={styles.driverCode}>
+                        {result?.Driver.code ?? result?.Driver.familyName}
+                      </ThemedText>
+                    )
+                  })()}
                 </View>
               ))}
             </View>
