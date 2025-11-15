@@ -369,7 +369,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   roundText: {
-    fontFamily: 'Formula1-Display-Regular',
+    fontFamily: 'Formula1-Display-Bold',
     fontSize: 12,
   },
   posSmall: {

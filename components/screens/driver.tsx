@@ -149,7 +149,7 @@ export default function DriverDetail() {
         >
           <View style={{ flex: 1, paddingRight: 5 }}>
             <ThemedText
-              style={{ fontFamily: 'Formula1-Display-Regular', fontSize: 12 }}
+              style={{ fontFamily: 'Formula1-Display-Bold', fontSize: 12 }}
             >
               R{String(item?.round).padStart(2, '0')}
             </ThemedText>
