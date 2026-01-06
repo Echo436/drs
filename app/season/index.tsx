@@ -21,23 +21,25 @@ import Slash2 from '@/assets/icon/slash-2.svg'
 import Slash3 from '@/assets/icon/slash-3.svg'
 import { getTeamsColor } from '@/constants/Colors'
 import { flags } from '@/constants/Flags'
+import { useRacesQuery } from '@/hooks/useF1Queries'
 
-interface GrandPrixListProps {
-  onTabChange: (tabKey: string) => void
-}
-
-export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
+export default function GrandPrixList() {
   const theme = useColorScheme()
 
   const languageCode = useLocales()[0].languageCode || 'en'
   const timeZoneOffset = DateTime.local().offset / 60
 
-  const { grandPrixList, grandPrixLoading, selectedSeason, fetchGPListData } =
-    useF1Data()
+  const { selectedSeason } = useF1Data()
+
+  const {
+    data: grandPrixList,
+    isLoading: grandPrixLoading,
+    refetch: fetchGPListData,
+  } = useRacesQuery(selectedSeason)
 
   const onRefresh = React.useCallback(async () => {
-    fetchGPListData(selectedSeason)
-  }, [fetchGPListData, selectedSeason])
+    fetchGPListData()
+  }, [fetchGPListData])
 
   // 导航到大奖赛详情页面
   const navigateToGrandPrix = async (initialData: string) => {
@@ -134,7 +136,9 @@ export default function GrandPrixList({ onTabChange }: GrandPrixListProps) {
                     />
                   )}
                   {(() => {
-                    const result = item.Results.find((r) => r.position === position.toString())
+                    const result = item.Results.find(
+                      (r) => r.position === position.toString(),
+                    )
                     return (
                       <ThemedText style={styles.driverCode}>
                         {result?.Driver.code ?? result?.Driver.familyName}

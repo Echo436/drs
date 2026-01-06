@@ -15,20 +15,22 @@ import { layoutStyles } from '@/components/ui/Styles'
 import { getTeamsColor } from '@/constants/Colors'
 import { IconSymbol } from '@/components/ui/IconSymbol'
 import { Link } from 'expo-router'
+import { useDriverStandingsQuery } from '@/hooks/useF1Queries'
 
 export default function ConstructorList() {
   const theme = useColorScheme()
 
+  const { selectedSeason } = useF1Data()
+
   const {
-    driverStandingList,
-    selectedSeason,
-    fetchDriverListData,
-    driverListLoading,
-  } = useF1Data()
+    data: driverStandingList,
+    isLoading: driverListLoading,
+    refetch: fetchDriverListData,
+  } = useDriverStandingsQuery(selectedSeason)
 
   const onRefresh = React.useCallback(async () => {
-    fetchDriverListData(selectedSeason)
-  }, [fetchDriverListData, selectedSeason])
+    fetchDriverListData()
+  }, [fetchDriverListData])
 
   const renderItem = ({ item }: { item: DriverStanding }) => {
     const teamColor = getTeamsColor(
@@ -102,14 +104,10 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     flexDirection: 'row',
     alignItems: 'center',
-
-    // borderWidth: 1,
   },
   positionContainer: {
     width: 30,
     marginRight: 15,
-
-    // borderWidth: 1,
   },
   posisionText: {
     fontFamily: 'Formula1-Display-Regular',

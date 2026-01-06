@@ -15,25 +15,35 @@ import { layoutStyles } from '@/components/ui/Styles'
 import { IconSymbol } from '@/components/ui/IconSymbol'
 import { getTeamsColor } from '@/constants/Colors'
 import { Link } from 'expo-router'
+import {
+  useConstructorStandingsQuery,
+  useDriverStandingsQuery,
+} from '@/hooks/useF1Queries'
 
 export default function ConstructorList() {
   const theme = useColorScheme()
 
+  const { selectedSeason } = useF1Data()
+
   const {
-    constructorList,
-    driverStandingList,
-    constructorListLoading,
-    fetchConstructorListData,
-    selectedSeason,
-  } = useF1Data()
+    data: constructorList,
+    isLoading: constructorListLoading,
+    refetch: fetchConstructorListData,
+  } = useConstructorStandingsQuery(selectedSeason)
+  const {
+    data: driverStandingList,
+    isLoading: driverListLoading,
+    refetch: fetchDriverListData,
+  } = useDriverStandingsQuery(selectedSeason)
 
   const onRefresh = React.useCallback(async () => {
-    fetchConstructorListData(selectedSeason)
-  }, [fetchConstructorListData, selectedSeason])
+    fetchConstructorListData()
+    fetchDriverListData()
+  }, [fetchConstructorListData, fetchDriverListData])
 
   const renderItem = ({ item }: { item: ConstructorStanding }) => {
-    const driverList = driverStandingList.filter(
-      (driver) =>
+    const driverList = (driverStandingList ?? []).filter(
+      (driver: { Constructors: string | any[] }) =>
         driver.Constructors[driver.Constructors.length - 1].constructorId ===
         item.Constructor.constructorId,
     )
@@ -61,15 +71,23 @@ export default function ConstructorList() {
               {t(item.Constructor.name, 'team')}
             </ThemedText>
             <View style={styles.driversContainer}>
-              {driverList.map((driver) => (
-                <ThemedText
-                  key={driver.Driver.driverId}
-                  type="itemsubtitle"
-                  style={styles.driverNameText}
-                >
-                  {driver.Driver.code || driver.Driver.familyName}
-                </ThemedText>
-              ))}
+              {driverList.map(
+                (driver: {
+                  Driver: {
+                    driverId: React.Key | null | undefined
+                    code: any
+                    familyName: any
+                  }
+                }) => (
+                  <ThemedText
+                    key={driver.Driver.driverId}
+                    type="itemsubtitle"
+                    style={styles.driverNameText}
+                  >
+                    {driver.Driver.code || driver.Driver.familyName}
+                  </ThemedText>
+                ),
+              )}
             </View>
           </View>
           <View style={styles.pointsContainer}>
@@ -101,7 +119,7 @@ export default function ConstructorList() {
       showsVerticalScrollIndicator={false}
       refreshControl={
         <RefreshControl
-          refreshing={constructorListLoading}
+          refreshing={constructorListLoading || driverListLoading}
           onRefresh={onRefresh}
         />
       }

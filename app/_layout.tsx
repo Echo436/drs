@@ -7,6 +7,8 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { F1DataProvider } from '@/context/F1DataContext'
 import { I18nProvider } from '@/i18n/I18nProvider'
 
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+
 import { Icon, Label, NativeTabs } from 'expo-router/unstable-native-tabs'
 import { t } from '@/i18n/utils'
 
@@ -15,6 +17,8 @@ SplashScreen.preventAutoHideAsync()
 SplashScreen.setOptions({
   fade: true,
 })
+
+const queryClient = new QueryClient()
 
 export default function RootLayout() {
   const [loaded] = useFonts({
@@ -39,28 +43,30 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <F1DataProvider>
-        <I18nProvider>
-          <NativeTabs>
-            <NativeTabs.Trigger name="season">
-              <Label>{t('Season', 'tabs')}</Label>
-              <Icon sf="calendar" />
-            </NativeTabs.Trigger>
-            <NativeTabs.Trigger name="drivers">
-              <Label>{t('Drivers', 'tabs')}</Label>
-              <Icon sf="person.2" />
-            </NativeTabs.Trigger>
-            <NativeTabs.Trigger name="constructors">
-              <Label>{t('Teams', 'tabs')}</Label>
-              <Icon sf="trophy" />
-            </NativeTabs.Trigger>
-            {/* <NativeTabs.Trigger name="settings">
+      <QueryClientProvider client={queryClient}>
+        <F1DataProvider>
+          <I18nProvider>
+            <NativeTabs>
+              <NativeTabs.Trigger name="season">
+                <Label>{t('Season', 'tabs')}</Label>
+                <Icon sf="calendar" />
+              </NativeTabs.Trigger>
+              <NativeTabs.Trigger name="drivers">
+                <Label>{t('Drivers', 'tabs')}</Label>
+                <Icon sf="person.2" />
+              </NativeTabs.Trigger>
+              <NativeTabs.Trigger name="constructors">
+                <Label>{t('Teams', 'tabs')}</Label>
+                <Icon sf="trophy" />
+              </NativeTabs.Trigger>
+              {/* <NativeTabs.Trigger name="settings">
               <Icon sf="gear" drawable="custom_settings_drawable" />
               <Label>{t('settings', 'tabs')}</Label>
             </NativeTabs.Trigger> */}
-          </NativeTabs>
-        </I18nProvider>
-      </F1DataProvider>
+            </NativeTabs>
+          </I18nProvider>
+        </F1DataProvider>
+      </QueryClientProvider>
     </GestureHandlerRootView>
   )
 }

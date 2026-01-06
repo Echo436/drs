@@ -1,13 +1,9 @@
-import { DateTime } from 'luxon'
 import React, {
   createContext,
   useContext,
   useState,
-  useEffect,
   ReactNode,
 } from 'react'
-import { ExtensionStorage } from '@bacons/apple-targets'
-import * as SplashScreen from 'expo-splash-screen'
 
 export type Season = {
   season: string
@@ -188,216 +184,27 @@ export type Drivers_openf1 = {
   team_colour: string
   team_name: string
 }
-// 定义Context的类型
-type DataType =
-  | 'grandPrixList'
-  | 'driverStandingList'
-  | 'constructorList'
-  | 'nextRace'
-  | 'lastRace'
 
 type F1DataContextType = {
-  seasons: Season[]
   selectedSeason: string
-  grandPrixList: Race[]
-  currentRound: string
-  driverStandingList: DriverStanding[]
-  constructorList: ConstructorStanding[]
-  grandPrixLoading: boolean
-  driverListLoading: boolean
-  constructorListLoading: boolean
   setSelectedSeason: (season: string) => void
-  clearGrandPrixList: () => void
-  clearDriverList: () => void
-  clearConstructorList: () => void
-  setDriverList: (driverList: DriverStanding[]) => void
-  setConstructorList: (constructorList: ConstructorStanding[]) => void
-  setGrandPrixList: (grandPrixList: Race[]) => void
-  fetchGPListData: (year: string) => Promise<void>
-  fetchDriverListData: (year: string) => Promise<void>
-  fetchConstructorListData: (year: string) => Promise<void>
 }
 
 // 创建Context
 const F1DataContext = createContext<F1DataContextType | undefined>(undefined)
 
-const widgetStorage = new ExtensionStorage('group.com.keee.drs')
-
 // Provider组件
 export const F1DataProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [seasons, setSeasons] = useState<Season[]>([{ season: 'current' }])
-  const [selectedSeason, setSelectedSeason] = useState<string>('current')
-  const [grandPrixList, setGrandPrixList] = useState<Race[]>([])
-  const [currentRound, setCurrentRound] = useState<string>('0')
-  const [driverList, setDriverList] = useState<DriverStanding[]>([])
-  const [constructorList, setConstructorList] = useState<ConstructorStanding[]>(
-    [],
+  const [selectedSeason, setSelectedSeason] = useState<string>(
+    new Date().getFullYear().toString(),
   )
-  const [grandPrixLoading, setGrandPrixLoading] = useState(true)
-  const [driverListLoading, setDriverListLoading] = useState(true)
-  const [constructorListLoading, setConstructorListLoading] = useState(true)
-  const [isSeasonListFetched, setIsSeasonListFetched] = useState(false)
 
-  const clearGrandPrixList = () => {
-    setGrandPrixList([])
-  }
-  const clearDriverList = () => {
-    setDriverList([])
-  }
-  const clearConstructorList = () => {
-    setConstructorList([])
-  }
-
-  const fetchSeasonListData = () => {
-    fetch('https://api.jolpi.ca/ergast/f1/seasons/?limit=100')
-      .then((response) => response.json())
-      .then((data) => {
-        const seasonsData = data.MRData.SeasonTable.Seasons.map(
-          (season: { season: string }) => ({
-            season: season.season,
-          }),
-        ).reverse()
-        setSeasons(seasonsData)
-        setSelectedSeason(seasonsData[0].season)
-      })
-  }
-
-  const fetchGPListData = async (year: string) => {
-    setGrandPrixLoading(true)
-    try {
-      const seasonGpResponse = await fetch(
-        `https://api.jolpi.ca/ergast/f1/${year}/races`,
-      ).then((response) => response.json())
-      const p1Results = await fetch(
-        `https://api.jolpi.ca/ergast/f1/${year}/results/1`,
-      ).then((response) => response.json())
-      const p2Results = await fetch(
-        `https://api.jolpi.ca/ergast/f1/${year}/results/2`,
-      ).then((response) => response.json())
-      const p3Results = await fetch(
-        `https://api.jolpi.ca/ergast/f1/${year}/results/3`,
-      ).then((response) => response.json())
-      const data: Race[] = seasonGpResponse.MRData.RaceTable.Races
-
-      // 合并前三名的比赛结果到对应的race对象
-      const p1Races: Race[] = p1Results.MRData.RaceTable.Races
-      const p2Races: Race[] = p2Results.MRData.RaceTable.Races
-      const p3Races: Race[] = p3Results.MRData.RaceTable.Races
-
-      data.forEach((race) => {
-        const p1Race = p1Races.find((r) => r.round === race.round)
-        const p2Race = p2Races.find((r) => r.round === race.round)
-        const p3Race = p3Races.find((r) => r.round === race.round)
-
-        race.Results = [
-          ...(p1Race?.Results || []),
-          ...(p2Race?.Results || []),
-          ...(p3Race?.Results || []),
-        ]
-      })
-
-      setGrandPrixList(data)
-      setTimeout(() => {
-        SplashScreen.hideAsync()
-      }, 100)
-
-      if(year !== 'current') {
-        setGrandPrixLoading(false)
-        return
-      }
-
-      let selectedRound = ''
-      for (const race of data) {
-        const date = DateTime.fromISO(`${race.date}T${race.time}`)
-        if (date.plus({ day: 2 }) > DateTime.now()) {
-          selectedRound = race.round
-          setCurrentRound(race.round)
-          break
-        }
-      }
-      const currentRace = data.find((race) => race.round === selectedRound)
-      widgetStorage.set('currentRace', JSON.stringify(currentRace))
-      widgetStorage.set('hello', 'hello-test')
-      ExtensionStorage.reloadWidget()
-    } catch (err) {
-      console.error('Error fetching F1 race data:', err)
-    } finally {
-      setGrandPrixLoading(false)
-    }
-  }
-
-  const fetchDriverListData = async (year: string) => {
-    setDriverListLoading(true)
-    try {
-      const response = await fetch(
-        `https://api.jolpi.ca/ergast/f1/${year}/driverstandings/`,
-      ).then((response) => response.json())
-      setDriverList(
-        response.MRData.StandingsTable.StandingsLists[0].DriverStandings,
-      )
-    } catch (err) {
-      console.error('Error fetching F1 driver data:', err)
-    } finally {
-      setDriverListLoading(false)
-    }
-  }
-
-  const fetchConstructorListData = async (year: string) => {
-    setConstructorListLoading(true)
-    try {
-      const response = await fetch(
-        `https://api.jolpi.ca/ergast/f1/${year}/constructorstandings/`,
-      ).then((response) => response.json())
-      setConstructorList(
-        response.MRData.StandingsTable.StandingsLists[0].ConstructorStandings,
-      )
-    } catch (err) {
-      console.error('Error fetching F1 constructor data:', err)
-    } finally {
-      setConstructorListLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    if (!isSeasonListFetched) {
-      fetchSeasonListData()
-      setIsSeasonListFetched(true)
-    }
-  }, [isSeasonListFetched])
-
-  useEffect(() => {
-    const fetchAllData = async () => {
-      await Promise.all([
-        fetchGPListData(selectedSeason),
-        fetchDriverListData(selectedSeason),
-        fetchConstructorListData(selectedSeason),
-      ])
-    }
-    fetchAllData()
-  }, [selectedSeason])
 
   const contextValue: F1DataContextType = {
-    seasons,
     selectedSeason,
-    grandPrixList,
-    currentRound,
-    driverStandingList: driverList,
-    constructorList,
-    grandPrixLoading,
-    driverListLoading,
-    constructorListLoading,
     setSelectedSeason,
-    clearGrandPrixList,
-    clearDriverList,
-    clearConstructorList,
-    setDriverList,
-    setConstructorList,
-    setGrandPrixList,
-    fetchGPListData,
-    fetchDriverListData,
-    fetchConstructorListData,
   }
 
   return (
@@ -407,7 +214,6 @@ export const F1DataProvider: React.FC<{ children: ReactNode }> = ({
   )
 }
 
-// 自定义Hook，方便组件使用F1数据
 export const useF1Data = (): F1DataContextType => {
   const context = useContext(F1DataContext)
   if (context === undefined) {
