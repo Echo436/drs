@@ -8,7 +8,7 @@ import {
 } from 'react-native'
 import React, { useState, useEffect, useMemo } from 'react'
 import { ThemedText } from '@/components/ThemedText'
-import { DriverStanding, Race, useF1Data } from '@/context/F1DataContext'
+import { DriverStanding, Race } from '@/context/F1DataContext'
 import { Link, router, Stack, useLocalSearchParams } from 'expo-router'
 import { ScrollView } from 'react-native-gesture-handler'
 import { layoutStyles } from '@/components/ui/Styles'
@@ -21,6 +21,7 @@ import renderSeparator from '@/components/ui/RenderSeparator'
 import { IconSymbol } from '@/components/ui/IconSymbol'
 import { t } from '@/i18n/utils'
 import { Button, Host, Text } from '@expo/ui/swift-ui'
+import { useConstructorStandingsQuery } from '@/hooks/useF1Queries'
 
 export default function DriverDetail() {
   const [driverSeasonList, setDriverSeasonList] = useState<Race[]>([])
@@ -86,10 +87,10 @@ export default function DriverDetail() {
     })
   }
 
-  const { constructorList } = useF1Data()
+  const { data: constructorList } = useConstructorStandingsQuery(year)
   const navigateToTeam = (constructorId: string) => {
     const constructor = constructorList.find(
-      (c) => c.Constructor.constructorId === constructorId,
+      (c: { Constructor: { constructorId: string } }) => c.Constructor.constructorId === constructorId,
     )
     router.navigate({
       pathname: '/constructors/team',
