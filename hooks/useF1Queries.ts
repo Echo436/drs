@@ -1,10 +1,15 @@
 import {
   getConstructorStandingsBySeason,
   getDriverStandingsBySeason,
+  getQualifyingResultsBySeasonAndRound,
+  getRaceDetails,
+  getRaceResultsBySeasonAndRound,
   getRacesBySeason,
   getResultsBySeasonAndPosition,
   getSeasons,
+  getSprintResultsBySeasonAndRound,
 } from '@/apis/jolpica'
+import { getRaceDetails as getExtraRaceDetails } from '@/apis/f1api'
 import { useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
 import { SplashScreen } from 'expo-router'
 import { useMemo } from 'react'
@@ -19,10 +24,20 @@ export const jolpicaKeys = {
     [...jolpicaKeys.all, 'driverStandings', season] as const,
   constructorStandings: (season: string) =>
     [...jolpicaKeys.all, 'constructorStandings', season] as const,
+  raceDetails: (season: string, round: string) =>
+    [...jolpicaKeys.all, 'raceDetails', season, round] as const,
+  qualiResults: (season: string, round: string) =>
+    [...jolpicaKeys.all, 'qualiResults', season, round] as const,
+  sprintResults: (season: string, round: string) =>
+    [...jolpicaKeys.all, 'sprintResults', season, round] as const,
+  raceResults: (season: string, round: string) =>
+    [...jolpicaKeys.all, 'raceResults', season, round] as const,
 }
 
 export const f1apiKeys = {
   all: ['f1api'] as const,
+  raceDetails: (season: string, round: string) =>
+    [...f1apiKeys.all, 'raceDetails', season, round] as const,
 }
 
 const fetchAndFormatSeasons = async () => {
@@ -139,5 +154,45 @@ export const useConstructorStandingsQuery = (season: string) => {
   return useQuery({
     queryKey: jolpicaKeys.constructorStandings(season),
     queryFn: () => getConstructorStandingsBySeason(season),
+  })
+}
+
+export const useRaceDetailsQuery = (
+  season: string,
+  round: string,
+  initialData: any,
+) => {
+  return useQuery({
+    queryKey: jolpicaKeys.raceDetails(season, round),
+    queryFn: () => getRaceDetails(season, round),
+    initialData,
+  })
+}
+
+export const useExtraRaceDetailsQuery = (season: string, round: string) => {
+  return useQuery({
+    queryKey: f1apiKeys.raceDetails(season, round),
+    queryFn: () => getExtraRaceDetails(season, round),
+  })
+}
+
+export const useQualiResultsQuery = (season: string, round: string) => {
+  return useQuery({
+    queryKey: jolpicaKeys.qualiResults(season, round),
+    queryFn: () => getQualifyingResultsBySeasonAndRound(season, round),
+  })
+}
+
+export const useSprintResultsQuery = (season: string, round: string) => {
+  return useQuery({
+    queryKey: jolpicaKeys.sprintResults(season, round),
+    queryFn: () => getSprintResultsBySeasonAndRound(season, round),
+  })
+}
+
+export const useRaceResultsQuery = (season: string, round: string) => {
+  return useQuery({
+    queryKey: jolpicaKeys.raceResults(season, round),
+    queryFn: () => getRaceResultsBySeasonAndRound(season, round),
   })
 }

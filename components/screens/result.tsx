@@ -35,10 +35,8 @@ export default function RaceResult() {
   }>()
 
   const [resultData, setResult] = useState<Result[] | null>(null)
-  const [refreshing, setRefreshing] = useState(false)
 
   const fetchSessionData = async () => {
-    setRefreshing(true)
     try {
       let response
       switch (session) {
@@ -65,14 +63,8 @@ export default function RaceResult() {
       }
     } catch (error) {
       console.error('Error fetching session data:', error)
-    } finally {
-      setRefreshing(false)
     }
   }
-
-  const onRefresh = React.useCallback(() => {
-    fetchSessionData()
-  }, [year, round, session])
 
   useEffect(() => {
     if (initialData && initialData !== 'null' && initialData !== 'undefined') {

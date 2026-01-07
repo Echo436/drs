@@ -10,7 +10,7 @@ import {
 } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import { ThemedText } from '@/components/ThemedText'
-import { Race, Result } from '@/context/F1DataContext'
+import { Result } from '@/context/F1DataContext'
 import { Link, router, Stack, useLocalSearchParams } from 'expo-router'
 import { ScrollView } from 'react-native-gesture-handler'
 import { layoutStyles, cardStyles } from '@/components/ui/Styles'
@@ -24,6 +24,16 @@ import Slash2 from '@/assets/icon/slash-2.svg'
 import Slash3 from '@/assets/icon/slash-3.svg'
 import { getTeamsColor } from '@/constants/Colors'
 import { getCircuitImage } from '@/constants/CircuitImages'
+import {
+  useExtraRaceDetailsQuery,
+  useQualiResultsQuery,
+  useRaceDetailsQuery,
+  useRaceResultsQuery,
+  useSprintResultsQuery,
+  jolpicaKeys,
+  f1apiKeys,
+} from '@/hooks/useF1Queries'
+import { useQueryClient } from '@tanstack/react-query'
 
 const getFontFamily = () => {
   const locales = getLocales()
@@ -36,124 +46,111 @@ const getFontFamily = () => {
 
 export default function GrandPrixDetail() {
   const theme = useColorScheme()
-  const [extraRaceData, setExtraRaceData] = useState<Race | null>(null)
-  const [qualyResultData, setQualyResult] = useState<Result[] | null>(null)
-  const [sprintResultData, setSprintResult] = useState<Result[] | null>(null)
-  const [raceResultData, setRaceResult] = useState<Result[] | null>(null)
-  const [refreshing, setRefreshing] = useState(false)
 
   // 为每种结果类型创建独立的动画值
   const [sprintOpacity] = useState(new Animated.Value(0))
   const [qualyOpacity] = useState(new Animated.Value(0))
   const [raceOpacity] = useState(new Animated.Value(0))
-
   // 为赛道信息创建统一的动画值
   const [circuitInfoOpacity] = useState(new Animated.Value(0))
 
   const { initialData } = useLocalSearchParams<{
     initialData: string
   }>()
-  const [raceData, setRaceData] = useState<Race>(JSON.parse(initialData))
+  const initRaceData = JSON.parse(initialData)
 
-  const fetchAllData = async () => {
-    const currentRaceData = JSON.parse(initialData)
+  const queryClient = useQueryClient()
 
-    await Promise.all([
-      fetchRacesData(currentRaceData.season, currentRaceData.round),
-      fetchExtraRaceData(currentRaceData.season, currentRaceData.round),
-      fetchSprintResultData(currentRaceData.season, currentRaceData.round),
-      fetchQualyResultData(currentRaceData.season, currentRaceData.round),
-      fetchRaceResultData(currentRaceData.season, currentRaceData.round),
-    ])
-  }
+  const { data: raceData, isLoading: raceDataLoading } = useRaceDetailsQuery(
+    initRaceData.season,
+    initRaceData.round,
+    JSON.parse(initialData),
+  )
+  const {
+    data: extraRaceData,
+    isLoading: extraRaceDataLoading,
+    isSuccess: extraRaceDataSuccess,
+  } = useExtraRaceDetailsQuery(initRaceData.season, initRaceData.round)
+  const { data: qualyResultData, isLoading: qualyResultDataLoading } =
+    useQualiResultsQuery(initRaceData.season, initRaceData.round)
+  const { data: sprintResultData, isLoading: sprintResultDataLoading } =
+    useSprintResultsQuery(initRaceData.season, initRaceData.round)
+  const { data: raceResultData, isLoading: raceResultDataLoading } =
+    useRaceResultsQuery(initRaceData.season, initRaceData.round)
 
-  const fetchRacesData = (year: string, round: string) => {
-    return fetch(`https://api.jolpi.ca/ergast/f1/${year}/${round}/races`)
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.MRData.RaceTable.Races[0]) {
-          setRaceData(data.MRData.RaceTable.Races[0])
-        }
-      })
-  }
-  const fetchExtraRaceData = (year: string, round: string) => {
-    return fetch(`https://f1api.dev/api/${year}/${round}`)
-      .then((response) => response.json())
-      .then((data) => {
-        // 数据加载完成后触发赛道信息的动画
-        if (data.race[0]) {
-          setExtraRaceData(data.race[0])
-          // 同时淡入所有数据项
-          Animated.timing(circuitInfoOpacity, {
-            toValue: 1,
-            duration: 300,
-            useNativeDriver: true,
-          }).start()
-        }
-      })
-  }
-  const fetchSprintResultData = (year: string, round: string) => {
-    fetch(`https://api.jolpi.ca/ergast/f1/${year}/${round}/sprint/`)
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.MRData.RaceTable.Races[0]?.SprintResults) {
-          setSprintResult(data.MRData.RaceTable.Races[0].SprintResults)
-          Animated.timing(sprintOpacity, {
-            toValue: 1,
-            duration: 300,
-            useNativeDriver: true,
-          }).start()
-        }
-      })
-  }
-  const fetchQualyResultData = (year: string, round: string) => {
-    fetch(`https://api.jolpi.ca/ergast/f1/${year}/${round}/qualifying/`)
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.MRData.RaceTable.Races[0]?.QualifyingResults) {
-          setQualyResult(data.MRData.RaceTable.Races[0].QualifyingResults)
-          Animated.timing(qualyOpacity, {
-            toValue: 1,
-            duration: 300,
-            useNativeDriver: true,
-          }).start()
-        }
-      })
-  }
-  const fetchRaceResultData = (year: string, round: string) => {
-    fetch(`https://api.jolpi.ca/ergast/f1/${year}/${round}/results/`)
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.MRData.RaceTable.Races[0]?.Results) {
-          setRaceResult(data.MRData.RaceTable.Races[0].Results)
-          Animated.timing(raceOpacity, {
-            toValue: 1,
-            duration: 300,
-            useNativeDriver: true,
-          }).start()
-        }
-      })
-  }
+  const isAnyLoading =
+    raceDataLoading ||
+    extraRaceDataLoading ||
+    qualyResultDataLoading ||
+    sprintResultDataLoading ||
+    raceResultDataLoading
 
-  const onRefresh = React.useCallback(async () => {
-    setRefreshing(true)
-    try {
-      await fetchAllData()
-    } finally {
-      setRefreshing(false)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  const onRefresh = () => {
+    queryClient.invalidateQueries({
+      queryKey: jolpicaKeys.raceDetails(
+        initRaceData.season,
+        initRaceData.round,
+      ),
+    })
+    queryClient.invalidateQueries({
+      queryKey: f1apiKeys.raceDetails(initRaceData.season, initRaceData.round),
+    })
+    queryClient.invalidateQueries({
+      queryKey: jolpicaKeys.qualiResults(
+        initRaceData.season,
+        initRaceData.round,
+      ),
+    })
+    queryClient.invalidateQueries({
+      queryKey: jolpicaKeys.sprintResults(
+        initRaceData.season,
+        initRaceData.round,
+      ),
+    })
+    queryClient.invalidateQueries({
+      queryKey: jolpicaKeys.raceResults(
+        initRaceData.season,
+        initRaceData.round,
+      ),
+    })
+  }
 
   useEffect(() => {
-    setExtraRaceData(null)
-    setQualyResult(null)
-    setSprintResult(null)
-    setRaceResult(null)
-    setRaceData(JSON.parse(initialData))
-    fetchAllData()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialData])
+    if (extraRaceDataSuccess) {
+      Animated.timing(circuitInfoOpacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start()
+    }
+  }, [extraRaceDataSuccess, circuitInfoOpacity])
+  useEffect(() => {
+    if (sprintResultData) {
+      Animated.timing(sprintOpacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start()
+    }
+  }, [sprintResultData, sprintOpacity])
+  useEffect(() => {
+    if (qualyResultData) {
+      Animated.timing(qualyOpacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start()
+    }
+  }, [qualyResultData, qualyOpacity])
+  useEffect(() => {
+    if (raceResultData) {
+      Animated.timing(raceOpacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start()
+    }
+  }, [raceResultData, raceOpacity])
 
   const backgroundColor = useThemeColor({}, 'background')
   const cardBackgroundColor = useThemeColor({}, 'itemBackground')
@@ -248,7 +245,7 @@ export default function GrandPrixDetail() {
           { backgroundColor: backgroundColor },
         ]}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl refreshing={isAnyLoading} onRefresh={onRefresh} />
         }
       >
         <View style={styles.profileContainer}>
@@ -500,8 +497,11 @@ export default function GrandPrixDetail() {
                                       return null
                                   }
                                 })()
+                                const hasArrayResults =
+                                  Array.isArray(itemResultData) &&
+                                  itemResultData.length > 0
 
-                                if (itemResultData) {
+                                if (hasArrayResults) {
                                   // 根据不同的结果类型选择对应的动画值
                                   const animatedOpacity = (() => {
                                     switch (item.key) {
@@ -515,6 +515,13 @@ export default function GrandPrixDetail() {
                                         return new Animated.Value(1) // 默认情况
                                     }
                                   })()
+
+                                  const resultForPosition = (
+                                    position: number,
+                                  ) =>
+                                    (itemResultData as Result[]).find(
+                                      (r) => r.position === position.toString(),
+                                    )
 
                                   return (
                                     <Animated.View
@@ -532,12 +539,9 @@ export default function GrandPrixDetail() {
                                             <Slash1
                                               style={styles.slashIcon}
                                               fill={getTeamsColor(
-                                                itemResultData.find(
-                                                  (r) =>
-                                                    r.position ===
-                                                    position.toString(),
-                                                )?.Constructor.constructorId ||
-                                                  '',
+                                                resultForPosition(position)
+                                                  ?.Constructor
+                                                  ?.constructorId || '',
                                               )}
                                               width={28}
                                             />
@@ -546,12 +550,9 @@ export default function GrandPrixDetail() {
                                             <Slash2
                                               style={styles.slashIcon}
                                               fill={getTeamsColor(
-                                                itemResultData.find(
-                                                  (r) =>
-                                                    r.position ===
-                                                    position.toString(),
-                                                )?.Constructor.constructorId ||
-                                                  '',
+                                                resultForPosition(position)
+                                                  ?.Constructor
+                                                  ?.constructorId || '',
                                               )}
                                               width={28}
                                             />
@@ -560,32 +561,26 @@ export default function GrandPrixDetail() {
                                             <Slash3
                                               style={styles.slashIcon}
                                               fill={getTeamsColor(
-                                                itemResultData.find(
-                                                  (r) =>
-                                                    r.position ===
-                                                    position.toString(),
-                                                )?.Constructor.constructorId ||
-                                                  '',
+                                                resultForPosition(position)
+                                                  ?.Constructor
+                                                  ?.constructorId || '',
                                               )}
                                               width={28}
                                             />
                                           )}
                                           <ThemedText style={styles.driverCode}>
-                                            {/* {
-                                              itemResultData.find(
-                                                (r) =>
-                                                  r.position ===
-                                                  position.toString(),
-                                              )?.Driver.code
-                                            } */}
                                             {(() => {
-                                              const result = itemResultData.find((r) => r.position === position.toString())
-                                              return result?.Driver.code ?? result?.Driver.familyName
+                                              const result =
+                                                resultForPosition(position)
+                                              return (
+                                                result?.Driver?.code ??
+                                                result?.Driver?.familyName
+                                              )
                                             })()}
                                           </ThemedText>
                                         </View>
                                       ))}
-                                      {itemResultData && (
+                                      {hasArrayResults && (
                                         <IconSymbol
                                           name="chevron.right"
                                           size={10}
