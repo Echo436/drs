@@ -468,11 +468,11 @@ export default function GrandPrixDetail() {
                               disabled={
                                 !(
                                   (item.key === 'sprintRace' &&
-                                    sprintResultData !== null) ||
+                                    sprintResultData) ||
                                   (item.key === 'qualy' &&
-                                    qualyResultData !== null) ||
+                                    qualyResultData) ||
                                   (item.key === 'race' &&
-                                    raceResultData !== null)
+                                    raceResultData)
                                 )
                               }
                             >
