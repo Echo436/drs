@@ -1,0 +1,131 @@
+import { ThemedText } from '@/src/components/ThemedText'
+import { DriverStanding, useF1Data } from '@/src/context/F1DataContext'
+import React from 'react'
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  RefreshControl,
+  useColorScheme,
+} from 'react-native'
+import { FlatList } from 'react-native-gesture-handler'
+import { t, translateName } from '@/src/i18n/utils'
+import renderSeparator from '@/src/components/ui/RenderSeparator'
+import { layoutStyles } from '@/src/components/ui/Styles'
+import { getTeamsColor } from '@/src/constants/Colors'
+import { IconSymbol } from '@/src/components/ui/IconSymbol'
+import { Link } from 'expo-router'
+import { useDriverStandingsQuery } from '@/src/hooks/useF1Queries'
+
+export default function ConstructorList() {
+  const theme = useColorScheme()
+
+  const { selectedSeason } = useF1Data()
+
+  const {
+    data: driverStandingList,
+    isLoading: driverListLoading,
+    refetch: fetchDriverListData,
+  } = useDriverStandingsQuery(selectedSeason)
+
+  const onRefresh = React.useCallback(async () => {
+    fetchDriverListData()
+  }, [fetchDriverListData])
+
+  const renderItem = ({ item }: { item: DriverStanding }) => {
+    const teamColor = getTeamsColor(
+      item.Constructors[item.Constructors.length - 1].constructorId,
+    )
+    return (
+      <Link
+        href={{
+          pathname: '/drivers/driver',
+          params: {
+            driverId: item.Driver.driverId,
+            year: selectedSeason,
+            initialData: JSON.stringify(item),
+          },
+        }}
+        asChild
+      >
+        <TouchableOpacity style={styles.itemContainer}>
+          <View style={styles.positionContainer}>
+            <ThemedText style={styles.posisionText}>
+              {String(item.positionText).padStart(2, '0')}
+            </ThemedText>
+          </View>
+          <View style={styles.driverInfoContainer}>
+            <ThemedText type="itemtitle">
+              {translateName([
+                item?.Driver?.givenName,
+                item?.Driver?.familyName,
+              ])}
+            </ThemedText>
+            <ThemedText type="itemsubtitle" style={{ color: teamColor }}>
+              {t(item.Constructors[item.Constructors.length - 1].name, 'team')}
+            </ThemedText>
+          </View>
+          <View style={styles.pointsContainer}>
+            <ThemedText style={styles.pointText}>{item.points}</ThemedText>
+          </View>
+          <View style={styles.chevronContainer}>
+            <IconSymbol
+              name="chevron.right"
+              size={10}
+              color={'gray'}
+            ></IconSymbol>
+          </View>
+        </TouchableOpacity>
+      </Link>
+    )
+  }
+
+  // 渲染大奖赛列表
+  return (
+    <FlatList
+      contentInsetAdjustmentBehavior="automatic"
+      data={driverStandingList}
+      renderItem={renderItem}
+      keyExtractor={(item) => item.Driver.driverId}
+      ItemSeparatorComponent={renderSeparator}
+      contentContainerStyle={layoutStyles.listContainer}
+      showsVerticalScrollIndicator={false}
+      refreshControl={
+        <RefreshControl refreshing={driverListLoading} onRefresh={onRefresh} />
+      }
+      style={{ backgroundColor: theme === 'dark' ? 'black' : 'white' }}
+    />
+  )
+}
+
+const styles = StyleSheet.create({
+  itemContainer: {
+    paddingLeft: 13,
+    paddingVertical: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  positionContainer: {
+    width: 30,
+    marginRight: 15,
+  },
+  posisionText: {
+    fontFamily: 'Formula1-Display-Regular',
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  driverInfoContainer: {
+    flex: 1,
+  },
+  pointsContainer: {
+    width: 50,
+  },
+  pointText: {
+    fontFamily: 'Formula1-Display-Bold',
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  chevronContainer: {
+    marginRight: 3,
+  },
+})

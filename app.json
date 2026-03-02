@@ -2,22 +2,13 @@
   "expo": {
     "name": "DRS",
     "slug": "drs",
-    "version": "0.3.2",
+    "version": "0.4.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
-      "appleTeamId": "698F5Y6366",
-      "entitlements": {
-        "com.apple.security.application-groups": ["group.com.keee.drs"]
-      },
-      "icon": {
-        "dark": "./assets/images/ios-dark.png",
-        "light": "./assets/images/ios-light.png",
-        "tinted": "./assets/images/ios-tinted.png"
-      },
+      "icon": "./assets/drs.icon",
       "supportsTablet": true,
       "bundleIdentifier": "com.keee.drs",
       "infoPlist": {
@@ -65,7 +56,6 @@
         }
       ],
       "expo-localization",
-      "@bacons/apple-targets",
       "expo-web-browser",
       [
         "expo-build-properties",
@@ -85,24 +75,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "ef34cdaa-978e-4086-8524-bd41002dfb97",
-        "build": {
-          "experimental": {
-            "ios": {
-              "appExtensions": [
-                {
-                  "bundleIdentifier": "com.keee.drs.widget",
-                  "targetName": "widget",
-                  "entitlements": {
-                    "com.apple.security.application-groups": [
-                      "group.com.keee.drs"
-                    ]
-                  }
-                }
-              ]
-            }
-          }
-        }
+        "projectId": "ef34cdaa-978e-4086-8524-bd41002dfb97"
       }
     }
   }
